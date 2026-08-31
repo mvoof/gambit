@@ -30,7 +30,7 @@
     "prepare": "lefthook install"
   },
   "dependencies": {
-    "@tauri-apps/api": "~2.10",
+    "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/plugin-opener": "^2.5.4",
     "i18next": "^25.6.0",
     "react": "^19.1.1",
@@ -43,7 +43,7 @@
     "@storybook/addon-docs": "^10.3.5",
     "@storybook/react": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
-    "@tauri-apps/cli": "^2.10.1",
+    "@tauri-apps/cli": "^2.11.4",
     "@types/node": "^25.5.2",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
