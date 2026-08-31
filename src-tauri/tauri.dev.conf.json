@@ -1,0 +1,7 @@
+{
+  "identifier": "com.voof.tauri-app-template.dev",
+  "bundle": {
+    "targets": ["nsis"],
+    "createUpdaterArtifacts": false
+  }
+}

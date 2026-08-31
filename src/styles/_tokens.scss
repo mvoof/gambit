@@ -1,0 +1,37 @@
+// Semantic color tokens. Components never hardcode a hex — they name a role,
+// and the palette below is the only place a value changes.
+
+// Palette (raw values — do not use directly in components).
+$palette-ink-900: #0d0e12;
+$palette-ink-800: #111216;
+$palette-ink-700: #15161a;
+$palette-ink-600: #1d1f25;
+$palette-ink-500: #2a2c32;
+$palette-grey-400: #5e626d;
+$palette-grey-300: #8b8e98;
+$palette-grey-100: #e0e0e0;
+$palette-blue-500: #3b82f6;
+$palette-green-500: #22c55e;
+$palette-amber-500: #f59e0b;
+$palette-red-500: #ef4444;
+
+// Surfaces
+$bg-app: $palette-ink-900;
+$bg-panel: $palette-ink-800;
+$bg-card: $palette-ink-700;
+$bg-raised: $palette-ink-600;
+
+// Lines
+$border-main: $palette-ink-500;
+$border-sub: $palette-ink-600;
+
+// Text
+$text-primary: $palette-grey-100;
+$text-secondary: $palette-grey-300;
+$text-muted: $palette-grey-400;
+
+// Status
+$accent: $palette-blue-500;
+$success: $palette-green-500;
+$warning: $palette-amber-500;
+$danger: $palette-red-500;

@@ -8,12 +8,21 @@ inputs:
   platform:
     description: 'Runner platform (e.g., ubuntu-latest, windows-latest, macos-latest)'
     required: true
+  cache-rust:
+    description: 'Whether to cache Rust dependencies (disable for lint-only jobs)'
+    required: false
+    default: 'true'
+  install-rust:
+    description: 'Whether to install the Rust toolchain'
+    required: false
+    default: 'true'
+  install-system-deps:
+    description: 'Whether to install platform system dependencies (GUI libs)'
+    required: false
+    default: 'true'
 runs:
   using: composite
   steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v5
-
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
@@ -30,22 +39,21 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: Cache Rust dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cargo
-          ./src-tauri/target
-        key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
-        restore-keys: ${{ runner.os }}-rust-
-
     - name: Install Rust stable
+      if: ${{ inputs.install-rust == 'true' }}
       uses: dtolnay/rust-toolchain@stable
       with:
         targets: ${{ inputs.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+        components: rustfmt, clippy
+
+    - name: Cache Rust dependencies
+      if: ${{ inputs.cache-rust == 'true' && inputs.install-rust == 'true' }}
+      uses: swatinem/rust-cache@v2
+      with:
+        workspaces: src-tauri -> target
 
     - name: Install Dependencies (Ubuntu only)
-      if: inputs.platform == 'ubuntu-latest'
+      if: inputs.platform == 'ubuntu-latest' && inputs.install-system-deps == 'true'
       run: |
         sudo apt update
         sudo apt install -y libgtk-3-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf rpm
@@ -53,6 +61,5 @@ runs:
 
     # TODO: Add macOS support
     # - name: Install Dependencies (macOS only)
-    # if: inputs.platform == 'macos-latest'
-    # run: |
-    # brew install webkit2gtk libappindicator librsvg
+    #   if: inputs.platform == 'macos-latest'
+    #   run: brew install webkit2gtk libappindicator librsvg

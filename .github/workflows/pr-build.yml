@@ -1,0 +1,48 @@
+name: Build App on PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build-app:
+    name: Build Preview
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          node-version: '20'
+          platform: ${{ matrix.platform }}
+          cache-rust: 'true'
+
+      - name: Build Tauri App
+        run: npm run tauri:build:dev
+        shell: bash
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-build
+          path: src-tauri/target/release/bundle/
+          compression-level: 6
+          if-no-files-found: warn

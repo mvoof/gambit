@@ -1,0 +1,42 @@
+{
+  "plugins": ["typescript", "react", "jsx-a11y"],
+  "options": {
+    "typeAware": true
+  },
+  "rules": {
+    "react-hooks/exhaustive-deps": "error",
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
+  },
+  "env": {
+    "browser": true,
+    "es2020": true
+  },
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "src-tauri/target/**",
+    "src-tauri/gen/schemas/**",
+    ".storybook/**"
+  ],
+  "overrides": [
+    {
+      "files": ["scripts/**/*.{js,mjs}", "vite.config.ts"],
+      "env": {
+        "node": true
+      },
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": [
+        "src/**/*.test.ts",
+        "src/**/*.test.tsx",
+        "src/**/*.stories.tsx"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

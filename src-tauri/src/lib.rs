@@ -1,12 +1,16 @@
-#[tauri::command]
-fn get_lang_from_rust(lang: String) -> String {
-    lang
-}
+//! Application wiring. Commands live in `commands.rs`; this file only builds
+//! the Tauri app and registers what it needs.
+
+mod commands;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_lang_from_rust])
+        .plugin(tauri_plugin_opener::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::greet,
+            commands::get_app_info
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

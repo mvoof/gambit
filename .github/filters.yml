@@ -1,0 +1,22 @@
+js:
+  - 'src/**'
+  - 'scripts/**'
+  - '.storybook/**'
+  - 'package.json'
+  - 'package-lock.json'
+  - 'tsconfig*.json'
+  - '.oxlintrc.json'
+  - '.oxfmtrc.json'
+  - 'vite.config.ts'
+  - 'index.html'
+rust:
+  - 'src-tauri/**'
+ci-js:
+  - '.github/workflows/reusable-quality.yml'
+  - '.github/workflows/pr-quality-check.yml'
+  - '.github/actions/**'
+  - '.github/filters.yml'
+ci-rust:
+  - '.github/workflows/reusable-quality.yml'
+  - '.github/actions/**'
+  - '.github/filters.yml'

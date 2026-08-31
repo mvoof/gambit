@@ -1,0 +1,36 @@
+@use 'functions' as *;
+@use 'variables' as *;
+@use 'tokens' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: $base-font-size;
+  width: 100%;
+  height: 100%;
+}
+
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  font-family: $font-app;
+  font-size: fs('md');
+  line-height: $line-height-base;
+  color: $text-primary;
+  background-color: $bg-app;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}

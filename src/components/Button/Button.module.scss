@@ -1,0 +1,32 @@
+.button {
+  padding: sp('sm') sp('xl');
+  border: 1px solid transparent;
+  border-radius: radius('md');
+  font-size: fs('sm');
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color $transition-fast,
+    border-color $transition-fast;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  background-color: $accent;
+  color: #fff;
+}
+
+.secondary {
+  background-color: $bg-raised;
+  border-color: $border-main;
+  color: $text-primary;
+}
+
+.danger {
+  background-color: $danger;
+  color: #fff;
+}

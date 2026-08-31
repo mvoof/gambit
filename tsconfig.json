@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-    "types": [],
+    "types": ["node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -14,6 +14,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
 
     /* Linting */
     "strict": true,
@@ -21,12 +24,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-    "./eslint.config.js" // <-- Add this line
-  ],
+  "include": ["src", "types.d.ts"],
+  "exclude": ["src/**/*.stories.tsx", "node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,0 +1,15 @@
+@use 'functions' as *;
+
+// Typography
+$font-app: 'Inter', 'Segoe UI', sans-serif;
+$font-mono: 'Consolas', monospace;
+
+$line-height-base: 1.45;
+
+// Motion
+$transition-fast: 120ms ease;
+$transition-base: 200ms ease;
+
+// Layout
+$sidebar-width: rem(220);
+$header-height: rem(48);

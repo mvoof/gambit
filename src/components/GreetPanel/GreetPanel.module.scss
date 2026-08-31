@@ -1,0 +1,21 @@
+.label {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.input {
+  padding: sp('sm') sp('md');
+  background-color: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+  outline: none;
+
+  &:focus-visible {
+    border-color: $accent;
+  }
+}
+
+.message {
+  color: $success;
+  font-size: fs('sm');
+}

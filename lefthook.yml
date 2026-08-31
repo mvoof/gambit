@@ -1,0 +1,27 @@
+pre-commit:
+  parallel: true # run all commands concurrently
+  commands:
+    lint:
+      glob: "*.{ts,tsx,js,mjs}"
+      exclude: "src/types/bindings.ts"
+      run: npx oxlint --type-aware --fix --deny-warnings {staged_files}
+      stage_fixed: true
+    format:
+      glob: "*.{ts,tsx,js,mjs,json,scss,md}"
+      run: npx oxfmt --write {staged_files}
+      stage_fixed: true
+    rust-fmt:
+      glob: "*.rs"
+      root: "src-tauri/"
+      run: cargo fmt
+      stage_fixed: true
+    typecheck:
+      glob: "*.{ts,tsx}"
+      run: npx tsc --noEmit
+    test:
+      glob: "*.{ts,tsx,js,mjs}"
+      run: npx vitest related --run {staged_files}
+    rust-clippy:
+      glob: "*.rs"
+      root: "src-tauri/"
+      run: cargo clippy --all-targets -- -D warnings && cargo test

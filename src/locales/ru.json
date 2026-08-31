@@ -1,6 +1,20 @@
 {
   "translation": {
-    "welcome": "Добро пожаловать в наше приложение",
-    "changeLanguage": "Выберите язык"
+    "app": {
+      "title": "Шаблон Tauri-приложения",
+      "subtitle": "React 19 + TypeScript + Tauri 2 с oxlint, oxfmt, lefthook, Vitest и Storybook.",
+      "language": "Язык"
+    },
+    "counter": {
+      "title": "Счётчик",
+      "increment": "Увеличить",
+      "reset": "Сбросить"
+    },
+    "greet": {
+      "title": "Команда Rust",
+      "label": "Ваше имя",
+      "placeholder": "Ада Лавлейс",
+      "action": "Поздороваться из Rust"
+    }
   }
 }

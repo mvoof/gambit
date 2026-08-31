@@ -1,49 +1,27 @@
-import React from 'react';
-
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from './i18n';
-import { invoke } from '@tauri-apps/api/core';
 
-const languages = ['en', 'fr', 'es', 'ru'] as const;
-type AllLangType = (typeof languages)[number];
+import { Counter } from '@/components/Counter/Counter';
+import { GreetPanel } from '@/components/GreetPanel/GreetPanel';
+import { LanguageSelect } from '@/components/LanguageSelect/LanguageSelect';
 
-const App = () => {
+import styles from './App.module.scss';
+
+export const App = () => {
   const { t } = useTranslation();
 
-  const [appLang, setAppLang] = useState<AllLangType>('en');
-
-  useEffect(() => {
-    i18n.changeLanguage(appLang);
-  }, [appLang]);
-
-  const handleAppLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const lang = e.currentTarget.value as AllLangType;
-
-    invoke<AllLangType>('get_lang_from_rust', { lang }).then((langFromRust) =>
-      setAppLang(langFromRust)
-    );
-  };
-
   return (
-    <div>
-      <h1>{t('welcome')}!</h1>
+    <main className={styles.app}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>{t('app.title')}</h1>
+        <LanguageSelect />
+      </header>
 
-      <label htmlFor="app-language-select">{t('changeLanguage')}:&nbsp;</label>
+      <p className={styles.subtitle}>{t('app.subtitle')}</p>
 
-      <select
-        id="app-language-select"
-        value={appLang}
-        onChange={handleAppLanguageChange}
-      >
-        {languages.map((lang) => (
-          <option key={lang} value={lang}>
-            {lang}
-          </option>
-        ))}
-      </select>
-    </div>
+      <section className={styles.grid}>
+        <Counter />
+        <GreetPanel />
+      </section>
+    </main>
   );
 };
-
-export default App;

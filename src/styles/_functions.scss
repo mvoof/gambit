@@ -1,0 +1,72 @@
+@use 'sass:map';
+
+$base-font-size: 16px;
+
+// px → rem. Every size in the app goes through one of the functions here, so a
+// change to the scale is a change in one file.
+@function rem($px) {
+  @return calc($px / ($base-font-size / 1px)) * 1rem;
+}
+
+// ─── Design token scales ────────────────────────────────────────────────
+// Semantic steps instead of raw numbers: `fs('md')` says what the size means,
+// `rem(15)` only says how big it is today.
+
+// Type scale, in px at scale 1.
+// Step names avoid leading digits — Sass parses `2xs` as a number.
+$font-scale: (
+  'xxxs': 10,
+  'xxs': 11,
+  'xs': 12,
+  'sm': 13,
+  'md': 15,
+  'lg': 18,
+  'xl': 22,
+  'xxl': 28,
+  'xxxl': 32,
+);
+
+@function fs($step) {
+  @if not map.has-key($font-scale, $step) {
+    @error "fs(): unknown font step '#{$step}'";
+  }
+
+  @return rem(map.get($font-scale, $step));
+}
+
+// Spacing scale — 2px grid for padding, gap, margin.
+$space-scale: (
+  'xxxs': 2,
+  'xxs': 4,
+  'xs': 6,
+  'sm': 8,
+  'md': 10,
+  'lg': 12,
+  'xl': 16,
+  'xxl': 20,
+  'xxxl': 32,
+);
+
+@function sp($step) {
+  @if not map.has-key($space-scale, $step) {
+    @error "sp(): unknown space step '#{$step}'";
+  }
+
+  @return rem(map.get($space-scale, $step));
+}
+
+// Border radius scale.
+$radius-scale: (
+  'sm': 3,
+  'md': 4,
+  'lg': 6,
+  'xl': 10,
+);
+
+@function radius($step) {
+  @if not map.has-key($radius-scale, $step) {
+    @error "radius(): unknown radius step '#{$step}'";
+  }
+
+  @return rem(map.get($radius-scale, $step));
+}

@@ -5,7 +5,7 @@ on:
     types:
       - 'completed'
     workflows:
-      - 'Check PR'
+      - 'Build App on PR'
 
 jobs:
   comment-on-pr:
@@ -54,7 +54,7 @@ jobs:
           # и избежать автоматического добавления \n от echo.
           echo "ARTIFACT_TABLE<<EOF" >> "$GITHUB_ENV"
           printf -v ARTIFACT_TABLE_FINAL -- '%b' "$ARTIFACT_TABLE" # Интерпретируем \n в ARTIFACT_TABLE
-          printf "%s" "$ARTIFACT_TABLE_FINAL" >> "$GITHUB_ENV" # Записываем без лишнего переноса
+          printf "%s" "$ARTIFACT_TABLE_FINAL" >> "$GITHUB_ENV"
           echo "EOF" >> "$GITHUB_ENV"
 
           PR_NUMBER=$(jq -r '.pull_requests[0].number' <<< "$WORKFLOW_RUN_EVENT_OBJ")

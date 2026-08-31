@@ -1,4 +1,4 @@
-name: Lingvo Injector App Release
+name: Release
 
 on:
   push:

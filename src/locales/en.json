@@ -1,6 +1,20 @@
 {
   "translation": {
-    "welcome": "Welcome to our application",
-    "changeLanguage": "Change Language"
+    "app": {
+      "title": "Tauri App Template",
+      "subtitle": "React 19 + TypeScript + Tauri 2, wired with oxlint, oxfmt, lefthook, Vitest and Storybook.",
+      "language": "Language"
+    },
+    "counter": {
+      "title": "Counter",
+      "increment": "Increment",
+      "reset": "Reset"
+    },
+    "greet": {
+      "title": "Rust command",
+      "label": "Your name",
+      "placeholder": "Ada Lovelace",
+      "action": "Greet from Rust"
+    }
   }
 }
