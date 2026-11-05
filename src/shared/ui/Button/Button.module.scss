@@ -1,0 +1,71 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: sp('xs');
+  padding: sp('sm') sp('xl');
+  font-family: $font-app;
+  font-size: fs('sm');
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: $text-primary;
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast;
+
+  &:hover:not(:disabled) {
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: $text-muted;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  color: $text-on-accent;
+  background: $accent;
+  border-color: $accent;
+
+  &:hover:not(:disabled) {
+    background: $accent-strong;
+  }
+
+  &:disabled {
+    color: $text-muted;
+    background: $bg-raised;
+    border-color: $border-main;
+  }
+}
+
+.secondary {
+  background: $bg-raised;
+}
+
+.danger {
+  color: $danger;
+  background: transparent;
+  border-color: $danger;
+
+  &:hover:not(:disabled) {
+    color: $text-primary;
+    background: $danger;
+  }
+}
+
+.ghost {
+  color: $text-secondary;
+  background: transparent;
+  border-color: transparent;
+}

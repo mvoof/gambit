@@ -1,20 +1,129 @@
 {
   "translation": {
     "app": {
-      "title": "Tauri App Template",
-      "subtitle": "React 19 + TypeScript + Tauri 2, wired with oxlint, oxfmt, lefthook, Vitest and Storybook.",
-      "language": "Language"
+      "title": "Gambit",
+      "tagline": "Chess against a real engine, on your own machine."
     },
-    "counter": {
-      "title": "Counter",
-      "increment": "Increment",
-      "reset": "Reset"
+    "nav": {
+      "play": "Play",
+      "archive": "Archive",
+      "settings": "Settings"
     },
-    "greet": {
-      "title": "Rust command",
-      "label": "Your name",
-      "placeholder": "Ada Lovelace",
-      "action": "Greet from Rust"
+    "common": {
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "game": {
+      "you": "You",
+      "newGame": "New game",
+      "takeBack": "Take back",
+      "offerDraw": "Offer a draw",
+      "resign": "Resign",
+      "flip": "Flip the board",
+      "thinking": "The engine is thinking…",
+      "drawDeclined": "The engine declined the draw.",
+      "engineFailed": "The engine stopped responding. Start a new game."
+    },
+    "result": {
+      "whiteWins": "White wins",
+      "blackWins": "Black wins",
+      "draw": "Draw"
+    },
+    "reason": {
+      "checkmate": "by checkmate",
+      "stalemate": "by stalemate",
+      "threefoldRepetition": "by threefold repetition",
+      "fiftyMoveRule": "by the fifty-move rule",
+      "insufficientMaterial": "by insufficient material",
+      "resignation": "by resignation",
+      "drawAgreement": "by agreement",
+      "timeout": "on time",
+      "timeoutInsufficientMaterial": "time ran out, but mate was impossible"
+    },
+    "pieces": {
+      "king": "King",
+      "queen": "Queen",
+      "rook": "Rook",
+      "bishop": "Bishop",
+      "knight": "Knight",
+      "pawn": "Pawn",
+      "delete": "Delete this set",
+      "defaultName": "My pieces",
+      "namePlaceholder": "Name of the set",
+      "importSheet": "Import a sprite sheet",
+      "importFolder": "Import a folder",
+      "save": "Save the set"
+    },
+    "board": {
+      "resize": "Resize the board",
+      "lightSquare": "Light squares",
+      "darkSquare": "Dark squares",
+      "showCoordinates": "Coordinates",
+      "showLegalMoves": "Legal move dots",
+      "showLastMove": "Last move highlight",
+      "showCheck": "Check highlight"
+    },
+    "newGame": {
+      "title": "New game",
+      "color": "Your colour",
+      "white": "White",
+      "black": "Black",
+      "random": "Random",
+      "time": "Time control",
+      "custom": "Custom",
+      "unlimited": "Unlimited",
+      "minutes": "Minutes",
+      "increment": "Increment, seconds",
+      "strength": "Engine strength: {{elo}} Elo",
+      "fen": "Starting position (FEN, optional)",
+      "fenPlaceholder": "The standard start",
+      "start": "Start"
+    },
+    "engine": {
+      "current": "Current engine: {{name}}",
+      "none": "No engine yet.",
+      "needed": "A chess engine is needed to play.",
+      "setUp": "Set up an engine",
+      "download": "Download Stockfish 19 (81 MB)",
+      "pick": "Choose my own engine…",
+      "others": "Other UCI engines:",
+      "stage": {
+        "downloading": "Downloading… {{percent}}%",
+        "verifying": "Verifying the download…",
+        "extracting": "Unpacking…",
+        "done": "Done."
+      }
+    },
+    "archive": {
+      "title": "Archive",
+      "import": "Import PGN",
+      "export": "Export PGN",
+      "delete": "Delete",
+      "empty": "Finished games are saved here.",
+      "plies_one": "{{count}} ply",
+      "plies_other": "{{count}} plies"
+    },
+    "replay": {
+      "first": "First position",
+      "previous": "Previous move",
+      "next": "Next move",
+      "last": "Last position",
+      "autoplay": "Play or pause"
+    },
+    "settings": {
+      "title": "Settings",
+      "engine": "Engine",
+      "general": "General",
+      "board": "Board",
+      "pieces": "Pieces",
+      "volume": "Sound volume: {{volume}}%",
+      "evalBar": "Evaluation bar"
+    },
+    "window": {
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close"
     }
   }
 }

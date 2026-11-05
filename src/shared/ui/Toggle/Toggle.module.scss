@@ -1,0 +1,14 @@
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: sp('sm');
+  font-size: fs('sm');
+  color: $text-secondary;
+  cursor: pointer;
+}
+
+.input {
+  width: rem(16);
+  height: rem(16);
+  accent-color: $accent;
+}

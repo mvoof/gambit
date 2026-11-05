@@ -1,0 +1,21 @@
+.dialog {
+  width: min(rem(440), 92vw);
+  margin: auto;
+  padding: sp('xxxl');
+  color: $text-primary;
+  background: $bg-panel;
+  border: 1px solid $border-accent;
+  border-radius: radius('xl');
+  box-shadow: $shadow-dialog;
+
+  &::backdrop {
+    background: $scrim;
+  }
+}
+
+.title {
+  margin-bottom: sp('xxl');
+  font-family: $font-display;
+  font-size: fs('xl');
+  font-weight: 600;
+}

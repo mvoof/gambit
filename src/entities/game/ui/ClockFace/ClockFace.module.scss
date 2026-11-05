@@ -1,0 +1,23 @@
+.clock {
+  padding: sp('xs') sp('lg');
+  font-family: $font-mono;
+  font-size: fs('xl');
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: $text-muted;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+}
+
+.running {
+  color: $text-on-accent;
+  background: $accent;
+  border-color: $accent;
+}
+
+.low {
+  color: $text-primary;
+  background: $danger;
+  border-color: $danger;
+}

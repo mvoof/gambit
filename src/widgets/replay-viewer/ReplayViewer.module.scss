@@ -1,0 +1,39 @@
+.panel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: sp('md');
+  width: $side-panel-width;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.players {
+  font-weight: 600;
+}
+
+.result {
+  font-size: fs('sm');
+  color: $text-muted;
+}
+
+.controls {
+  display: flex;
+  gap: sp('xs');
+
+  button {
+    flex: 1;
+    padding: sp('sm');
+  }
+}
+
+.icon {
+  width: rem(16);
+  height: rem(16);
+}

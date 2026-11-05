@@ -1,0 +1,69 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: sp('sm');
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: sp('lg');
+}
+
+.title {
+  font-family: $font-display;
+  font-size: fs('xxl');
+  font-weight: 600;
+}
+
+.empty {
+  color: $text-muted;
+}
+
+.error {
+  font-size: fs('xs');
+  color: $danger;
+}
+
+.game {
+  display: flex;
+  align-items: center;
+  padding-right: sp('sm');
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: $border-accent;
+  }
+}
+
+.open {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: sp('xxxs');
+  min-width: 0;
+  padding: sp('lg') sp('xl');
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.players {
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.details {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.icon {
+  width: rem(16);
+  height: rem(16);
+}

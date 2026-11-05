@@ -1,0 +1,16 @@
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid $border-accent;
+  border-radius: radius('md');
+  box-shadow: $shadow-board;
+}
+
+.board {
+  position: absolute;
+  inset: 0;
+  user-select: none;
+  touch-action: none;
+}

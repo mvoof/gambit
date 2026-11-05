@@ -1,0 +1,32 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xxxl');
+  max-width: rem(860);
+  height: calc(100vh - #{$header-height});
+  margin: 0 auto;
+  padding: sp('xxxl');
+  overflow-y: auto;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: fs('xxl');
+  font-weight: 600;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  gap: sp('xl');
+  padding-bottom: sp('xxxl');
+  border-bottom: 1px solid $border-sub;
+}
+
+.heading {
+  font-family: $font-display;
+  font-size: fs('lg');
+  font-weight: 600;
+  color: $accent-strong;
+}

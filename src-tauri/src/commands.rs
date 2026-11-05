@@ -9,7 +9,7 @@ use gb_chess::parse_pgn;
 use gb_engine::{install_stockfish, probe_engine};
 use gb_model::{
     AppSettings, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages, PieceSetView,
-    ReplayGame, SheetColumnOrder,
+    ReplayFrame, ReplayGame, SheetColumnOrder,
 };
 use gb_pieces::preview_sheet;
 use tauri::State;
@@ -83,6 +83,11 @@ pub async fn new_game(state: State<'_, AppState>, options: NewGameOptions) -> Re
 #[tauri::command]
 pub fn current_game(state: State<'_, AppState>) -> Option<GameView> {
     state.session.current_view()
+}
+
+#[tauri::command]
+pub fn game_frames(state: State<'_, AppState>) -> Reply<Vec<ReplayFrame>> {
+    state.session.frames()
 }
 
 // These stay `async` for the runtime they run on: the session spawns tasks.

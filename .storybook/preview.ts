@@ -8,7 +8,7 @@ const preview: Preview = {
     backgrounds: {
       default: 'app',
       values: [
-        { name: 'app', value: '#0d0e12' },
+        { name: 'app', value: '#141110' },
         { name: 'light', value: '#ffffff' },
       ],
     },

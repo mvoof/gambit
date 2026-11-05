@@ -1,0 +1,85 @@
+.grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+.square {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.light {
+  background-color: var(--square-light);
+}
+
+.dark {
+  background-color: var(--square-dark);
+}
+
+.lastMove {
+  box-shadow: inset 0 0 0 100vmax $board-last-move;
+}
+
+.selected {
+  box-shadow: inset 0 0 0 100vmax $board-selected;
+}
+
+.premove {
+  box-shadow: inset 0 0 0 100vmax $board-premove;
+}
+
+.check {
+  background-image: radial-gradient(circle, $board-check 0%, transparent 72%);
+}
+
+.marked {
+  box-shadow: inset 0 0 0 100vmax $board-mark;
+}
+
+.dot {
+  width: 28%;
+  height: 28%;
+  background: $board-target-dot;
+  border-radius: 50%;
+}
+
+.captureRing {
+  position: absolute;
+  inset: 4%;
+  border: rem(5) solid $board-target-dot;
+  border-radius: 50%;
+}
+
+.rankLabel,
+.fileLabel {
+  position: absolute;
+  font-family: $font-app;
+  font-size: fs('xxs');
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.rankLabel {
+  top: sp('xxxs');
+  left: sp('xxs');
+}
+
+.fileLabel {
+  right: sp('xxs');
+  bottom: sp('xxxs');
+}
+
+.light .rankLabel,
+.light .fileLabel {
+  color: $board-coordinate-on-light;
+}
+
+.dark .rankLabel,
+.dark .fileLabel {
+  color: $board-coordinate-on-dark;
+}

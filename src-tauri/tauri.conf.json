@@ -14,8 +14,11 @@
       {
         "label": "main",
         "title": "Gambit",
-        "width": 900,
-        "height": 700,
+        "width": 1280,
+        "height": 820,
+        "minWidth": 980,
+        "minHeight": 640,
+        "decorations": false,
         "resizable": true,
         "fullscreen": false,
         "visible": true

@@ -1,8 +1,9 @@
 @use 'functions' as *;
 
 // Typography
-$font-app: 'Inter', 'Segoe UI', sans-serif;
-$font-mono: 'Consolas', monospace;
+$font-display: 'Playfair Display Variable', Georgia, serif;
+$font-app: 'Manrope Variable', 'Segoe UI', sans-serif;
+$font-mono: 'JetBrains Mono Variable', Consolas, monospace;
 
 $line-height-base: 1.45;
 
@@ -11,5 +12,7 @@ $transition-fast: 120ms ease;
 $transition-base: 200ms ease;
 
 // Layout
-$sidebar-width: rem(220);
-$header-height: rem(48);
+$header-height: rem(56);
+$side-panel-width: rem(340);
+$eval-bar-width: rem(22);
+$board-min-size: rem(320);

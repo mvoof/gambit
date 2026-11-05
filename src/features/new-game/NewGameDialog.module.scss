@@ -1,0 +1,54 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xl');
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: sp('xs');
+}
+
+.label {
+  font-size: fs('xs');
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.customTime {
+  display: flex;
+  gap: sp('lg');
+}
+
+.input {
+  width: 100%;
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  color: $text-primary;
+  background: $bg-card;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.slider {
+  width: 100%;
+  accent-color: $accent;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: sp('sm');
+  margin-top: sp('sm');
+}

@@ -1,0 +1,53 @@
+.header {
+  display: flex;
+  align-items: center;
+  height: $header-height;
+  gap: sp('md');
+  padding-left: sp('xl');
+  background: $bg-panel;
+  border-bottom: 1px solid $border-sub;
+}
+
+.mark {
+  width: rem(28);
+  height: rem(28);
+  border-radius: radius('lg');
+}
+
+.brand {
+  margin-right: auto;
+  font-family: $font-display;
+  font-size: fs('xl');
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: $accent-strong;
+}
+
+.nav {
+  display: flex;
+  gap: sp('xxs');
+}
+
+.link {
+  padding: sp('xs') sp('lg');
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $text-muted;
+  background: none;
+  border: none;
+  border-radius: radius('md');
+  cursor: pointer;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $text-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+  }
+}
+
+.active {
+  color: $accent-strong;
+}

@@ -1,0 +1,30 @@
+.note,
+.problem,
+.outcome {
+  min-height: rem(20);
+  font-size: fs('xs');
+}
+
+.note {
+  color: $text-muted;
+}
+
+.problem {
+  color: $danger;
+}
+
+.outcome {
+  display: flex;
+  flex-direction: column;
+  padding: sp('md') sp('lg');
+  color: $text-secondary;
+  background: $bg-card;
+  border: 1px solid $border-accent;
+  border-radius: radius('lg');
+
+  strong {
+    font-family: $font-display;
+    font-size: fs('lg');
+    color: $accent-strong;
+  }
+}

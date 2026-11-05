@@ -1,0 +1,34 @@
+.page {
+  display: flex;
+  justify-content: center;
+  gap: sp('xxl');
+  height: calc(100vh - #{$header-height});
+  padding: sp('xxxl');
+  overflow: hidden;
+}
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: sp('xl');
+  height: calc(100vh - #{$header-height});
+}
+
+.title {
+  font-family: $font-display;
+  font-size: rem(64);
+  font-weight: 600;
+  color: $accent-strong;
+}
+
+.tagline {
+  font-size: fs('lg');
+  color: $text-secondary;
+}
+
+.hint {
+  font-size: fs('sm');
+  color: $text-muted;
+}

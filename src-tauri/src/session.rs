@@ -8,7 +8,7 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use gb_archive::Archive;
 use gb_chess::ChessError;
 use gb_engine::{EngineError, SearchOutcome, Strength, UciEngine};
-use gb_model::{Color, ColorChoice, GameView, NewGameOptions};
+use gb_model::{Color, ColorChoice, GameView, NewGameOptions, ReplayFrame};
 use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
 use tokio::time::sleep;
@@ -100,6 +100,15 @@ impl Session {
             .active
             .as_ref()
             .map(|active| active.view(now))
+    }
+
+    pub fn frames(&self) -> Result<Vec<ReplayFrame>, String> {
+        lock(&self.inner)
+            .active
+            .as_ref()
+            .ok_or_else(|| NO_GAME.to_owned())?
+            .frames()
+            .map_err(message)
     }
 
     async fn prepare_opponent(

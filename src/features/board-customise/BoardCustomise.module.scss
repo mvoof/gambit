@@ -1,0 +1,29 @@
+.customise {
+  display: flex;
+  flex-direction: column;
+  gap: sp('md');
+}
+
+.colors {
+  display: flex;
+  gap: sp('xxl');
+}
+
+.color {
+  display: flex;
+  align-items: center;
+  gap: sp('sm');
+  font-size: fs('sm');
+  color: $text-secondary;
+  cursor: pointer;
+}
+
+.swatch {
+  width: rem(32);
+  height: rem(32);
+  padding: 0;
+  background: none;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+  cursor: pointer;
+}

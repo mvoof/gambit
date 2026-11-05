@@ -149,22 +149,36 @@ weaknesses, blindfold voice-only mode, opening trainer.
 
 ## Status
 
-Done in the foundation commit: project cloned from `tauri-app-template` and
-renamed, GPL licence, layer lint plugin copied, four piece sets, Cargo workspace
-manifests with empty crates. **The app does not build yet.**
+Stage 1 is built and was checked in the real app against Stockfish 19: download
+with the pinned hash, a timed game, premove, takeback, draw offer, resignation,
+autosave, archive, replay and the evaluation bar. The window has no native title
+bar: the app header drags it and holds its buttons. Icons come from
+`tauri icon`, the original is in `src/assets/brand`.
+
+Versions are the latest stable releases, chosen on their own merit. Tauri stays
+on 2.x while 3.x is alpha.
+
+The dev build (`tauri.dev.conf.json`) has its own identifier, so its data never
+mixes with a release install, and `withGlobalTauri`, which the MCP Bridge needs.
+`npm run contract` regenerates the TypeScript contract.
 
 Next, in order:
 
-1. `package.json`: move to the Marble Trace versions (TS 7, Vite 8, Vitest 5), add
-   mobx, mobx-react-lite, lucide-react, the fontsource packages and the Tauri
-   dialog plugin. `npm install` also installs the lefthook hooks.
-2. `.oxlintrc.json`: add `jsPlugins`, `layers/boundaries` and the restricted
-   imports. Add the layer aliases to `tsconfig.json`, `vite.config.ts` and
-   Storybook. Restore `scss.config.ts`: it was removed and `vite.config.ts` and
-   Storybook still import it.
-3. `src-tauri/src/lib.rs` still references the deleted `commands` module, and
-   `src/main.tsx` the deleted `App`. Add `crates/gb-pieces` to the workspace.
-4. Rust crates, then the contract, then the FSD frontend.
+1. Stage 2: `gb-llm` over the LM Studio API, streaming chat, the roles below.
+2. Stage 3: engine-measured game review, then the LLM explaining it.
+3. Stage 4: `gb-voice`, speaking with the model both ways.
+
+The LLM side, always under the principle above, with the engine supplying every
+fact:
+
+- **Roles**, each a persona with its own prompt and style: opponent, coach,
+  sparring partner, commentator.
+- **Teaching**: lessons on ideas and openings, at the player's level.
+- **Trainer**: positions from the player's own games, puzzles from their
+  blunders with spaced repetition.
+- **Game review**: walks through a finished game, mistake by mistake.
+- **Advisor**: hints during a game, by level: idea, piece, move.
+- **Open chat** about the position on screen, by text and by voice.
 
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,

@@ -1,0 +1,19 @@
+.general {
+  display: flex;
+  flex-direction: column;
+  gap: sp('lg');
+  max-width: rem(320);
+}
+
+.volume {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xs');
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.slider {
+  width: 100%;
+  accent-color: $accent;
+}

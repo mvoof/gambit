@@ -1,37 +1,65 @@
+@use 'functions' as *;
+
 // Semantic color tokens. Components never hardcode a hex — they name a role,
 // and the palette below is the only place a value changes.
 
 // Palette (raw values — do not use directly in components).
-$palette-ink-900: #0d0e12;
-$palette-ink-800: #111216;
-$palette-ink-700: #15161a;
-$palette-ink-600: #1d1f25;
-$palette-ink-500: #2a2c32;
-$palette-grey-400: #5e626d;
-$palette-grey-300: #8b8e98;
-$palette-grey-100: #e0e0e0;
-$palette-blue-500: #3b82f6;
-$palette-green-500: #22c55e;
-$palette-amber-500: #f59e0b;
-$palette-red-500: #ef4444;
+$palette-stone-950: #141110;
+$palette-stone-900: #1b1715;
+$palette-stone-850: #231e1a;
+$palette-stone-800: #2c2622;
+$palette-stone-700: #3b332d;
+$palette-stone-600: #50463e;
+$palette-sand-500: #8f8272;
+$palette-sand-300: #bbad9a;
+$palette-sand-100: #f0e7d9;
+$palette-brass-600: #8c6f3a;
+$palette-brass-400: #c9a55f;
+$palette-brass-300: #e3c88c;
+$palette-moss-500: #83a05f;
+$palette-ember-500: #cb5a42;
 
 // Surfaces
-$bg-app: $palette-ink-900;
-$bg-panel: $palette-ink-800;
-$bg-card: $palette-ink-700;
-$bg-raised: $palette-ink-600;
+$bg-app: $palette-stone-950;
+$bg-panel: $palette-stone-900;
+$bg-card: $palette-stone-850;
+$bg-raised: $palette-stone-800;
+$bg-hover: $palette-stone-700;
 
 // Lines
-$border-main: $palette-ink-500;
-$border-sub: $palette-ink-600;
+$border-main: $palette-stone-700;
+$border-sub: $palette-stone-800;
+$border-accent: $palette-brass-600;
 
 // Text
-$text-primary: $palette-grey-100;
-$text-secondary: $palette-grey-300;
-$text-muted: $palette-grey-400;
+$text-primary: $palette-sand-100;
+$text-secondary: $palette-sand-300;
+$text-muted: $palette-sand-500;
+$text-on-accent: $palette-stone-950;
 
 // Status
-$accent: $palette-blue-500;
-$success: $palette-green-500;
-$warning: $palette-amber-500;
-$danger: $palette-red-500;
+$accent: $palette-brass-400;
+$accent-strong: $palette-brass-300;
+$success: $palette-moss-500;
+$danger: $palette-ember-500;
+
+// Board overlays: they sit on any board colours, so they carry their own alpha.
+$board-last-move: rgba(227, 200, 140, 0.42);
+$board-selected: rgba(227, 200, 140, 0.6);
+$board-premove: rgba(203, 90, 66, 0.45);
+$board-target-dot: rgba(20, 17, 16, 0.28);
+$board-check: rgba(203, 90, 66, 0.85);
+$board-mark: rgba(131, 160, 95, 0.55);
+$board-arrow: rgba(131, 160, 95, 0.85);
+$board-coordinate-on-light: rgba(20, 17, 16, 0.6);
+$board-coordinate-on-dark: rgba(240, 231, 217, 0.75);
+
+// Elevation
+$scrim: rgba(20, 17, 16, 0.72);
+$shadow-board: 0 rem(18) rem(48) rgba(0, 0, 0, 0.55);
+$shadow-dialog: 0 rem(24) rem(64) rgba(0, 0, 0, 0.6);
+$shadow-piece: rgba(0, 0, 0, 0.45);
+
+// Evaluation bar
+$eval-white: $palette-sand-100;
+$eval-black: $palette-stone-800;

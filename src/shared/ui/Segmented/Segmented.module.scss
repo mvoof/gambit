@@ -1,0 +1,36 @@
+.group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: sp('xxs');
+}
+
+.segment {
+  flex: 1;
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $text-secondary;
+  white-space: nowrap;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('md');
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+}
+
+.active {
+  color: $accent-strong;
+  background: $bg-raised;
+  border-color: $border-accent;
+}

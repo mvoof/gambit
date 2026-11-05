@@ -1,7 +1,11 @@
+import '@fontsource-variable/jetbrains-mono/index.css';
+import '@fontsource-variable/manrope/index.css';
+import '@fontsource-variable/playfair-display/index.css';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import { App } from '@app/App';
+
 import './i18n';
 import './styles/index.scss';
 

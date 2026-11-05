@@ -1,0 +1,45 @@
+.sets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(rem(200), 1fr));
+  gap: sp('sm');
+}
+
+.set {
+  display: flex;
+  align-items: center;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+}
+
+.active {
+  border-color: $accent;
+}
+
+.choose {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: sp('xxs');
+  padding: sp('md');
+  font-size: fs('sm');
+  color: $text-secondary;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.sample {
+  display: flex;
+
+  img {
+    width: rem(36);
+    height: rem(36);
+  }
+}
+
+.deleteIcon {
+  width: rem(16);
+  height: rem(16);
+}

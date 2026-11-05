@@ -1,0 +1,37 @@
+.controls {
+  display: flex;
+  align-self: stretch;
+}
+
+.control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: rem(46);
+  color: $text-secondary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: -2px;
+  }
+
+  svg {
+    width: rem(14);
+    height: rem(14);
+  }
+}
+
+.close:hover {
+  background: $danger;
+}

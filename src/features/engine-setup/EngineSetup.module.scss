@@ -1,0 +1,26 @@
+.setup {
+  display: flex;
+  flex-direction: column;
+  gap: sp('lg');
+}
+
+.current {
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: sp('sm');
+}
+
+.progress {
+  font-size: fs('xs');
+  color: $accent-strong;
+}
+
+.error {
+  font-size: fs('xs');
+  color: $danger;
+}

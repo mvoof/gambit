@@ -1,20 +1,131 @@
 {
   "translation": {
     "app": {
-      "title": "Шаблон Tauri-приложения",
-      "subtitle": "React 19 + TypeScript + Tauri 2 с oxlint, oxfmt, lefthook, Vitest и Storybook.",
-      "language": "Язык"
+      "title": "Gambit",
+      "tagline": "Шахматы против настоящего движка, прямо на вашем компьютере."
     },
-    "counter": {
-      "title": "Счётчик",
-      "increment": "Увеличить",
-      "reset": "Сбросить"
+    "nav": {
+      "play": "Игра",
+      "archive": "Архив",
+      "settings": "Настройки"
     },
-    "greet": {
-      "title": "Команда Rust",
-      "label": "Ваше имя",
-      "placeholder": "Ада Лавлейс",
-      "action": "Поздороваться из Rust"
+    "common": {
+      "cancel": "Отмена",
+      "close": "Закрыть"
+    },
+    "game": {
+      "you": "Вы",
+      "newGame": "Новая партия",
+      "takeBack": "Взять ход назад",
+      "offerDraw": "Предложить ничью",
+      "resign": "Сдаться",
+      "flip": "Перевернуть доску",
+      "thinking": "Движок думает…",
+      "drawDeclined": "Движок отклонил ничью.",
+      "engineFailed": "Движок перестал отвечать. Начните новую партию."
+    },
+    "result": {
+      "whiteWins": "Белые победили",
+      "blackWins": "Чёрные победили",
+      "draw": "Ничья"
+    },
+    "reason": {
+      "checkmate": "мат",
+      "stalemate": "пат",
+      "threefoldRepetition": "троекратное повторение",
+      "fiftyMoveRule": "правило пятидесяти ходов",
+      "insufficientMaterial": "недостаточно материала",
+      "resignation": "соперник сдался",
+      "drawAgreement": "по соглашению",
+      "timeout": "по времени",
+      "timeoutInsufficientMaterial": "время вышло, но поставить мат было невозможно"
+    },
+    "pieces": {
+      "king": "Король",
+      "queen": "Ферзь",
+      "rook": "Ладья",
+      "bishop": "Слон",
+      "knight": "Конь",
+      "pawn": "Пешка",
+      "delete": "Удалить набор",
+      "defaultName": "Мои фигуры",
+      "namePlaceholder": "Название набора",
+      "importSheet": "Импорт спрайт-листа",
+      "importFolder": "Импорт папки",
+      "save": "Сохранить набор"
+    },
+    "board": {
+      "resize": "Изменить размер доски",
+      "lightSquare": "Светлые поля",
+      "darkSquare": "Тёмные поля",
+      "showCoordinates": "Координаты",
+      "showLegalMoves": "Точки возможных ходов",
+      "showLastMove": "Подсветка последнего хода",
+      "showCheck": "Подсветка шаха"
+    },
+    "newGame": {
+      "title": "Новая партия",
+      "color": "Ваш цвет",
+      "white": "Белые",
+      "black": "Чёрные",
+      "random": "Случайно",
+      "time": "Контроль времени",
+      "custom": "Свой",
+      "unlimited": "Без часов",
+      "minutes": "Минуты",
+      "increment": "Добавление, секунды",
+      "strength": "Сила движка: {{elo}} Эло",
+      "fen": "Начальная позиция (FEN, необязательно)",
+      "fenPlaceholder": "Обычная расстановка",
+      "start": "Начать"
+    },
+    "engine": {
+      "current": "Текущий движок: {{name}}",
+      "none": "Движка пока нет.",
+      "needed": "Для игры нужен шахматный движок.",
+      "setUp": "Настроить движок",
+      "download": "Скачать Stockfish 19 (81 МБ)",
+      "pick": "Выбрать свой движок…",
+      "others": "Другие UCI-движки:",
+      "stage": {
+        "downloading": "Загрузка… {{percent}}%",
+        "verifying": "Проверка файла…",
+        "extracting": "Распаковка…",
+        "done": "Готово."
+      }
+    },
+    "archive": {
+      "title": "Архив",
+      "import": "Импорт PGN",
+      "export": "Экспорт PGN",
+      "delete": "Удалить",
+      "empty": "Здесь появятся завершённые партии.",
+      "plies_one": "{{count}} полуход",
+      "plies_few": "{{count}} полухода",
+      "plies_many": "{{count}} полуходов",
+      "plies_other": "{{count}} полухода"
+    },
+    "replay": {
+      "first": "Начальная позиция",
+      "previous": "Предыдущий ход",
+      "next": "Следующий ход",
+      "last": "Конечная позиция",
+      "autoplay": "Пуск или пауза"
+    },
+    "settings": {
+      "title": "Настройки",
+      "engine": "Движок",
+      "general": "Общие",
+      "board": "Доска",
+      "pieces": "Фигуры",
+      "volume": "Громкость: {{volume}}%",
+      "evalBar": "Шкала оценки"
+    },
+    "window": {
+      "minimize": "Свернуть",
+      "maximize": "Развернуть",
+      "restore": "Восстановить",
+      "close": "Закрыть"
     }
   }
 }

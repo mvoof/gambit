@@ -1,0 +1,42 @@
+.import {
+  display: flex;
+  flex-direction: column;
+  gap: sp('md');
+  max-width: rem(480);
+}
+
+.name {
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  color: $text-primary;
+  background: $bg-card;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: sp('sm');
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: sp('sm');
+  background: $bg-raised;
+  border-radius: radius('lg');
+
+  img {
+    width: 100%;
+  }
+}
+
+.error {
+  font-size: fs('xs');
+  color: $danger;
+}

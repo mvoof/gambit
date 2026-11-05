@@ -6,7 +6,7 @@ use gb_chess::{
     export_pgn, format_time_control, ChessError, Clock, ClockSnapshot, Game, GameExtras, PgnHeaders,
 };
 use gb_engine::{accepts_draw, Score, SearchLimit};
-use gb_model::{Color, GameResult, GameView, MoveOption, NewGameOptions, TimeControl};
+use gb_model::{Color, GameResult, GameView, MoveOption, NewGameOptions, ReplayFrame, TimeControl};
 
 /// The opponent's thinking time when there is no clock.
 const UNLIMITED_MOVE_TIME_MS: u32 = 1_500;
@@ -273,6 +273,10 @@ impl ActiveGame {
             .into_iter()
             .map(|record| record.uci)
             .collect()
+    }
+
+    pub fn frames(&self) -> Result<Vec<ReplayFrame>, ChessError> {
+        self.game.frames()
     }
 
     pub fn view(&self, now_ms: u64) -> GameView {

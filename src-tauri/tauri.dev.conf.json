@@ -1,5 +1,8 @@
 {
   "identifier": "com.voof.gambit.dev",
+  "app": {
+    "withGlobalTauri": true
+  },
   "bundle": {
     "targets": ["nsis"],
     "createUpdaterArtifacts": false

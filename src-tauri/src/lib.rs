@@ -59,6 +59,7 @@ pub fn run() {
             commands::choose_engine,
             commands::new_game,
             commands::current_game,
+            commands::game_frames,
             commands::make_move,
             commands::set_premove,
             commands::clear_premove,

@@ -1,0 +1,20 @@
+.layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  aspect-ratio: 1;
+  transition: transform $transition-base;
+  will-change: transform;
+}
+
+.dragged {
+  z-index: 2;
+  transition: none;
+  filter: drop-shadow(0 rem(6) rem(6) $shadow-piece);
+}

@@ -367,6 +367,21 @@ impl Game {
         }
     }
 
+    /// Every position of this game, for stepping back through it while playing.
+    pub fn frames(&self) -> Result<Vec<ReplayFrame>, ChessError> {
+        let mut replayed = Self::new(self.custom_start_fen.as_deref())?;
+        let mut frames = vec![replayed.frame()];
+
+        for ply in &self.plies {
+            let chess_move = replayed.find_move(&ply.record.uci)?;
+
+            replayed.advance(chess_move);
+            frames.push(replayed.frame());
+        }
+
+        Ok(frames)
+    }
+
     pub(crate) fn frame(&self) -> ReplayFrame {
         ReplayFrame {
             pieces: self.tracker.pieces(),
@@ -620,6 +635,19 @@ mod tests {
 
         assert!(engine_turn.legal_moves.is_empty());
         assert!(!engine_turn.premove_options.is_empty());
+    }
+
+    #[test]
+    fn frames_cover_every_position_of_the_game() {
+        let mut game = Game::new(None).unwrap();
+
+        play_all(&mut game, &["e2e4", "e7e5"]);
+
+        let frames = game.frames().unwrap();
+
+        assert_eq!(frames.len(), 3);
+        assert_eq!(frames[0].last_move, None);
+        assert_eq!(frames[2].fen, game.fen());
     }
 
     #[test]

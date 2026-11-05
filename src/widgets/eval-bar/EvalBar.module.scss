@@ -1,0 +1,33 @@
+.bar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  flex: none;
+  align-self: stretch;
+  width: $eval-bar-width;
+  overflow: hidden;
+  background: $eval-black;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+}
+
+.flipped {
+  justify-content: flex-start;
+}
+
+.white {
+  background: $eval-white;
+  transition: height 300ms ease;
+}
+
+.score {
+  position: absolute;
+  bottom: sp('xxs');
+  left: 0;
+  width: 100%;
+  font-size: fs('xxxs');
+  font-weight: 700;
+  color: $text-muted;
+  text-align: center;
+}

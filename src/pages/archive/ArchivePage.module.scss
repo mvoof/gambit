@@ -1,0 +1,16 @@
+.page {
+  max-width: rem(860);
+  height: calc(100vh - #{$header-height});
+  margin: 0 auto;
+  padding: sp('xxxl');
+  overflow-y: auto;
+}
+
+.replay {
+  display: flex;
+  justify-content: center;
+  gap: sp('xxl');
+  height: calc(100vh - #{$header-height});
+  padding: sp('xxxl');
+  overflow: hidden;
+}

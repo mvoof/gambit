@@ -1,0 +1,18 @@
+.controls {
+  display: flex;
+  gap: sp('xs');
+
+  button {
+    padding: sp('sm') sp('md');
+  }
+
+  svg {
+    width: rem(16);
+    height: rem(16);
+  }
+}
+
+.newGame {
+  flex: 1;
+  white-space: nowrap;
+}

@@ -1,0 +1,30 @@
+.frame {
+  position: relative;
+  flex: none;
+  width: min(
+    calc(100vh - #{$header-height} - #{sp('xxxl')} * 2),
+    calc(100vw - #{$side-panel-width} - #{$eval-bar-width} - #{sp('xxxl')} * 3)
+  );
+  min-width: $board-min-size;
+}
+
+.handle {
+  position: absolute;
+  right: rem(-7);
+  bottom: rem(-7);
+  z-index: 4;
+  width: rem(16);
+  height: rem(16);
+  padding: 0;
+  background: $accent;
+  border: none;
+  border-radius: 50%;
+  opacity: 0;
+  cursor: nwse-resize;
+  transition: opacity $transition-fast;
+  touch-action: none;
+
+  &:hover {
+    opacity: 1;
+  }
+}

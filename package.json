@@ -13,7 +13,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauri:dev": "tauri dev --features dev",
+    "tauri:dev": "tauri dev --config src-tauri/tauri.dev.conf.json --features dev",
     "tauri:build:dev": "tauri build --config src-tauri/tauri.dev.conf.json --no-sign --features dev",
     "tauri:build:release": "tauri build",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.node.json --noEmit",
