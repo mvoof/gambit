@@ -10,5 +10,9 @@
   "arrowParens": "always",
   "endOfLine": "lf",
   "sortPackageJson": false,
-  "ignorePatterns": ["src-tauri/target/", "src-tauri/gen/schemas"]
+  "ignorePatterns": [
+    "src-tauri/target/",
+    "src-tauri/gen/schemas",
+    "src/shared/contracts/generated/"
+  ]
 }

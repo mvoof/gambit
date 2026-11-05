@@ -6,37 +6,37 @@ export const EVENT_EVALUATION = 'evaluation';
 export const EVENT_ENGINE_INSTALL = 'engine-install-progress';
 
 export type AppSettings = {
-  language: string;
-  pieceSet: string;
-  board: BoardSettings;
-  /**  From 0 to 100. */
-  soundVolume: number;
-  evalBarEnabled: boolean;
-  enginePath: string | null;
-  lastGame: NewGameOptions | null;
+	language: string,
+	pieceSet: string,
+	board: BoardSettings,
+	/**  From 0 to 100. */
+	soundVolume: number,
+	evalBarEnabled: boolean,
+	enginePath: string | null,
+	lastGame: NewGameOptions | null,
 };
 
 /**  A piece on the board. `id` survives moves, so the frontend animates by key. */
 export type BoardPiece = {
-  id: number;
-  color: Color;
-  kind: PieceKind;
-  square: string;
+	id: number,
+	color: Color,
+	kind: PieceKind,
+	square: string,
 };
 
 export type BoardSettings = {
-  lightSquare: string;
-  darkSquare: string;
-  showCoordinates: boolean;
-  showLegalMoves: boolean;
-  showLastMove: boolean;
-  showCheck: boolean;
+	lightSquare: string,
+	darkSquare: string,
+	showCoordinates: boolean,
+	showLegalMoves: boolean,
+	showLastMove: boolean,
+	showCheck: boolean,
 };
 
 /**  Pieces each side has captured. */
 export type CapturedPieces = {
-  white: PieceKind[];
-  black: PieceKind[];
+	white: PieceKind[],
+	black: PieceKind[],
 };
 
 /**
@@ -44,179 +44,161 @@ export type CapturedPieces = {
  *  `sync_ms` changes, for display only.
  */
 export type ClockView = {
-  whiteMs: number;
-  blackMs: number;
-  running: Color | null;
-  /**  When this snapshot was taken, in milliseconds on the backend's own clock. */
-  syncMs: number;
+	whiteMs: number,
+	blackMs: number,
+	running: Color | null,
+	/**  When this snapshot was taken, in milliseconds on the backend's own clock. */
+	syncMs: number,
 };
 
-export type Color = 'white' | 'black';
+export type Color = "white" | "black";
 
-export type ColorChoice = 'white' | 'black' | 'random';
+export type ColorChoice = "white" | "black" | "random";
 
 export type EloRange = {
-  min: number;
-  max: number;
+	min: number,
+	max: number,
 };
 
 export type EngineInfo = {
-  name: string;
-  path: string;
-  /**  `None` when the engine has no `UCI_LimitStrength`. */
-  eloRange: EloRange | null;
+	name: string,
+	path: string,
+	/**  `None` when the engine has no `UCI_LimitStrength`. */
+	eloRange: EloRange | null,
 };
 
 export type EngineInstallProgress = {
-  stage: EngineInstallStage;
-  downloadedBytes: number;
-  totalBytes: number;
+	stage: EngineInstallStage,
+	downloadedBytes: number,
+	totalBytes: number,
 };
 
-export type EngineInstallStage =
-  | 'downloading'
-  | 'verifying'
-  | 'extracting'
-  | 'done';
+export type EngineInstallStage = "downloading" | "verifying" | "extracting" | "done";
 
 /**  A measurement from the full-strength analysis engine, White's point of view. */
 export type Evaluation = {
-  /**  The position measured: a reply for another position is dropped. */
-  fen: string;
-  centipawns: number | null;
-  mateIn: number | null;
-  /**  White's chance from 0 to 100, so the bar only sets a height. */
-  whiteWinPercent: number | null;
-  depth: number;
+	/**  The position measured: a reply for another position is dropped. */
+	fen: string,
+	centipawns: number | null,
+	mateIn: number | null,
+	/**  White's chance from 0 to 100, so the bar only sets a height. */
+	whiteWinPercent: number | null,
+	depth: number,
 };
 
-export type GameEndReason =
-  | 'checkmate'
-  | 'stalemate'
-  | 'threefoldRepetition'
-  | 'fiftyMoveRule'
-  | 'insufficientMaterial'
-  | 'resignation'
-  | 'drawAgreement'
-  | 'timeout'
-  /**  The flag fell, but the opponent had no mating material (FIDE 6.9). */
-  | 'timeoutInsufficientMaterial';
+export type GameEndReason = "checkmate" | "stalemate" | "threefoldRepetition" | "fiftyMoveRule" | "insufficientMaterial" | "resignation" | "drawAgreement" | "timeout" | 
+/**  The flag fell, but the opponent had no mating material (FIDE 6.9). */
+"timeoutInsufficientMaterial";
 
 export type GameOutcome = {
-  result: GameResult;
-  reason: GameEndReason;
+	result: GameResult,
+	reason: GameEndReason,
 };
 
-export type GameResult = 'whiteWins' | 'blackWins' | 'draw';
+export type GameResult = "whiteWins" | "blackWins" | "draw";
 
 export type GameSummary = {
-  id: number;
-  white: string;
-  black: string;
-  result: string;
-  reason: GameEndReason | null;
-  /**  Unix seconds. */
-  playedAt: number;
-  plyCount: number;
-  timeControl: string;
+	id: number,
+	white: string,
+	black: string,
+	result: string,
+	reason: GameEndReason | null,
+	/**  Unix seconds. */
+	playedAt: number,
+	plyCount: number,
+	timeControl: string,
 };
 
 export type GameView = {
-  pieces: BoardPiece[];
-  fen: string;
-  turn: Color;
-  humanColor: Color;
-  opponentName: string;
-  outcome: GameOutcome | null;
-  legalMoves: MoveOption[];
-  /**  Geometrically possible moves of the human while the engine is to play. */
-  premoveOptions: MoveOption[];
-  premove: MoveOption | null;
-  lastMove: LastMove | null;
-  checkSquare: string | null;
-  moves: MoveRecord[];
-  captured: CapturedPieces;
-  /**  Positive when White is ahead. */
-  materialDiff: number;
-  clock: ClockView | null;
-  engineThinking: boolean;
-  /**  The opponent process died or gave no move: the game cannot go on. */
-  engineFailed: boolean;
-  canTakeback: boolean;
+	pieces: BoardPiece[],
+	fen: string,
+	turn: Color,
+	humanColor: Color,
+	opponentName: string,
+	outcome: GameOutcome | null,
+	legalMoves: MoveOption[],
+	/**  Geometrically possible moves of the human while the engine is to play. */
+	premoveOptions: MoveOption[],
+	premove: MoveOption | null,
+	lastMove: LastMove | null,
+	checkSquare: string | null,
+	moves: MoveRecord[],
+	captured: CapturedPieces,
+	/**  Positive when White is ahead. */
+	materialDiff: number,
+	clock: ClockView | null,
+	engineThinking: boolean,
+	/**  The opponent process died or gave no move: the game cannot go on. */
+	engineFailed: boolean,
+	canTakeback: boolean,
 };
 
 export type LastMove = {
-  from: string;
-  to: string;
+	from: string,
+	to: string,
 };
 
 /**  A move the player may choose. A promotion is one option per piece. */
 export type MoveOption = {
-  from: string;
-  to: string;
-  uci: string;
-  promotion: PieceKind | null;
+	from: string,
+	to: string,
+	uci: string,
+	promotion: PieceKind | null,
 };
 
 export type MoveRecord = {
-  ply: number;
-  san: string;
-  uci: string;
-  from: string;
-  to: string;
-  color: Color;
-  sound: MoveSound;
+	ply: number,
+	san: string,
+	uci: string,
+	from: string,
+	to: string,
+	color: Color,
+	sound: MoveSound,
 };
 
-export type MoveSound = 'move' | 'capture' | 'castle' | 'check' | 'promote';
+export type MoveSound = "move" | "capture" | "castle" | "check" | "promote";
 
 export type NewGameOptions = {
-  color: ColorChoice;
-  /**  `None` is unlimited time. */
-  timeControl: TimeControl | null;
-  /**  `None` is full strength. */
-  elo: number | null;
-  startFen: string | null;
+	color: ColorChoice,
+	/**  `None` is unlimited time. */
+	timeControl: TimeControl | null,
+	/**  `None` is full strength. */
+	elo: number | null,
+	startFen: string | null,
 };
 
-export type PieceKind =
-  | 'king'
-  | 'queen'
-  | 'rook'
-  | 'bishop'
-  | 'knight'
-  | 'pawn';
+export type PieceKind = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
 
 export type PieceSetView = {
-  id: string;
-  name: string;
-  images: { [key in string]: string };
+	id: string,
+	name: string,
+	images: { [key in string]: string },
 };
 
 export type ReplayFrame = {
-  pieces: BoardPiece[];
-  fen: string;
-  lastMove: LastMove | null;
-  checkSquare: string | null;
-  sound: MoveSound | null;
-  captured: CapturedPieces;
-  materialDiff: number;
+	pieces: BoardPiece[],
+	fen: string,
+	lastMove: LastMove | null,
+	checkSquare: string | null,
+	sound: MoveSound | null,
+	captured: CapturedPieces,
+	materialDiff: number,
 };
 
 export type ReplayGame = {
-  white: string;
-  black: string;
-  result: string;
-  /**  The PGN `TimeControl` value, `-` when there is none. */
-  timeControl: string;
-  moves: MoveRecord[];
-  /**  One more than `moves`: frame 0 is the starting position. */
-  frames: ReplayFrame[];
+	white: string,
+	black: string,
+	result: string,
+	/**  The PGN `TimeControl` value, `-` when there is none. */
+	timeControl: string,
+	moves: MoveRecord[],
+	/**  One more than `moves`: frame 0 is the starting position. */
+	frames: ReplayFrame[],
 };
 
-export type SheetColumnOrder = 'kqrbnp' | 'kqbnrp';
+export type SheetColumnOrder = "kqrbnp" | "kqbnrp";
 
 export type TimeControl = {
-  baseMs: number;
-  incrementMs: number;
+	baseMs: number,
+	incrementMs: number,
 };
