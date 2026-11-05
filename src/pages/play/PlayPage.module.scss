@@ -1,10 +1,26 @@
 .page {
+  --board-reserved-height: calc(
+    #{$header-height} + #{$game-controls-height} + #{sp('xl')} * 3
+  );
+  --board-reserved-width: calc(
+    #{$players-panel-width} + #{$side-panel-width} + #{sp('xxl')} * 4
+  );
+
   display: flex;
   justify-content: center;
   gap: sp('xxl');
   height: calc(100vh - #{$header-height});
-  padding: sp('xxxl');
+  padding: sp('xl') sp('xxl');
   overflow: hidden;
+}
+
+.center {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: sp('xl');
+  min-height: 0;
 }
 
 .welcome {
@@ -31,4 +47,9 @@
 .hint {
   font-size: fs('sm');
   color: $text-muted;
+}
+
+.error {
+  font-size: fs('sm');
+  color: $danger;
 }

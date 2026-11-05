@@ -94,6 +94,7 @@ export const Board = ({
           images={images}
           orientation={orientation}
           drag={gestures.drag}
+          isAnimated={settings.animateMoves}
         />
         <BoardArrows
           arrows={gestures.arrows}

@@ -16,11 +16,12 @@ maintain, and no way for a file to accidentally miss the token layer.
 
 ## The three files
 
-| File              | Holds                                                  |
-| ----------------- | ------------------------------------------------------ |
-| `_functions.scss` | `rem()`, and the `fs()` / `sp()` / `radius()` scales   |
-| `_variables.scss` | fonts, transitions, layout constants                   |
-| `_tokens.scss`    | the palette, and the semantic color tokens built on it |
+| File              | Holds                                                |
+| ----------------- | ---------------------------------------------------- |
+| `_functions.scss` | `rem()`, and the `fs()` / `sp()` / `radius()` scales |
+| `_variables.scss` | fonts, transitions, layout constants                 |
+| `_tokens.scss`    | the semantic color tokens                            |
+| `_themes.scss`    | their values, one map per theme                      |
 
 `_reset.scss` (pulled in by `index.scss`, imported once from `main.tsx`) sets
 box-sizing, the base font and the app background.
@@ -50,9 +51,7 @@ That is the escape hatch; if you reach for it three times, the scale is wrong.
 
 ## Colors
 
-`_tokens.scss` has two halves. The palette (`$palette-ink-900`,
-`$palette-blue-500`, ...) is raw values — **never used in a component**. The
-semantic tokens are:
+The semantic tokens are:
 
 | Group    | Tokens                                            |
 | -------- | ------------------------------------------------- |
@@ -62,17 +61,14 @@ semantic tokens are:
 | Status   | `$accent`, `$success`, `$warning`, `$danger`      |
 
 A component names the role (`background: $bg-card`), not the value. Retheming is
-then a change to the palette, and a token name tells the next reader what the
+then a change to `_themes.scss`, and a token name tells the next reader what the
 color is _for_ — which `#15161a` never will.
 
 Need a color no token covers? Add a token. A hex in a component is a bug.
 
-## Adding a theme
+## Themes
 
-The tokens are Sass variables, so they are resolved at build time — good for one
-theme, not enough for a runtime switch. To add light/dark:
-
-1. Emit the tokens as CSS custom properties on `:root` in `_reset.scss`.
-2. Redefine them under `[data-theme='light']`.
-3. Point the Sass tokens at the custom properties
-   (`$bg-card: var(--bg-card);`), so components need no change at all.
+`_tokens.scss` names the roles as CSS custom properties, and `_themes.scss` holds
+one map of values per theme, emitted under `[data-theme]`. `start-sync.ts` sets
+the attribute on `<html>`, following the system for the `system` theme. Nothing
+in a component knows which theme is on. A new theme is one more map.

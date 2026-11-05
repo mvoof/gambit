@@ -1,0 +1,61 @@
+$preview-dark: #1b1612;
+$preview-light: #efe7d8;
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xl');
+}
+
+.themes {
+  display: flex;
+  gap: sp('lg');
+}
+
+.theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: sp('sm');
+  width: rem(136);
+  padding: sp('md');
+  font-size: fs('sm');
+  color: $text-secondary;
+  background: $bg-raised;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+  cursor: pointer;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+}
+
+.active {
+  color: $accent-strong;
+  border-color: $accent;
+}
+
+.preview {
+  width: 100%;
+  height: rem(64);
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+}
+
+.dark {
+  background: $preview-dark;
+}
+
+.light {
+  background: $preview-light;
+}
+
+.system {
+  background: linear-gradient(135deg, $preview-light 50%, $preview-dark 50%);
+}

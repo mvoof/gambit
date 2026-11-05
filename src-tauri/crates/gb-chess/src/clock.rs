@@ -1,6 +1,7 @@
 //! The chess clock. Pure: the caller passes the time, so tests need no sleeping.
 
 use gb_model::{ClockView, Color, TimeControl};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClockTick {
@@ -9,7 +10,7 @@ pub enum ClockTick {
 }
 
 /// The state to return to when a move is taken back.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClockSnapshot {
     white_ms: u64,
     black_ms: u64,

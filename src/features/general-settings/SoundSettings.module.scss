@@ -1,0 +1,29 @@
+.volume {
+  display: flex;
+  align-items: center;
+  gap: sp('lg');
+  max-width: rem(520);
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.icon {
+  flex: none;
+  width: rem(20);
+  height: rem(20);
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  accent-color: $accent;
+}
+
+.value {
+  width: rem(40);
+  text-align: right;
+}

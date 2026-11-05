@@ -6,14 +6,14 @@
 
 .segment {
   flex: 1;
-  padding: sp('xs') sp('md');
+  padding: sp('sm') sp('lg');
   font-size: fs('sm');
   font-weight: 600;
   color: $text-secondary;
   white-space: nowrap;
-  background: $bg-card;
+  background: $bg-raised;
   border: 1px solid $border-sub;
-  border-radius: radius('md');
+  border-radius: radius('lg');
   cursor: pointer;
   transition:
     background $transition-fast,
@@ -30,7 +30,11 @@
 }
 
 .active {
-  color: $accent-strong;
-  background: $bg-raised;
-  border-color: $border-accent;
+  color: $text-on-accent;
+  background: $accent-gradient;
+  border-color: $accent;
+
+  &:hover {
+    background: $accent-gradient;
+  }
 }

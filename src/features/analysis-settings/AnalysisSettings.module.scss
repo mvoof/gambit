@@ -1,0 +1,9 @@
+.fields {
+  display: grid;
+  grid-template-columns: auto rem(120);
+  align-items: center;
+  justify-content: start;
+  gap: sp('md') sp('xxxl');
+  font-size: fs('sm');
+  color: $text-secondary;
+}

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="src/assets/brand/gambit-icon-original.png" alt="Gambit" width="128" height="128">
+</p>
+
 # Gambit
 
 Chess against a real engine, and training to get better. See `docs/spec.md`.

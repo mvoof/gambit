@@ -1,0 +1,24 @@
+.page {
+  height: calc(100vh - #{$header-height});
+  padding: sp('xxl') rem(28);
+  overflow-y: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(rem(340), 1fr);
+  gap: sp('xxl');
+  max-width: rem(1500);
+  margin: 0 auto;
+}
+
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xxl');
+  min-width: 0;
+}
+
+.lead > :first-child {
+  flex: 1;
+}

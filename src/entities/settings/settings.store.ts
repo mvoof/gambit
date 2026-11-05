@@ -1,6 +1,10 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 
-import { fetchSettings, saveSettings } from '@shared/api/settings.service';
+import {
+  fetchSettings,
+  resetSettings,
+  saveSettings,
+} from '@shared/api/settings.service';
 import type {
   AppSettings,
   BoardSettings,
@@ -44,6 +48,14 @@ export class SettingsStore {
     }
 
     return this.update({ board: { ...this.settings.board, ...patch } });
+  };
+
+  reset = async () => {
+    const settings = await resetSettings();
+
+    runInAction(() => {
+      this.settings = settings;
+    });
   };
 
   /** The engine path is written by the backend when an engine is chosen. */

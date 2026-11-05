@@ -1,0 +1,55 @@
+.all {
+  display: inline-flex;
+  align-items: center;
+  gap: sp('xs');
+  font-size: fs('sm');
+  font-weight: 700;
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-strong;
+  }
+
+  svg {
+    width: rem(16);
+    height: rem(16);
+  }
+}
+
+.empty {
+  font-size: fs('sm');
+  color: $text-muted;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) rem(128) rem(76) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: sp('xl');
+  padding: sp('sm') 0;
+
+  & + & {
+    border-top: 1px solid $border-sub;
+  }
+
+  button {
+    padding: sp('sm');
+  }
+}
+
+.detail {
+  overflow: hidden;
+  font-size: fs('xs');
+  color: $text-secondary;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

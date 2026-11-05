@@ -22,6 +22,7 @@ pub enum SearchLimit {
         black_increment_ms: u32,
     },
     MoveTime(u32),
+    Depth(u32),
     Infinite,
 }
 
@@ -128,6 +129,7 @@ pub fn go_command(limit: SearchLimit, depth: Option<u32>) -> String {
             "go wtime {white_ms} btime {black_ms} winc {white_increment_ms} binc {black_increment_ms}{depth_part}"
         ),
         SearchLimit::MoveTime(milliseconds) => format!("go movetime {milliseconds}{depth_part}"),
+        SearchLimit::Depth(plies) => format!("go depth {plies}"),
         SearchLimit::Infinite => "go infinite".to_owned(),
     }
 }

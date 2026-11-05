@@ -2,21 +2,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: sp('xs');
-  padding: sp('sm') sp('xl');
+  gap: sp('sm');
   font-family: $font-app;
-  font-size: fs('sm');
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   color: $text-primary;
   background: $bg-raised;
   border: 1px solid $border-main;
-  border-radius: radius('lg');
+  border-radius: radius('xl');
   cursor: pointer;
   transition:
     background $transition-fast,
     border-color $transition-fast,
-    color $transition-fast;
+    color $transition-fast,
+    filter $transition-fast;
 
   &:hover:not(:disabled) {
     background: $bg-hover;
@@ -31,15 +30,37 @@
     color: $text-muted;
     cursor: not-allowed;
   }
+
+  svg {
+    flex: none;
+    width: rem(16);
+    height: rem(16);
+  }
+}
+
+.medium {
+  padding: sp('sm') sp('xl');
+  font-size: fs('sm');
+}
+
+.large {
+  padding: sp('lg') sp('xxl');
+  font-size: fs('md');
+
+  svg {
+    width: rem(18);
+    height: rem(18);
+  }
 }
 
 .primary {
   color: $text-on-accent;
-  background: $accent;
+  background: $accent-gradient;
   border-color: $accent;
 
   &:hover:not(:disabled) {
-    background: $accent-strong;
+    background: $accent-gradient;
+    filter: brightness(1.08);
   }
 
   &:disabled {
@@ -55,11 +76,11 @@
 
 .danger {
   color: $danger;
-  background: transparent;
+  background: $danger-soft;
   border-color: $danger;
 
   &:hover:not(:disabled) {
-    color: $text-primary;
+    color: $text-on-accent;
     background: $danger;
   }
 }

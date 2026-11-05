@@ -165,6 +165,8 @@ pub enum MoveQuality {
 #[serde(rename_all = "camelCase")]
 pub struct MoveMark {
     pub ply: u32,
+    /// Who played the move.
+    pub color: Color,
     pub quality: MoveQuality,
     pub best_san: String,
 }
@@ -178,8 +180,22 @@ pub enum GameReviewStatus {
     Failed,
 }
 
+/// The engine's score of the position after a move, for the graph of a game.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct EvalPoint {
+    /// 0 is the starting position.
+    pub ply: u32,
+    pub white_win_percent: f64,
+    pub centipawns: Option<i32>,
+    pub mate_in: Option<i32>,
+    /// The move that led here is the one the engine wanted.
+    pub is_best: bool,
+}
+
 /// How far the measuring of a saved game has come. `marks` holds all found so far.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct GameReview {
@@ -189,6 +205,7 @@ pub struct GameReview {
     pub measured: u32,
     pub total: u32,
     pub marks: Vec<MoveMark>,
+    pub points: Vec<EvalPoint>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -200,6 +217,8 @@ pub struct GameView {
     pub turn: Color,
     pub human_color: Color,
     pub opponent_name: String,
+    /// `None` is full strength.
+    pub opponent_elo: Option<u32>,
     pub outcome: Option<GameOutcome>,
     pub legal_moves: Vec<MoveOption>,
     /// Geometrically possible moves of the human while the engine is to play.
@@ -341,9 +360,25 @@ pub struct ReplayGame {
     pub result: String,
     /// The PGN `TimeControl` value, `-` when there is none.
     pub time_control: String,
+    /// `None` for an imported game: a PGN does not say who the player was.
+    pub human_color: Option<Color>,
     pub moves: Vec<MoveRecord>,
     /// One more than `moves`: frame 0 is the starting position.
     pub frames: Vec<ReplayFrame>,
+}
+
+/// How a saved game went for the player.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum PlayerResult {
+    Win,
+    Loss,
+    Draw,
+    /// Stopped before the end: it can be played on.
+    Unfinished,
+    /// An imported game: a PGN does not say who the player was.
+    Unknown,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -353,12 +388,42 @@ pub struct GameSummary {
     pub id: u32,
     pub white: String,
     pub black: String,
+    /// The other side, or both names when the player is not known.
+    pub opponent: String,
+    pub opponent_elo: Option<u32>,
+    pub human_color: Option<Color>,
     pub result: String,
+    pub player_result: PlayerResult,
     pub reason: Option<GameEndReason>,
     /// Unix seconds.
     pub played_at: u32,
     pub ply_count: u32,
     pub time_control: String,
+    pub is_favorite: bool,
+    /// The engine has measured every move.
+    pub is_reviewed: bool,
+    /// The player's own inaccuracies, mistakes and blunders.
+    pub mistake_count: u32,
+    /// The last position, for the thumbnail.
+    pub final_fen: Option<String>,
+}
+
+/// What the archive holds, counted by section.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct ArchiveStats {
+    pub total: u32,
+    pub wins: u32,
+    pub losses: u32,
+    pub draws: u32,
+    pub unfinished: u32,
+    pub reviewed: u32,
+    pub with_mistakes: u32,
+    pub favorites: u32,
+    /// Share of won games among the finished ones, from 0 to 100.
+    pub win_percent: u32,
+    pub size_bytes: u32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -391,6 +456,7 @@ pub struct BoardSettings {
     pub show_legal_moves: bool,
     pub show_last_move: bool,
     pub show_check: bool,
+    pub animate_moves: bool,
 }
 
 impl Default for BoardSettings {
@@ -402,11 +468,24 @@ impl Default for BoardSettings {
             show_legal_moves: true,
             show_last_move: true,
             show_check: true,
+            animate_moves: true,
         }
     }
 }
 
 const DEFAULT_SOUND_VOLUME: u32 = 70;
+const DEFAULT_ANALYSIS_LINES: u32 = 3;
+const DEFAULT_ANALYSIS_DEPTH: u32 = 24;
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum Theme {
+    #[default]
+    Dark,
+    Light,
+    System,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
@@ -418,6 +497,11 @@ pub struct AppSettings {
     /// From 0 to 100.
     pub sound_volume: u32,
     pub eval_bar_enabled: bool,
+    pub theme: Theme,
+    /// How many lines the analysis engine reports.
+    pub analysis_lines: u32,
+    /// Where the analysis engine stops searching.
+    pub analysis_depth: u32,
     pub engine_path: Option<String>,
     pub last_game: Option<NewGameOptions>,
 }
@@ -430,6 +514,9 @@ impl Default for AppSettings {
             board: BoardSettings::default(),
             sound_volume: DEFAULT_SOUND_VOLUME,
             eval_bar_enabled: true,
+            theme: Theme::default(),
+            analysis_lines: DEFAULT_ANALYSIS_LINES,
+            analysis_depth: DEFAULT_ANALYSIS_DEPTH,
             engine_path: None,
             last_game: None,
         }

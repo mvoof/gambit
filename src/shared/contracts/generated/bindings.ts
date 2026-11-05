@@ -13,8 +13,28 @@ export type AppSettings = {
 	/**  From 0 to 100. */
 	soundVolume: number,
 	evalBarEnabled: boolean,
+	theme: Theme,
+	/**  How many lines the analysis engine reports. */
+	analysisLines: number,
+	/**  Where the analysis engine stops searching. */
+	analysisDepth: number,
 	enginePath: string | null,
 	lastGame: NewGameOptions | null,
+};
+
+/**  What the archive holds, counted by section. */
+export type ArchiveStats = {
+	total: number,
+	wins: number,
+	losses: number,
+	draws: number,
+	unfinished: number,
+	reviewed: number,
+	withMistakes: number,
+	favorites: number,
+	/**  Share of won games among the finished ones, from 0 to 100. */
+	winPercent: number,
+	sizeBytes: number,
 };
 
 /**  A piece on the board. `id` survives moves, so the frontend animates by key. */
@@ -32,6 +52,7 @@ export type BoardSettings = {
 	showLegalMoves: boolean,
 	showLastMove: boolean,
 	showCheck: boolean,
+	animateMoves: boolean,
 };
 
 /**  Pieces each side has captured. */
@@ -76,6 +97,17 @@ export type EngineInstallProgress = {
 
 export type EngineInstallStage = "downloading" | "verifying" | "extracting" | "done";
 
+/**  The engine's score of the position after a move, for the graph of a game. */
+export type EvalPoint = {
+	/**  0 is the starting position. */
+	ply: number,
+	whiteWinPercent: number | null,
+	centipawns: number | null,
+	mateIn: number | null,
+	/**  The move that led here is the one the engine wanted. */
+	isBest: boolean,
+};
+
 /**  A measurement from the full-strength analysis engine, White's point of view. */
 export type Evaluation = {
 	/**  The position measured: a reply for another position is dropped. */
@@ -119,6 +151,7 @@ export type GameReview = {
 	measured: number,
 	total: number,
 	marks: MoveMark[],
+	points: EvalPoint[],
 };
 
 export type GameReviewStatus = "measuring" | "done" | "failed";
@@ -127,12 +160,24 @@ export type GameSummary = {
 	id: number,
 	white: string,
 	black: string,
+	/**  The other side, or both names when the player is not known. */
+	opponent: string,
+	opponentElo: number | null,
+	humanColor: Color | null,
 	result: string,
+	playerResult: PlayerResult,
 	reason: GameEndReason | null,
 	/**  Unix seconds. */
 	playedAt: number,
 	plyCount: number,
 	timeControl: string,
+	isFavorite: boolean,
+	/**  The engine has measured every move. */
+	isReviewed: boolean,
+	/**  The player's own inaccuracies, mistakes and blunders. */
+	mistakeCount: number,
+	/**  The last position, for the thumbnail. */
+	finalFen: string | null,
 };
 
 export type GameView = {
@@ -141,6 +186,8 @@ export type GameView = {
 	turn: Color,
 	humanColor: Color,
 	opponentName: string,
+	/**  `None` is full strength. */
+	opponentElo: number | null,
 	outcome: GameOutcome | null,
 	legalMoves: MoveOption[],
 	/**  Geometrically possible moves of the human while the engine is to play. */
@@ -169,6 +216,8 @@ export type LastMove = {
 /**  What the engine measured about one of the player's moves. */
 export type MoveMark = {
 	ply: number,
+	/**  Who played the move. */
+	color: Color,
 	quality: MoveQuality,
 	bestSan: string,
 };
@@ -214,6 +263,13 @@ export type PieceSetView = {
 	images: { [key in string]: string },
 };
 
+/**  How a saved game went for the player. */
+export type PlayerResult = "win" | "loss" | "draw" | 
+/**  Stopped before the end: it can be played on. */
+"unfinished" | 
+/**  An imported game: a PGN does not say who the player was. */
+"unknown";
+
 export type ReplayFrame = {
 	pieces: BoardPiece[],
 	fen: string,
@@ -230,12 +286,16 @@ export type ReplayGame = {
 	result: string,
 	/**  The PGN `TimeControl` value, `-` when there is none. */
 	timeControl: string,
+	/**  `None` for an imported game: a PGN does not say who the player was. */
+	humanColor: Color | null,
 	moves: MoveRecord[],
 	/**  One more than `moves`: frame 0 is the starting position. */
 	frames: ReplayFrame[],
 };
 
 export type SheetColumnOrder = "kqrbnp" | "kqbnrp";
+
+export type Theme = "dark" | "light" | "system";
 
 export type TimeControl = {
 	baseMs: number,

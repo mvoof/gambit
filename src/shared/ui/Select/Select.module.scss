@@ -1,0 +1,43 @@
+.field {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+}
+
+.select {
+  width: 100%;
+  padding: sp('sm') rem(32) sp('sm') sp('lg');
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $text-primary;
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+  cursor: pointer;
+  appearance: none;
+
+  &:hover {
+    border-color: $border-accent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+
+  option {
+    color: $text-primary;
+    background: $bg-panel;
+  }
+}
+
+.chevron {
+  position: absolute;
+  top: 50%;
+  right: sp('md');
+  width: rem(16);
+  height: rem(16);
+  color: $text-secondary;
+  pointer-events: none;
+  transform: translateY(-50%);
+}

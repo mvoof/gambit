@@ -34,6 +34,7 @@ struct PlyEntry {
 pub struct GameExtras {
     pub human_color: Color,
     pub opponent_name: String,
+    pub opponent_elo: Option<u32>,
     pub premove: Option<MoveOption>,
     pub move_marks: Vec<MoveMark>,
     pub clock: Option<ClockView>,
@@ -354,6 +355,7 @@ impl Game {
             turn: self.turn(),
             human_color: extras.human_color,
             opponent_name: extras.opponent_name,
+            opponent_elo: extras.opponent_elo,
             outcome: self.outcome,
             legal_moves,
             premove_options: premove_list,
@@ -494,6 +496,7 @@ mod tests {
             is_training: false,
             human_color: Color::White,
             opponent_name: "Engine".to_owned(),
+            opponent_elo: None,
             premove: None,
             clock: None,
             engine_thinking: false,

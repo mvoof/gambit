@@ -1,0 +1,25 @@
+.controls {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: sp('sm');
+}
+
+.row {
+  display: flex;
+  gap: sp('xs');
+
+  > button {
+    flex: 1;
+    padding: sp('sm');
+  }
+}
+
+.speed {
+  flex: none;
+  width: rem(84);
+}
+
+.nextMistake {
+  flex: 6 !important;
+}

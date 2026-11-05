@@ -9,6 +9,11 @@ import type {
 export const startGame = (options: NewGameOptions) =>
   invoke<GameView>('new_game', { options });
 
+export const suspendGame = () => invoke<void>('suspend_game');
+
+export const resumeGame = (id: number) =>
+  invoke<GameView>('resume_game', { id });
+
 export const fetchCurrentGame = () => invoke<GameView | null>('current_game');
 
 export const fetchGameFrames = () => invoke<ReplayFrame[]>('game_frames');

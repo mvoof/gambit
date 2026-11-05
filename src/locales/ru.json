@@ -5,9 +5,9 @@
       "tagline": "Шахматы против настоящего движка, прямо на вашем компьютере."
     },
     "nav": {
-      "play": "Игра",
       "archive": "Архив",
-      "settings": "Настройки"
+      "settings": "Настройки",
+      "home": "Главная"
     },
     "common": {
       "cancel": "Отмена",
@@ -27,7 +27,10 @@
         "mistake": "Ошибка. Лучше было {{move}}.",
         "blunder": "Грубая ошибка. Лучше было {{move}}."
       },
-      "engineFailed": "Движок перестал отвечать. Начните новую партию."
+      "engineFailed": "Движок перестал отвечать. Начните новую партию.",
+      "takeBackShort": "Отменить",
+      "offerDrawShort": "Ничья",
+      "flipShort": "Перевернуть"
     },
     "result": {
       "whiteWins": "Белые победили",
@@ -66,7 +69,15 @@
       "showCoordinates": "Координаты",
       "showLegalMoves": "Точки возможных ходов",
       "showLastMove": "Подсветка последнего хода",
-      "showCheck": "Подсветка шаха"
+      "showCheck": "Подсветка шаха",
+      "animateMoves": "Анимация ходов",
+      "preset": {
+        "sand": "Песок",
+        "walnut": "Орех",
+        "slate": "Сланец",
+        "moss": "Мох",
+        "river": "Река"
+      }
     },
     "newGame": {
       "title": "Новая партия",
@@ -90,7 +101,18 @@
       "whiteToMove": "Ход белых",
       "blackToMove": "Ход чёрных",
       "scoreSide": "плюс — лучше белым",
-      "thinking": "Движок считает…"
+      "thinking": "Движок считает…",
+      "bestMove": "Лучший ход",
+      "score": "Оценка: {{score}} ({{verdict}})",
+      "verdict": {
+        "even": "позиция равна",
+        "smallWhite": "небольшое преимущество белых",
+        "smallBlack": "небольшое преимущество чёрных",
+        "clearWhite": "явное преимущество белых",
+        "clearBlack": "явное преимущество чёрных",
+        "winningWhite": "белые выигрывают",
+        "winningBlack": "чёрные выигрывают"
+      }
     },
     "engine": {
       "current": "Текущий движок: {{name}}",
@@ -108,15 +130,55 @@
       }
     },
     "archive": {
-      "title": "Архив",
+      "title": "Архив партий",
       "import": "Импорт PGN",
       "export": "Экспорт PGN",
       "delete": "Удалить",
-      "empty": "Здесь появятся завершённые партии.",
-      "plies_one": "{{count}} полуход",
-      "plies_few": "{{count}} полухода",
-      "plies_many": "{{count}} полуходов",
-      "plies_other": "{{count}} полухода"
+      "empty": "Здесь появятся ваши партии.",
+      "subtitle": "Сохранённые партии и разборы",
+      "nothingFound": "Под фильтр не подошла ни одна партия.",
+      "sections": "Разделы архива",
+      "section": {
+        "all": "Все партии",
+        "unfinished": "Незавершённые",
+        "wins": "Победы",
+        "losses": "Поражения",
+        "draws": "Ничьи",
+        "reviewed": "Разобранные",
+        "withMistakes": "С ошибками",
+        "favorites": "Избранное"
+      },
+      "search": "Поиск по сопернику или дате",
+      "colorFilter": "Цвет",
+      "colorAny": "Цвет: все",
+      "colorWhite": "Цвет: белые",
+      "colorBlack": "Цвет: чёрные",
+      "sortFilter": "Сортировка",
+      "sortNewest": "Сначала новые",
+      "sortOldest": "Сначала старые",
+      "sortLongest": "Сначала длинные",
+      "column": {
+        "opponent": "Соперник",
+        "result": "Результат",
+        "moves": "Ходы",
+        "date": "Дата",
+        "actions": "Действия"
+      },
+      "review": "Разбор",
+      "playOn": "Доиграть",
+      "favorite": "Избранное",
+      "storage": "Хранилище",
+      "storageText_one": "{{count}} партия · {{size}}",
+      "storageText_few": "{{count}} партии · {{size}}",
+      "storageText_many": "{{count}} партий · {{size}}",
+      "storageText_other": "{{count}} партии · {{size}}",
+      "page": "Страница {{page}} из {{count}}",
+      "previousPage": "Предыдущая страница",
+      "nextPage": "Следующая страница",
+      "moves_one": "{{count}} ход",
+      "moves_few": "{{count}} хода",
+      "moves_many": "{{count}} ходов",
+      "moves_other": "{{count}} хода"
     },
     "replay": {
       "first": "Начальная позиция",
@@ -125,17 +187,45 @@
       "last": "Конечная позиция",
       "autoplay": "Пуск или пауза",
       "measuring": "Разбор партии: {{measured}} из {{total}}",
-      "measuringFailed": "Не удалось разобрать партию."
+      "measuringFailed": "Не удалось разобрать партию.",
+      "title": "Разбор партии",
+      "tabAll": "Все ходы",
+      "tabMistakes": "Ошибки ({{count}})",
+      "tabBest": "Лучшие ({{count}})",
+      "depth": "Глубина: {{depth}}",
+      "speed": "Скорость автопроигрывания",
+      "nextMistake": "Следующая ошибка",
+      "captured": "Взятые фигуры",
+      "graph": "График оценки",
+      "graphPending": "График растёт по мере разбора партии.",
+      "graphPoint": "Полуход {{ply}}: {{score}}",
+      "players": "{{white}} — {{black}} · {{result}}"
     },
     "settings": {
       "title": "Настройки",
       "engine": "Движок",
       "general": "Общие",
-      "board": "Доска",
+      "board": "Доска и фигуры",
       "pieces": "Фигуры",
-      "volume": "Громкость: {{volume}}%",
-      "evalBar": "Шкала оценки в тренировке и реплее",
-      "updates": "Обновления"
+      "evalBar": "Показывать оценку позиции в тренировке и разборе",
+      "updates": "Обновления",
+      "subtitle": "Настройте игру под себя",
+      "sections": "Разделы настроек",
+      "language": "Язык интерфейса",
+      "interface": "Интерфейс",
+      "sound": "Звук",
+      "data": "Данные",
+      "analysis": "Анализ",
+      "analysisDepth": "Глубина анализа",
+      "analysisLines": "Количество вариантов",
+      "volumeLabel": "Громкость",
+      "theme": {
+        "dark": "Тёмная",
+        "light": "Светлая",
+        "system": "Системная"
+      },
+      "reset": "Сбросить настройки",
+      "resetNote": "Язык, движок и ваши партии останутся."
     },
     "window": {
       "minimize": "Свернуть",
@@ -149,6 +239,41 @@
       "available": "Доступна версия {{version}}.",
       "install": "Установить и перезапустить",
       "installing": "Установка обновления… {{percent}}%"
+    },
+    "home": {
+      "welcome": "Добро пожаловать в Gambit",
+      "tagline": "Играйте в шахматы, анализируйте партии и совершенствуйте своё мастерство.",
+      "resume": "Продолжить партию",
+      "review": "Разбор партии",
+      "reviewText": "Ваши партии глазами движка",
+      "import": "Импорт PGN",
+      "importText": "Добавить партию из файла",
+      "recent": "Недавние партии",
+      "allGames": "Весь архив",
+      "stats": "Ваша статистика",
+      "winsShare": "Побед"
+    },
+    "leaveGame": {
+      "title": "Остановить партию?",
+      "text": "Партия будет остановлена, а часы встанут на паузу. Доиграть её можно позже: она появится в архиве, в разделе «Незавершённые».",
+      "stay": "Остаться в игре",
+      "leave": "Остановить и выйти"
+    },
+    "playerResult": {
+      "win": "Победа",
+      "loss": "Поражение",
+      "draw": "Ничья",
+      "unfinished": "Не завершена"
+    },
+    "startGame": {
+      "title": "Новая партия",
+      "play": "Играть",
+      "engine": "Движок",
+      "strength": "Сложность",
+      "level": "~{{elo}} Эло",
+      "fullStrength": "Полная сила",
+      "training": "Тренировка: движок помогает по ходу партии",
+      "options": "Своё время или начальная позиция…"
     }
   }
 }

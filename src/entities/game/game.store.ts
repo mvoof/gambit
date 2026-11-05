@@ -7,8 +7,10 @@ import {
   offerDraw,
   playMove,
   resignGame,
+  resumeGame,
   startGame,
   storePremove,
+  suspendGame,
   takeBackMove,
 } from '@shared/api/game.service';
 import { onGameUpdated } from '@shared/api/events.service';
@@ -78,6 +80,11 @@ export class GameStore {
     return this.view !== null && this.view.outcome === null;
   }
 
+  /** A game with no move yet has nothing to come back to. */
+  get canBeLost() {
+    return this.isPlaying && (this.view?.moves.length ?? 0) > 0;
+  }
+
   flip = () => {
     this.isOrientationFlipped = !this.isOrientationFlipped;
   };
@@ -86,6 +93,28 @@ export class GameStore {
     this.drawDeclined = false;
     this.isOrientationFlipped = false;
     await this.attempt(() => startGame(options));
+  };
+
+  /** The game stays in the archive, to be played on. */
+  suspend = async () => {
+    try {
+      await suspendGame();
+
+      runInAction(() => {
+        this.error = null;
+        this.receive(null);
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = String(error);
+      });
+    }
+  };
+
+  resume = async (id: number) => {
+    this.drawDeclined = false;
+    this.isOrientationFlipped = false;
+    await this.attempt(() => resumeGame(id));
   };
 
   move = (uci: string) => this.attempt(() => playMove(uci));

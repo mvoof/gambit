@@ -3,12 +3,15 @@
 
 use std::fs;
 use std::io;
+use std::ops::RangeInclusive;
 use std::path::Path;
 
 use gb_model::AppSettings;
 use serde_json::Value;
 
 const MAX_SOUND_VOLUME: u32 = 100;
+const ANALYSIS_LINES: RangeInclusive<u32> = 1..=5;
+const ANALYSIS_DEPTH: RangeInclusive<u32> = 12..=40;
 const TEMP_EXTENSION: &str = "tmp";
 
 /// Lays the saved values over the defaults, nested objects included.
@@ -47,6 +50,12 @@ pub fn load_settings(path: &Path) -> AppSettings {
 
 pub fn normalise(mut settings: AppSettings) -> AppSettings {
     settings.sound_volume = settings.sound_volume.min(MAX_SOUND_VOLUME);
+    settings.analysis_lines = settings
+        .analysis_lines
+        .clamp(*ANALYSIS_LINES.start(), *ANALYSIS_LINES.end());
+    settings.analysis_depth = settings
+        .analysis_depth
+        .clamp(*ANALYSIS_DEPTH.start(), *ANALYSIS_DEPTH.end());
 
     settings
 }
@@ -62,6 +71,16 @@ pub fn save_settings(path: &Path, settings: &AppSettings) -> io::Result<()> {
 
     fs::write(&temporary, text)?;
     fs::rename(&temporary, path)
+}
+
+/// The defaults, except what the user would have to find again.
+pub fn reset(current: &AppSettings) -> AppSettings {
+    AppSettings {
+        language: current.language.clone(),
+        engine_path: current.engine_path.clone(),
+        last_game: current.last_game.clone(),
+        ..AppSettings::default()
+    }
 }
 
 #[cfg(test)]
@@ -112,6 +131,36 @@ mod tests {
         let settings = merged_with_defaults(r#"{"soundVolume":5,"llm":{"enabled":true}}"#).unwrap();
 
         assert_eq!(settings.sound_volume, 5);
+    }
+
+    #[test]
+    fn a_reset_keeps_the_language_and_the_engine() {
+        let settings = AppSettings {
+            language: "ru".to_owned(),
+            engine_path: Some("C:/engines/my.exe".to_owned()),
+            sound_volume: 5,
+            piece_set: "merida".to_owned(),
+            ..AppSettings::default()
+        };
+        let fresh = reset(&settings);
+
+        assert_eq!(fresh.language, "ru");
+        assert_eq!(fresh.engine_path, settings.engine_path);
+        assert_eq!(fresh.sound_volume, AppSettings::default().sound_volume);
+        assert_eq!(fresh.piece_set, AppSettings::default().piece_set);
+    }
+
+    #[test]
+    fn the_analysis_settings_stay_in_range() {
+        let settings = AppSettings {
+            analysis_lines: 0,
+            analysis_depth: 900,
+            ..AppSettings::default()
+        };
+        let normal = normalise(settings);
+
+        assert_eq!(normal.analysis_lines, *ANALYSIS_LINES.start());
+        assert_eq!(normal.analysis_depth, *ANALYSIS_DEPTH.end());
     }
 
     #[test]

@@ -1,0 +1,82 @@
+.card {
+  flex: 1;
+}
+
+.presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: sp('md');
+}
+
+.preset {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: sp('xs');
+  padding: sp('md') sp('sm');
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $text-secondary;
+  white-space: nowrap;
+  background: $bg-raised;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    border-color $transition-fast;
+
+  &:hover {
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+}
+
+.active {
+  color: $accent-strong;
+  background: $accent-soft;
+  border-color: $accent;
+}
+
+.icon {
+  width: rem(16);
+  height: rem(16);
+  color: $accent;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: sp('md') sp('xl');
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.engine {
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.options {
+  align-self: center;
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $text-muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-strong;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+  }
+}

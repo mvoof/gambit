@@ -1,39 +1,30 @@
-.panel {
+.page {
+  --board-reserved-height: calc(
+    #{$header-height} + #{$replay-players-height} + #{$replay-summary-height} +
+      #{sp('lg')} * 4
+  );
+  --board-reserved-width: calc(
+    #{$side-panel-width} + #{rem(40)} + #{rem(56)} + #{sp('xxl')} * 3
+  );
+
+  display: flex;
+  justify-content: center;
+  gap: sp('xxl');
+  height: calc(100vh - #{$header-height});
+  padding: sp('lg') sp('xxl');
+  overflow: hidden;
+}
+
+.stage {
   display: flex;
   flex: none;
   flex-direction: column;
-  gap: sp('md');
-  width: $side-panel-width;
+  gap: sp('lg');
   min-height: 0;
-  align-self: stretch;
 }
 
-.header {
+.boardRow {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.players {
-  font-weight: 600;
-}
-
-.result {
-  font-size: fs('sm');
-  color: $text-muted;
-}
-
-.controls {
-  display: flex;
-  gap: sp('xs');
-
-  button {
-    flex: 1;
-    padding: sp('sm');
-  }
-}
-
-.icon {
-  width: rem(16);
-  height: rem(16);
+  justify-content: center;
+  gap: sp('md');
 }

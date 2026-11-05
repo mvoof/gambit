@@ -1,0 +1,29 @@
+.identity {
+  display: flex;
+  align-items: center;
+  gap: sp('lg');
+  min-width: 0;
+}
+
+.thumbnail {
+  width: rem(48);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-size: fs('sm');
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.elo {
+  font-size: fs('xs');
+  color: $text-muted;
+}

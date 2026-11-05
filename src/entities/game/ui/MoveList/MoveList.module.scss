@@ -6,7 +6,7 @@
   list-style: none;
   background: $bg-card;
   border: 1px solid $border-sub;
-  border-radius: radius('lg');
+  border-radius: radius('xl');
 }
 
 .row {
@@ -22,6 +22,9 @@
 }
 
 .move {
+  display: flex;
+  align-items: center;
+  gap: sp('xxs');
   padding: sp('xxs') sp('sm');
   font-family: $font-app;
   font-size: fs('sm');
@@ -44,27 +47,41 @@
 
 .active {
   color: $text-on-accent;
-  background: $accent;
+  background: $accent-gradient;
 
   &:hover {
-    background: $accent-strong;
+    background: $accent-gradient;
   }
 }
 
+.faded {
+  opacity: 0.45;
+}
+
+.best {
+  width: rem(14);
+  height: rem(14);
+  color: $success;
+}
+
 .inaccuracy {
-  margin-left: sp('xxs');
   font-weight: 700;
   color: $accent;
 }
 
 .mistake {
-  margin-left: sp('xxs');
   font-weight: 700;
   color: $danger;
 }
 
 .blunder {
-  margin-left: sp('xxs');
   font-weight: 800;
   color: $danger;
+}
+
+.active .inaccuracy,
+.active .mistake,
+.active .blunder,
+.active .best {
+  color: $text-on-accent;
 }

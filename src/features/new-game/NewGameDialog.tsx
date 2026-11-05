@@ -4,22 +4,19 @@ import { useTranslation } from 'react-i18next';
 
 import { useEngineStore } from '@entities/engine/engine-context';
 import { useGameStore } from '@entities/game/game-context';
+import { useNavigationStore } from '@entities/navigation/navigation-context';
 import { useSettingsStore } from '@entities/settings/settings-context';
 import type {
   ColorChoice,
   NewGameOptions,
 } from '@shared/contracts/generated/bindings';
+import { timeControlOf } from '@shared/lib/time-control';
 import { Button } from '@shared/ui/Button/Button';
 import { Dialog } from '@shared/ui/Dialog/Dialog';
 import { Segmented } from '@shared/ui/Segmented/Segmented';
 import { Toggle } from '@shared/ui/Toggle/Toggle';
 
-import {
-  CUSTOM_PRESET,
-  TIME_PRESETS,
-  UNLIMITED_PRESET,
-  timeControlOf,
-} from './time-presets';
+import { CUSTOM_PRESET, TIME_PRESETS, UNLIMITED_PRESET } from './time-presets';
 import styles from './NewGameDialog.module.scss';
 
 const DEFAULT_PRESET = UNLIMITED_PRESET;
@@ -32,13 +29,15 @@ const MAX_CUSTOM_INCREMENT = 60;
 
 interface NewGameDialogProps {
   isOpen: boolean;
+  isTrainingByDefault?: boolean;
   onClose: () => void;
 }
 
 export const NewGameDialog = observer(
-  ({ isOpen, onClose }: NewGameDialogProps) => {
+  ({ isOpen, isTrainingByDefault = false, onClose }: NewGameDialogProps) => {
     const { t } = useTranslation();
     const game = useGameStore();
+    const navigation = useNavigationStore();
     const { engine } = useEngineStore();
     const settingsStore = useSettingsStore();
     const [color, setColor] = useState<ColorChoice>('white');
@@ -49,7 +48,7 @@ export const NewGameDialog = observer(
     );
     const [elo, setElo] = useState(DEFAULT_ELO);
     const [startFen, setStartFen] = useState('');
-    const [isTraining, setTraining] = useState(false);
+    const [isTraining, setTraining] = useState(isTrainingByDefault);
     const eloRange = engine?.eloRange ?? null;
     const shownElo = eloRange
       ? Math.min(Math.max(elo, eloRange.min), eloRange.max)
@@ -83,6 +82,7 @@ export const NewGameDialog = observer(
       };
 
       onClose();
+      navigation.request('play');
       await game.newGame(options);
       await settingsStore.update({ lastGame: options });
     };

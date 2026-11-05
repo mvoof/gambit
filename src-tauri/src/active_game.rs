@@ -11,25 +11,56 @@ use gb_engine::{accepts_draw, Score, SearchLimit};
 use gb_model::{
     Color, GameResult, GameView, MoveMark, MoveOption, NewGameOptions, ReplayFrame, TimeControl,
 };
+use serde::{Deserialize, Serialize};
 
 /// The opponent's thinking time when there is no clock.
 const UNLIMITED_MOVE_TIME_MS: u32 = 1_500;
 const HUMAN_NAME: &str = "Player";
 const PLIES_IN_A_ROUND: usize = 2;
+const UNFINISHED_RESULT: &str = "*";
 
 /// A move of the player, waiting for the engine to measure it.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PlayedMove {
     pub ply: u32,
+    pub color: Color,
     pub uci: String,
     pub fen_before: String,
     pub fen_after: String,
+}
+
+/// All it takes to play on later, stored with the unfinished game.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ResumeState {
+    start_fen: Option<String>,
+    moves: Vec<String>,
+    human_color: Color,
+    opponent_name: String,
+    opponent_elo: Option<u32>,
+    time_control: Option<TimeControl>,
+    is_training: bool,
+    /// The clocks at the moment the game was stopped.
+    clock: Option<ClockSnapshot>,
+    clock_history: Vec<ClockSnapshot>,
+    move_marks: Vec<MoveMark>,
+}
+
+impl ResumeState {
+    pub fn opponent_elo(&self) -> Option<u32> {
+        self.opponent_elo
+    }
+
+    pub fn is_training(&self) -> bool {
+        self.is_training
+    }
 }
 
 pub struct ActiveGame {
     game: Game,
     human_color: Color,
     opponent_name: String,
+    opponent_elo: Option<u32>,
     time_control: Option<TimeControl>,
     is_training: bool,
     clock: Option<Clock>,
@@ -41,7 +72,10 @@ pub struct ActiveGame {
     engine_score: Option<Score>,
     engine_thinking: bool,
     engine_failed: bool,
-    saved: bool,
+    /// Its row in the archive, once it has one.
+    archive_id: Option<u32>,
+    /// The plies and the end of the game as last written to the archive.
+    saved_state: (usize, bool),
 }
 
 fn clamp_u32(value: u64) -> u32 {
@@ -60,6 +94,7 @@ impl ActiveGame {
             game: Game::new(options.start_fen.as_deref())?,
             human_color,
             opponent_name,
+            opponent_elo: options.elo,
             time_control: options.time_control,
             is_training: options.training,
             clock_history: clock.iter().map(|start| start.snapshot(0)).collect(),
@@ -70,7 +105,45 @@ impl ActiveGame {
             engine_score: None,
             engine_thinking: false,
             engine_failed: false,
-            saved: false,
+            archive_id: None,
+            saved_state: (0, false),
+        })
+    }
+
+    /// The game as it was stopped. The clocks run from `now_ms`.
+    pub fn resume(state: ResumeState, archive_id: u32, now_ms: u64) -> Result<Self, ChessError> {
+        let mut game = Game::new(state.start_fen.as_deref())?;
+
+        for uci in &state.moves {
+            game.play_uci(uci)?;
+        }
+
+        let clock = state.time_control.map(Clock::new).map(|mut clock| {
+            if let Some(snapshot) = state.clock {
+                clock.restore(snapshot, now_ms);
+            }
+
+            clock
+        });
+        let saved_state = (game.ply_count(), false);
+
+        Ok(Self {
+            game,
+            human_color: state.human_color,
+            opponent_name: state.opponent_name,
+            opponent_elo: state.opponent_elo,
+            time_control: state.time_control,
+            is_training: state.is_training,
+            clock,
+            clock_history: state.clock_history,
+            premove: None,
+            played_moves: Vec::new(),
+            move_marks: state.move_marks,
+            engine_score: None,
+            engine_thinking: false,
+            engine_failed: false,
+            archive_id: Some(archive_id),
+            saved_state,
         })
     }
 
@@ -157,6 +230,7 @@ impl ActiveGame {
         if self.game.ply_count() > plies_before {
             self.played_moves.push(PlayedMove {
                 ply: clamp_u32(self.game.ply_count() as u64),
+                color: self.human_color,
                 uci: uci.to_owned(),
                 fen_before,
                 fen_after: self.game.fen(),
@@ -339,6 +413,7 @@ impl ActiveGame {
         self.game.view(GameExtras {
             human_color: self.human_color,
             opponent_name: self.opponent_name.clone(),
+            opponent_elo: self.opponent_elo,
             premove: self.premove.clone(),
             move_marks: self.move_marks.clone(),
             clock: self.clock.as_ref().map(|clock| clock.view(now_ms)),
@@ -356,16 +431,52 @@ impl ActiveGame {
         }
     }
 
-    /// The record to save, once: `None` when there is nothing new to save.
-    pub fn take_record(&mut self, played_at: u32, date: String) -> Option<NewGame> {
-        let outcome = self.game.outcome()?;
+    fn current_state(&self) -> (usize, bool) {
+        (self.game.ply_count(), self.is_over())
+    }
 
-        if self.saved || self.game.ply_count() == 0 {
+    pub fn is_saved(&self) -> bool {
+        self.saved_state == self.current_state()
+    }
+
+    pub fn archive_id(&self) -> Option<u32> {
+        self.archive_id
+    }
+
+    pub fn mark_saved(&mut self, archive_id: u32) {
+        self.archive_id = Some(archive_id);
+        self.saved_state = self.current_state();
+    }
+
+    /// Nothing is left to keep: its row, if it had one, should go.
+    pub fn forget_saved(&mut self) -> Option<u32> {
+        self.saved_state = self.current_state();
+        self.archive_id.take()
+    }
+
+    fn resume_state(&self, now_ms: u64) -> ResumeState {
+        ResumeState {
+            start_fen: self.start_fen(),
+            moves: self.move_list(),
+            human_color: self.human_color,
+            opponent_name: self.opponent_name.clone(),
+            opponent_elo: self.opponent_elo,
+            time_control: self.time_control,
+            is_training: self.is_training,
+            clock: self.clock.as_ref().map(|clock| clock.snapshot(now_ms)),
+            clock_history: self.clock_history.clone(),
+            move_marks: self.move_marks.clone(),
+        }
+    }
+
+    /// The game as the archive should hold it: `None` before the first move.
+    pub fn record(&self, now_ms: u64, played_at: u32, date: String) -> Option<NewGame> {
+        if self.game.ply_count() == 0 {
             return None;
         }
 
-        self.saved = true;
-
+        let outcome = self.game.outcome();
+        let resume = outcome.is_none().then(|| self.resume_state(now_ms));
         let (white, black) = self.players();
         let pgn = export_pgn(
             &self.game,
@@ -376,21 +487,26 @@ impl ActiveGame {
                 time_control: self.time_control,
             },
         );
-        let result = match outcome.result {
-            GameResult::WhiteWins => "1-0",
-            GameResult::BlackWins => "0-1",
-            GameResult::Draw => "1/2-1/2",
+        let result = match outcome.map(|finished| finished.result) {
+            Some(GameResult::WhiteWins) => "1-0",
+            Some(GameResult::BlackWins) => "0-1",
+            Some(GameResult::Draw) => "1/2-1/2",
+            None => UNFINISHED_RESULT,
         };
 
         Some(NewGame {
             white,
             black,
             result: result.to_owned(),
-            reason: Some(outcome.reason),
+            reason: outcome.map(|finished| finished.reason),
             played_at,
             ply_count: clamp_u32(self.game.ply_count() as u64),
             time_control: format_time_control(self.time_control),
             pgn,
+            human_color: Some(self.human_color),
+            opponent_elo: self.opponent_elo,
+            final_fen: Some(self.game.fen()),
+            resume: resume.and_then(|state| serde_json::to_string(&state).ok()),
         })
     }
 }
@@ -416,6 +532,7 @@ mod review_tests {
     fn mark(ply: u32) -> MoveMark {
         MoveMark {
             ply,
+            color: Color::White,
             quality: MoveQuality::Mistake,
             best_san: "d4".to_owned(),
         }
@@ -466,7 +583,7 @@ mod review_tests {
 
 #[cfg(test)]
 mod tests {
-    use gb_model::{ColorChoice, GameEndReason};
+    use gb_model::{ColorChoice, GameEndReason, MoveQuality};
 
     use super::*;
 
@@ -683,31 +800,161 @@ mod tests {
     }
 
     #[test]
-    fn a_finished_game_gives_its_record_once() {
+    fn a_finished_game_gives_a_full_record_with_nothing_to_resume() {
         let mut game = as_white(timed());
 
-        assert!(game.take_record(1, "2026.11.05".to_owned()).is_none());
+        assert!(game.record(0, 1, "2026.11.05".to_owned()).is_none());
 
         game.human_move("e2e4", 0).unwrap();
         game.resign(0);
 
-        let record = game.take_record(1, "2026.11.05".to_owned()).unwrap();
+        let record = game.record(0, 1, "2026.11.05".to_owned()).unwrap();
 
         assert_eq!(record.result, "0-1");
         assert_eq!(record.white, HUMAN_NAME);
         assert_eq!(record.black, "Fake");
         assert_eq!(record.time_control, "60+1");
         assert_eq!(record.ply_count, 1);
+        assert_eq!(record.human_color, Some(Color::White));
+        assert_eq!(record.resume, None);
+        assert!(record.final_fen.is_some());
         assert!(record.pgn.contains("[Date \"2026.11.05\"]"));
-        assert!(game.take_record(1, "2026.11.05".to_owned()).is_none());
     }
 
     #[test]
-    fn a_game_with_no_moves_is_not_saved() {
+    fn a_game_with_no_moves_has_no_record() {
         let mut game = as_white(None);
 
         game.resign(0);
 
-        assert!(game.take_record(1, "2026.11.05".to_owned()).is_none());
+        assert!(game.record(0, 1, "2026.11.05".to_owned()).is_none());
+    }
+
+    #[test]
+    fn a_new_move_or_the_end_needs_saving_again() {
+        let mut game = as_white(None);
+
+        assert!(game.is_saved());
+
+        game.human_move("e2e4", 0).unwrap();
+
+        assert!(!game.is_saved());
+
+        game.mark_saved(4);
+
+        assert!(game.is_saved());
+        assert_eq!(game.archive_id(), Some(4));
+
+        game.resign(0);
+
+        assert!(!game.is_saved());
+    }
+
+    #[test]
+    fn taking_back_every_move_forgets_the_row() {
+        let mut game = as_white(None);
+
+        game.human_move("e2e4", 0).unwrap();
+        game.mark_saved(4);
+        game.take_back(0).unwrap();
+
+        assert_eq!(game.forget_saved(), Some(4));
+        assert!(game.is_saved());
+        assert_eq!(game.archive_id(), None);
+    }
+
+    fn mark(ply: u32) -> MoveMark {
+        MoveMark {
+            ply,
+            color: Color::White,
+            quality: MoveQuality::Mistake,
+            best_san: "d4".to_owned(),
+        }
+    }
+
+    fn stopped_game(game: &ActiveGame, now_ms: u64) -> ResumeState {
+        let record = game.record(now_ms, 1, "2026.11.05".to_owned()).unwrap();
+
+        serde_json::from_str(&record.resume.unwrap()).unwrap()
+    }
+
+    #[test]
+    fn an_unfinished_game_comes_back_as_it_was() {
+        let mut game = as_white(timed());
+
+        game.human_move("e2e4", 0).unwrap();
+        game.engine_move("e7e5", None, 5_000).unwrap();
+        game.add_move_mark("e2e4", mark(1));
+
+        let record = game.record(15_000, 1, "2026.11.05".to_owned()).unwrap();
+
+        assert_eq!(record.result, UNFINISHED_RESULT);
+        assert_eq!(record.reason, None);
+
+        let state = stopped_game(&game, 15_000);
+        let resumed = ActiveGame::resume(state, 7, 900_000).unwrap();
+        let view = resumed.view(900_000);
+        let clock = view.clock.unwrap();
+
+        assert_eq!(view.moves.len(), 2);
+        assert_eq!(view.move_marks, vec![mark(1)]);
+        assert_eq!(view.opponent_name, "Fake");
+        assert_eq!(clock.white_ms, MINUTE_MS - 10_000);
+        assert_eq!(clock.running, Some(Color::White));
+        assert_eq!(resumed.archive_id(), Some(7));
+        assert!(resumed.is_saved());
+    }
+
+    #[test]
+    fn a_resumed_game_can_still_take_a_move_back_with_its_clock() {
+        let mut game = as_white(timed());
+
+        game.human_move("e2e4", 0).unwrap();
+        game.engine_move("e7e5", None, 2_000).unwrap();
+        game.human_move("g1f3", 12_000).unwrap();
+        game.engine_move("b8c6", None, 15_000).unwrap();
+
+        let state = stopped_game(&game, 20_000);
+        let mut resumed = ActiveGame::resume(state, 7, 0).unwrap();
+
+        resumed.take_back(1_000).unwrap();
+
+        let view = resumed.view(1_000);
+
+        assert_eq!(view.moves.len(), 2);
+        assert_eq!(view.clock.unwrap().white_ms, MINUTE_MS);
+    }
+
+    #[test]
+    fn a_game_waiting_for_the_engine_asks_it_again_after_resuming() {
+        let mut game = as_white(None);
+
+        game.human_move("e2e4", 0).unwrap();
+
+        let resumed = ActiveGame::resume(stopped_game(&game, 0), 7, 0).unwrap();
+
+        assert!(resumed.is_engine_turn());
+        assert!(!resumed.is_thinking());
+    }
+
+    #[test]
+    fn a_resumed_game_keeps_the_strength_and_the_help() {
+        let mut game = ActiveGame::new(
+            &NewGameOptions {
+                elo: Some(1900),
+                training: true,
+                ..options(None)
+            },
+            Color::White,
+            "Fake".to_owned(),
+        )
+        .unwrap();
+
+        game.human_move("e2e4", 0).unwrap();
+
+        let state = stopped_game(&game, 0);
+
+        assert_eq!(state.opponent_elo(), Some(1900));
+        assert!(state.is_training());
     }
 }

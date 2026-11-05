@@ -1,3 +1,5 @@
+import { User } from 'lucide-react';
+
 import { pieceCode } from '@shared/lib/piece-code';
 import { ClockFace } from '../ClockFace/ClockFace';
 import type {
@@ -11,6 +13,8 @@ import styles from './PlayerStrip.module.scss';
 
 interface PlayerStripProps {
   name: string;
+  /** The opponent's strength; a player has none to show. */
+  elo?: number | null;
   color: Color;
   clock: ClockView | null;
   /** The pieces this player has taken. */
@@ -22,6 +26,7 @@ interface PlayerStripProps {
 
 export const PlayerStrip = ({
   name,
+  elo = null,
   color,
   clock,
   captured,
@@ -33,22 +38,28 @@ export const PlayerStrip = ({
   return (
     <div className={styles.strip}>
       <div className={styles.identity}>
-        <span className={styles.name}>{name}</span>
-        <div className={styles.captured}>
-          {captured.map((kind, index) => (
-            <img
-              key={`${kind}${index}`}
-              className={styles.capturedPiece}
-              src={images[pieceCode(capturedColor, kind)]}
-              alt=""
-            />
-          ))}
-          {advantage > 0 ? (
-            <span className={styles.advantage}>+{advantage}</span>
-          ) : null}
+        <span className={styles.avatar}>
+          <User aria-hidden />
+        </span>
+        <div className={styles.text}>
+          <span className={styles.name}>{name}</span>
+          {elo === null ? null : <span className={styles.elo}>≈ {elo}</span>}
         </div>
       </div>
       {clock ? <ClockFace clock={clock} color={color} /> : null}
+      <div className={styles.captured}>
+        {captured.map((kind, index) => (
+          <img
+            key={`${kind}${index}`}
+            className={styles.capturedPiece}
+            src={images[pieceCode(capturedColor, kind)]}
+            alt=""
+          />
+        ))}
+        {advantage > 0 ? (
+          <span className={styles.advantage}>+{advantage}</span>
+        ) : null}
+      </div>
     </div>
   );
 };

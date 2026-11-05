@@ -1,0 +1,69 @@
+.card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: sp('sm');
+  padding: sp('md');
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: sp('md');
+}
+
+.icon {
+  flex: none;
+  width: rem(24);
+  height: rem(24);
+  color: $accent;
+}
+
+.engine {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-size: fs('sm');
+  font-weight: 700;
+}
+
+.depth {
+  font-size: fs('xxs');
+  color: $text-muted;
+}
+
+.score {
+  flex: none;
+  min-width: rem(60);
+  padding: sp('xxs') sp('sm');
+  font-weight: 700;
+  text-align: center;
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+}
+
+.better {
+  display: flex;
+  align-items: center;
+  gap: sp('xs');
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  font-weight: 600;
+  color: $success;
+  background: $success-soft;
+  border-radius: radius('lg');
+}
+
+.hint {
+  flex: none;
+  width: rem(16);
+  height: rem(16);
+}

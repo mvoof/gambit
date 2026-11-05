@@ -1,0 +1,28 @@
+.panel {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: sp('md');
+  width: rem(380);
+  min-height: 0;
+  align-self: stretch;
+}
+
+.header {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: fs('xl');
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.result {
+  font-size: fs('xs');
+  color: $text-muted;
+}

@@ -8,15 +8,15 @@ use gb_archive::NewGame;
 use gb_chess::parse_pgn;
 use gb_engine::{install_stockfish, probe_engine};
 use gb_model::{
-    AppSettings, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages, PieceSetView,
-    ReplayFrame, ReplayGame, SheetColumnOrder,
+    AppSettings, ArchiveStats, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages,
+    PieceSetView, ReplayFrame, ReplayGame, SheetColumnOrder,
 };
 use gb_pieces::preview_sheet;
 use tauri::State;
 
 use crate::analysis::AnalysisTarget;
 use crate::game_review::ReviewTarget;
-use crate::settings::{normalise, save_settings};
+use crate::settings::{normalise, reset, save_settings};
 use crate::state::{lock, to_message, AppState};
 
 const NO_ENGINE: &str = "no engine installed";
@@ -36,6 +36,16 @@ pub fn save_app_settings(state: State<'_, AppState>, settings: AppSettings) -> R
     lock(&state.settings).clone_from(&normal);
 
     Ok(normal)
+}
+
+#[tauri::command]
+pub fn reset_app_settings(state: State<'_, AppState>) -> Reply<AppSettings> {
+    let fresh = reset(&lock(&state.settings));
+
+    save_settings(&state.settings_path, &fresh).map_err(to_message)?;
+    lock(&state.settings).clone_from(&fresh);
+
+    Ok(fresh)
 }
 
 #[tauri::command]
@@ -79,6 +89,21 @@ pub async fn new_game(state: State<'_, AppState>, options: NewGameOptions) -> Re
     let path = state.engine_path().ok_or_else(|| NO_ENGINE.to_owned())?;
 
     state.session.new_game(options, &path).await
+}
+
+/// Takes the game off the board. It stays in the archive, to be played on.
+#[tauri::command]
+pub async fn suspend_game(state: State<'_, AppState>) -> Reply<()> {
+    state.session.suspend();
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn resume_game(state: State<'_, AppState>, id: u32) -> Reply<GameView> {
+    let path = state.engine_path().ok_or_else(|| NO_ENGINE.to_owned())?;
+
+    state.session.resume_game(id, &path).await
 }
 
 #[tauri::command]
@@ -125,10 +150,18 @@ pub async fn offer_draw(state: State<'_, AppState>) -> Reply<bool> {
 
 #[tauri::command]
 pub fn set_analysis_position(state: State<'_, AppState>, fen: Option<String>) {
+    let (lines, depth) = {
+        let settings = lock(&state.settings);
+
+        (settings.analysis_lines, settings.analysis_depth)
+    };
     let target = fen.and_then(|fen| {
-        state
-            .engine_path()
-            .map(|engine_path| AnalysisTarget { fen, engine_path })
+        state.engine_path().map(|engine_path| AnalysisTarget {
+            fen,
+            engine_path,
+            lines,
+            depth,
+        })
     });
 
     state.analysis.set_target(target);
@@ -156,10 +189,26 @@ pub fn list_games(state: State<'_, AppState>) -> Reply<Vec<GameSummary>> {
 }
 
 #[tauri::command]
-pub fn load_replay(state: State<'_, AppState>, id: u32) -> Reply<ReplayGame> {
-    let pgn = lock(&state.archive).pgn(id).map_err(to_message)?;
+pub fn archive_stats(state: State<'_, AppState>) -> Reply<ArchiveStats> {
+    lock(&state.archive).stats().map_err(to_message)
+}
 
-    parse_pgn(&pgn).map_err(to_message)
+#[tauri::command]
+pub fn set_game_favorite(state: State<'_, AppState>, id: u32, is_favorite: bool) -> Reply<()> {
+    lock(&state.archive)
+        .set_favorite(id, is_favorite)
+        .map_err(to_message)
+}
+
+#[tauri::command]
+pub fn load_replay(state: State<'_, AppState>, id: u32) -> Reply<ReplayGame> {
+    let archive = lock(&state.archive);
+    let replay = parse_pgn(&archive.pgn(id).map_err(to_message)?).map_err(to_message)?;
+
+    Ok(ReplayGame {
+        human_color: archive.human_color(id).map_err(to_message)?,
+        ..replay
+    })
 }
 
 #[tauri::command]
@@ -184,6 +233,10 @@ fn imported_record(pgn: String, replay: &ReplayGame, played_at: u32) -> NewGame 
         ply_count: u32::try_from(replay.moves.len()).unwrap_or(u32::MAX),
         time_control: replay.time_control.clone(),
         pgn,
+        human_color: None,
+        opponent_elo: None,
+        final_fen: replay.frames.last().map(|frame| frame.fen.clone()),
+        resume: None,
     }
 }
 

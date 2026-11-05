@@ -4,9 +4,32 @@
   gap: sp('md');
 }
 
+.presets {
+  display: flex;
+  gap: sp('md');
+}
+
+.preset {
+  width: rem(44);
+  height: rem(44);
+  border: 2px solid $border-sub;
+  border-radius: radius('xl');
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+  }
+}
+
+.active {
+  border-color: $accent;
+}
+
 .colors {
   display: flex;
   gap: sp('xxl');
+  margin-bottom: sp('xs');
 }
 
 .color {

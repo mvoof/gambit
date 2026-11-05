@@ -1,0 +1,37 @@
+.summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  flex: none;
+  gap: sp('md');
+  height: $replay-summary-height;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xs');
+  min-width: 0;
+  min-height: 0;
+  padding: sp('sm') sp('lg');
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+}
+
+.title {
+  font-size: fs('xs');
+  font-weight: 700;
+  color: $accent-strong;
+}
+
+.captured {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: rem(24);
+}
+
+.piece {
+  width: rem(22);
+  height: rem(22);
+  margin-right: rem(-6);
+}

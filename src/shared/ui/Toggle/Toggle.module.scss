@@ -1,14 +1,16 @@
 .toggle {
   display: flex;
   align-items: center;
-  gap: sp('sm');
+  gap: sp('md');
   font-size: fs('sm');
   color: $text-secondary;
   cursor: pointer;
 }
 
 .input {
-  width: rem(16);
-  height: rem(16);
+  flex: none;
+  width: rem(18);
+  height: rem(18);
   accent-color: $accent;
+  cursor: pointer;
 }

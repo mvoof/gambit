@@ -1,0 +1,47 @@
+.toolbar {
+  display: flex;
+  flex: none;
+  gap: sp('lg');
+}
+
+.search {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: sp('sm');
+  min-width: 0;
+  padding: 0 sp('lg');
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+
+  &:focus-within {
+    border-color: $accent;
+  }
+}
+
+.icon {
+  flex: none;
+  width: rem(16);
+  height: rem(16);
+  color: $text-muted;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: sp('sm') 0;
+  font-size: fs('sm');
+  background: none;
+  border: none;
+  outline: none;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.select {
+  flex: none;
+  width: rem(190);
+}

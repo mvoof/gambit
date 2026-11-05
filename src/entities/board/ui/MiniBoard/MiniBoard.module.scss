@@ -1,0 +1,23 @@
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  flex: none;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: radius('md');
+}
+
+.light {
+  background: var(--square-light);
+}
+
+.dark {
+  background: var(--square-dark);
+}
+
+.piece {
+  position: absolute;
+  width: 12.5%;
+  height: 12.5%;
+}

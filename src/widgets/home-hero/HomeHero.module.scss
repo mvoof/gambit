@@ -1,0 +1,67 @@
+// The hero has no frame: the picture melts into the page, on all four sides.
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: rem(340);
+}
+
+.image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 62%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 35%;
+  mask-image:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      black 28%,
+      black 70%,
+      transparent 100%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      black 14%,
+      black 80%,
+      transparent 100%
+    );
+  mask-composite: intersect;
+}
+
+.text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: sp('lg');
+  max-width: rem(500);
+  padding: sp('xxl') sp('xl');
+}
+
+.title {
+  font-family: $font-display;
+  font-size: rem(40);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tagline {
+  font-size: fs('lg');
+  color: $text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: sp('lg');
+  margin-top: sp('md');
+}
+
+.hint {
+  font-size: fs('sm');
+  color: $text-muted;
+}

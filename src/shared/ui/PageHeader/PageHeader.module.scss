@@ -1,0 +1,36 @@
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: sp('xl');
+}
+
+.icon {
+  flex: none;
+  width: rem(44);
+  height: rem(44);
+  color: $accent;
+  stroke-width: 1.5;
+}
+
+.text {
+  min-width: 0;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: fs('xxl');
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.subtitle {
+  font-size: fs('sm');
+  color: $text-muted;
+}
+
+.actions {
+  display: flex;
+  gap: sp('lg');
+  margin-left: auto;
+}

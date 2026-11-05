@@ -1,4 +1,5 @@
 import { FlipVertical2, Flag, Handshake, Plus, Undo2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +10,35 @@ import { Button } from '@shared/ui/Button/Button';
 
 import styles from './GameControls.module.scss';
 
+interface ControlProps {
+  icon: LucideIcon;
+  label: string;
+  title: string;
+  isDisabled?: boolean;
+  isDanger?: boolean;
+  onClick: () => void;
+}
+
+const Control = ({
+  icon: Icon,
+  label,
+  title,
+  isDisabled = false,
+  isDanger = false,
+  onClick,
+}: ControlProps) => (
+  <Button
+    variant={isDanger ? 'danger' : 'secondary'}
+    className={styles.control}
+    title={title}
+    disabled={isDisabled}
+    onClick={onClick}
+  >
+    <Icon aria-hidden />
+    {label}
+  </Button>
+);
+
 export const GameControls = observer(() => {
   const { t } = useTranslation();
   const game = useGameStore();
@@ -17,37 +47,34 @@ export const GameControls = observer(() => {
 
   return (
     <div className={styles.controls}>
-      <Button
-        aria-label={t('game.takeBack')}
+      <Control
+        icon={Undo2}
+        label={t('game.takeBackShort')}
         title={t('game.takeBack')}
-        disabled={!view?.canTakeback}
+        isDisabled={!view?.canTakeback}
         onClick={game.takeBack}
-      >
-        <Undo2 />
-      </Button>
-      <Button
-        aria-label={t('game.offerDraw')}
+      />
+      <Control
+        icon={Handshake}
+        label={t('game.offerDrawShort')}
         title={t('game.offerDraw')}
-        disabled={!isPlaying}
+        isDisabled={!isPlaying}
         onClick={game.offerDraw}
-      >
-        <Handshake />
-      </Button>
-      <Button
-        aria-label={t('game.resign')}
-        title={t('game.resign')}
-        disabled={!isPlaying}
-        onClick={game.resign}
-      >
-        <Flag />
-      </Button>
-      <Button
-        aria-label={t('game.flip')}
+      />
+      <Control
+        icon={FlipVertical2}
+        label={t('game.flipShort')}
         title={t('game.flip')}
         onClick={game.flip}
-      >
-        <FlipVertical2 />
-      </Button>
+      />
+      <Control
+        icon={Flag}
+        label={t('game.resign')}
+        title={t('game.resign')}
+        isDisabled={!isPlaying}
+        isDanger
+        onClick={game.resign}
+      />
       <Button
         variant="primary"
         className={styles.newGame}
@@ -55,7 +82,7 @@ export const GameControls = observer(() => {
           setNewGameOpen(true);
         }}
       >
-        <Plus />
+        <Plus aria-hidden />
         {t('game.newGame')}
       </Button>
       <NewGameDialog

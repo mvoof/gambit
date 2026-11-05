@@ -7,7 +7,8 @@ use std::time::{Duration, Instant};
 
 use gb_chess::{numbered_line, san_line};
 use gb_engine::{
-    evaluation_of, CandidateLine, EngineError, SearchInfo, Strength, UciEngine, MIN_BEST_MOVE_DEPTH,
+    evaluation_of, CandidateLine, EngineError, SearchInfo, SearchLimit, Strength, UciEngine,
+    MIN_BEST_MOVE_DEPTH,
 };
 use gb_model::{Evaluation, EvaluationLine, LastMove};
 use tauri::async_runtime::spawn;
@@ -15,7 +16,6 @@ use tokio::sync::watch;
 
 use crate::events::EventSink;
 
-const LINES: u32 = 3;
 const LINE_PLIES: usize = 6;
 const LINES_REFRESH: Duration = Duration::from_secs(2);
 
@@ -23,6 +23,8 @@ const LINES_REFRESH: Duration = Duration::from_secs(2);
 pub struct AnalysisTarget {
     pub fen: String,
     pub engine_path: PathBuf,
+    pub lines: u32,
+    pub depth: u32,
 }
 
 /// The sender side: setting a target replaces the one being analysed.
@@ -67,7 +69,7 @@ fn line_view(fen: &str, line: &CandidateLine) -> Option<EvaluationLine> {
     })
 }
 
-fn info_of(line: &CandidateLine) -> SearchInfo {
+pub fn info_of(line: &CandidateLine) -> SearchInfo {
     SearchInfo {
         depth: line.depth,
         score: line.score,
@@ -126,10 +128,11 @@ impl ShownLines {
 
 async fn analyse_until_changed(
     analyst: &mut Analyst,
-    fen: &str,
+    wanted: &AnalysisTarget,
     changes: &watch::Receiver<Option<AnalysisTarget>>,
     sink: &dyn EventSink,
 ) -> bool {
+    let fen = wanted.fen.as_str();
     let mut watcher = changes.clone();
     let cancel = async move {
         // An error means the app is closing, which also ends the search.
@@ -138,11 +141,17 @@ async fn analyse_until_changed(
     let mut shown = ShownLines::default();
     let searched = analyst
         .engine
-        .search_lines(fen, LINES, cancel, |lines| {
-            if let Some(evaluation) = evaluation_with_lines(fen, lines) {
-                sink.evaluation(&shown.apply(evaluation, is_settled(lines), Instant::now()));
-            }
-        })
+        .search_lines(
+            fen,
+            wanted.lines,
+            SearchLimit::Depth(wanted.depth),
+            cancel,
+            |lines| {
+                if let Some(evaluation) = evaluation_with_lines(fen, lines) {
+                    sink.evaluation(&shown.apply(evaluation, is_settled(lines), Instant::now()));
+                }
+            },
+        )
         .await;
 
     if let Err(error) = &searched {
@@ -168,7 +177,7 @@ async fn run(mut changes: watch::Receiver<Option<AnalysisTarget>>, sink: Arc<dyn
             }
 
             if let Some(current) = analyst.as_mut() {
-                if !analyse_until_changed(current, &wanted.fen, &changes, sink.as_ref()).await {
+                if !analyse_until_changed(current, &wanted, &changes, sink.as_ref()).await {
                     analyst = None;
                 }
             }

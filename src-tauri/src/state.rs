@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use gb_archive::Archive;
+use gb_chess::parse_pgn;
 use gb_engine::stockfish_path;
 use gb_model::AppSettings;
 use gb_pieces::PieceLibrary;
@@ -51,6 +52,19 @@ pub fn resolve_engine(settings: &AppSettings, engines_dir: &Path) -> Option<Path
         .or_else(|| stockfish_path(engines_dir))
 }
 
+/// Games saved before the thumbnails get their last position, once.
+fn fill_final_positions(archive: &Archive) -> Result<(), String> {
+    for (id, pgn) in archive.without_final_fen().map_err(to_message)? {
+        let replay = parse_pgn(&pgn).map_err(to_message)?;
+
+        if let Some(frame) = replay.frames.last() {
+            archive.set_final_fen(id, &frame.fen).map_err(to_message)?;
+        }
+    }
+
+    Ok(())
+}
+
 impl AppState {
     pub fn new(app: &AppHandle) -> Result<Self, String> {
         let paths = app.path();
@@ -60,6 +74,12 @@ impl AppState {
         fs::create_dir_all(&data_dir).map_err(to_message)?;
 
         let archive = Archive::open(&data_dir.join(ARCHIVE_FILE)).map_err(to_message)?;
+
+        // Only a thumbnail is lost: it must not stop the app.
+        if let Err(error) = fill_final_positions(&archive) {
+            tracing::warn!("cannot fill the final positions: {error}");
+        }
+
         let archive = Arc::new(Mutex::new(archive));
         let sink: Arc<dyn EventSink> = Arc::new(TauriSink::new(app.clone()));
         let settings_path = config_dir.join(SETTINGS_FILE);

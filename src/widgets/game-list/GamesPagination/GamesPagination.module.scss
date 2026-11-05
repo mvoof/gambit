@@ -1,0 +1,64 @@
+.pagination {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: sp('xl');
+  padding: sp('md') sp('xl');
+  border-top: 1px solid $border-sub;
+}
+
+.summary {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.pages {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: sp('xs');
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: rem(32);
+  height: rem(32);
+  font-size: fs('sm');
+  font-weight: 700;
+  color: $text-secondary;
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: rem(16);
+    height: rem(16);
+  }
+}
+
+.active {
+  color: $text-on-accent;
+  background: $accent-gradient;
+  border-color: $accent;
+
+  &:hover:not(:disabled) {
+    background: $accent-gradient;
+  }
+}

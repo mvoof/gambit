@@ -1,0 +1,82 @@
+.graph {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.plot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: crosshair;
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.area {
+  fill: $accent-soft;
+}
+
+.middle {
+  stroke: $border-main;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.line {
+  fill: none;
+  stroke: $accent;
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.cursor {
+  stroke: $text-secondary;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.crosshair {
+  stroke: $text-muted;
+  stroke-width: 1px;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.mistake {
+  fill: $danger;
+  stroke: $bg-card;
+  stroke-width: 1.5px;
+  vector-effect: non-scaling-stroke;
+}
+
+.tooltip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0 sp('xs');
+  font-size: fs('xs');
+  font-weight: 600;
+  color: $text-primary;
+  background: $bg-raised;
+  border-radius: radius('md');
+  pointer-events: none;
+}
+
+.empty {
+  font-size: fs('xs');
+  color: $text-muted;
+}

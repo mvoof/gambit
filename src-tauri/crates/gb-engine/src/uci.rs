@@ -235,12 +235,13 @@ impl UciEngine {
         &mut self,
         fen: &str,
         count: u32,
+        limit: SearchLimit,
         cancel: impl Future<Output = ()>,
         mut on_lines: impl FnMut(&[CandidateLine]),
     ) -> Result<(), EngineError> {
         self.set_line_count(count).await?;
         self.send(&position_command(Some(fen), &[])).await?;
-        self.send(&go_command(SearchLimit::Infinite, None)).await?;
+        self.send(&go_command(limit, None)).await?;
 
         let mut lines = BTreeMap::new();
 
@@ -393,9 +394,13 @@ mod tests {
         let mut last = Vec::new();
 
         engine
-            .search_lines("4k3/8/8/8/8/8/8/4K2R w - - 0 1", 2, pending(), |lines| {
-                last = lines.to_vec()
-            })
+            .search_lines(
+                "4k3/8/8/8/8/8/8/4K2R w - - 0 1",
+                2,
+                SearchLimit::Infinite,
+                pending(),
+                |lines| last = lines.to_vec(),
+            )
             .await
             .unwrap();
 

@@ -1,0 +1,15 @@
+.data {
+  display: flex;
+  flex-direction: column;
+  gap: sp('lg');
+}
+
+.storage {
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.note {
+  font-size: fs('xs');
+  color: $text-muted;
+}

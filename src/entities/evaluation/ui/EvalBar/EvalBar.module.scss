@@ -1,0 +1,42 @@
+.column {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: sp('sm');
+  align-self: stretch;
+  width: rem(56);
+}
+
+.score {
+  width: 100%;
+  padding: sp('xxs') 0;
+  font-size: fs('xs');
+  font-weight: 700;
+  text-align: center;
+  background: $bg-raised;
+  border: 1px solid $border-main;
+  border-radius: radius('lg');
+}
+
+.bar {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: $eval-bar-width;
+  min-height: 0;
+  overflow: hidden;
+  background: $eval-black;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+}
+
+.flipped {
+  justify-content: flex-start;
+}
+
+.white {
+  background: $eval-white;
+  transition: height 300ms ease;
+}

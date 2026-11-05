@@ -1,0 +1,78 @@
+@use 'sass:map';
+@use 'functions' as *;
+
+$dark: (
+  'bg-app': #0d0b09,
+  'bg-panel': #131009,
+  'bg-card': #18140f,
+  'bg-raised': #221c16,
+  'bg-hover': #2e261e,
+  'border-main': #3a3026,
+  'border-sub': #272017,
+  'border-accent': #8c6f3a,
+  'text-primary': #f3ece0,
+  'text-secondary': #c6baa8,
+  'text-muted': #93866f,
+  'text-on-accent': #17120b,
+  'accent': #dcae62,
+  'accent-strong': #f2cf8e,
+  'accent-gradient': linear-gradient(180deg, #f0c97f 0%, #d3a04f 100%),
+  'accent-soft': rgba(220, 174, 98, 0.14),
+  'success': #8fc765,
+  'success-soft': rgba(143, 199, 101, 0.16),
+  'danger': #e66f56,
+  'danger-soft': rgba(230, 111, 86, 0.16),
+  'neutral-soft': rgba(198, 186, 168, 0.14),
+  'scrim': rgba(8, 6, 5, 0.72),
+  'shadow-board': 0 rem(18) rem(48) rgba(0, 0, 0, 0.55),
+  'shadow-dialog': 0 rem(24) rem(64) rgba(0, 0, 0, 0.6),
+  'shadow-panel': 0 rem(8) rem(24) rgba(0, 0, 0, 0.3),
+);
+
+$light: (
+  'bg-app': #f4eee2,
+  'bg-panel': #faf6ee,
+  'bg-card': #fffdf8,
+  'bg-raised': #efe7d8,
+  'bg-hover': #e6dcc9,
+  'border-main': #d6c9b2,
+  'border-sub': #e6dccb,
+  'border-accent': #b58a3f,
+  'text-primary': #2a2118,
+  'text-secondary': #5a4c3c,
+  'text-muted': #7f7160,
+  'text-on-accent': #21180c,
+  'accent': #a97a28,
+  'accent-strong': #84591a,
+  'accent-gradient': linear-gradient(180deg, #e2b768 0%, #c4933f 100%),
+  'accent-soft': rgba(169, 122, 40, 0.14),
+  'success': #4c8429,
+  'success-soft': rgba(76, 132, 41, 0.14),
+  'danger': #bd4229,
+  'danger-soft': rgba(189, 66, 41, 0.12),
+  'neutral-soft': rgba(90, 76, 60, 0.1),
+  'scrim': rgba(42, 33, 24, 0.5),
+  'shadow-board': 0 rem(14) rem(36) rgba(66, 48, 24, 0.28),
+  'shadow-dialog': 0 rem(20) rem(52) rgba(66, 48, 24, 0.3),
+  'shadow-panel': 0 rem(6) rem(18) rgba(66, 48, 24, 0.1),
+);
+
+@mixin emit($theme) {
+  @each $name, $value in $theme {
+    --#{$name}: #{$value};
+  }
+}
+
+// Dark first: it is what shows before the settings arrive.
+:root,
+[data-theme='dark'] {
+  @include emit($dark);
+
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  @include emit($light);
+
+  color-scheme: light;
+}

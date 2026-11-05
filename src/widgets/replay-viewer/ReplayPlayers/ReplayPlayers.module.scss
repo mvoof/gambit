@@ -1,0 +1,54 @@
+.players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: none;
+  gap: sp('md');
+  height: $replay-players-height;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: sp('md');
+  min-width: 0;
+  padding: 0 sp('lg');
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: rem(36);
+  height: rem(36);
+  color: $text-secondary;
+  background: $bg-hover;
+  border-radius: radius('lg');
+
+  svg {
+    width: rem(20);
+    height: rem(20);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  font-size: fs('sm');
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.side {
+  font-size: fs('xs');
+  color: $text-muted;
+}

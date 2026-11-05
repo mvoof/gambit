@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 
 import type {
@@ -21,20 +22,30 @@ interface MoveListProps {
   marks?: MoveMark[];
   /** The ply shown on the board: 0 before the first move. */
   activePly: number;
+  /** Only the rows with these plies stay, and the rest of a row fades. */
+  highlightedPlies?: number[] | null;
+  /** Moves that get a tick: what the engine itself would have played. */
+  bestPlies?: number[];
   onSelect: (ply: number) => void;
 }
 
-const toRows = (moves: MoveRecord[]) => {
-  const rows: MoveRecord[][] = [];
+interface MoveRow {
+  number: number;
+  moves: MoveRecord[];
+}
+
+const toRows = (moves: MoveRecord[]): MoveRow[] => {
+  const rows: MoveRow[] = [];
   const startsWithBlack = moves[0]?.color === 'black';
   const padded = startsWithBlack ? [null, ...moves] : moves;
 
   for (let index = 0; index < padded.length; index += PLIES_PER_ROW) {
-    rows.push(
-      padded
+    rows.push({
+      number: index / PLIES_PER_ROW + 1,
+      moves: padded
         .slice(index, index + PLIES_PER_ROW)
-        .filter((move): move is MoveRecord => move !== null)
-    );
+        .filter((move): move is MoveRecord => move !== null),
+    });
   }
 
   return rows;
@@ -45,13 +56,25 @@ const MoveGlyph = ({ quality }: { quality?: MoveQuality }) =>
     <span className={styles[quality]}>{QUALITY_GLYPHS[quality]}</span>
   ) : null;
 
+const moveClass = (isActive: boolean, isFaded: boolean) =>
+  [styles.move, isActive ? styles.active : '', isFaded ? styles.faded : '']
+    .filter(Boolean)
+    .join(' ');
+
 export const MoveList = ({
   moves,
   marks = NO_MARKS,
   activePly,
+  highlightedPlies = null,
+  bestPlies,
   onSelect,
 }: MoveListProps) => {
   const activeRef = useRef<HTMLButtonElement>(null);
+  const rows = toRows(moves).filter(
+    (row) =>
+      highlightedPlies === null ||
+      row.moves.some((move) => highlightedPlies.includes(move.ply))
+  );
 
   useEffect(() => {
     activeRef.current?.scrollIntoView({ block: 'nearest' });
@@ -59,24 +82,27 @@ export const MoveList = ({
 
   return (
     <ol className={styles.list}>
-      {toRows(moves).map((row, rowIndex) => (
-        <li key={row[0].ply} className={styles.row}>
-          <span className={styles.number}>{rowIndex + 1}.</span>
-          {row.map((move) => (
+      {rows.map((row) => (
+        <li key={row.number} className={styles.row}>
+          <span className={styles.number}>{row.number}.</span>
+          {row.moves.map((move) => (
             <button
               key={move.ply}
               ref={move.ply === activePly ? activeRef : null}
               type="button"
-              className={
-                move.ply === activePly
-                  ? `${styles.move} ${styles.active}`
-                  : styles.move
-              }
+              className={moveClass(
+                move.ply === activePly,
+                highlightedPlies !== null &&
+                  !highlightedPlies.includes(move.ply)
+              )}
               data-color={move.color}
               onClick={() => {
                 onSelect(move.ply);
               }}
             >
+              {bestPlies?.includes(move.ply) ? (
+                <Check className={styles.best} aria-hidden />
+              ) : null}
               {move.san}
               <MoveGlyph
                 quality={marks.find((mark) => mark.ply === move.ply)?.quality}

@@ -22,6 +22,7 @@ interface BoardPiecesProps {
   images: PieceSetView['images'];
   orientation: Color;
   drag: DragState | null;
+  isAnimated: boolean;
 }
 
 /** Translated in percent of the piece itself, so it needs no board size. */
@@ -35,23 +36,30 @@ const restingTransform = (square: string, orientation: Color) => {
 const dragTransform = ({ pointerX, pointerY }: DragState) =>
   `translate(calc(${pointerX}px - ${HALF_CELL_PERCENT}%), calc(${pointerY}px - ${HALF_CELL_PERCENT}%))`;
 
+const pieceClass = (isDragged: boolean, isAnimated: boolean) =>
+  [
+    styles.piece,
+    isDragged ? styles.dragged : '',
+    isAnimated ? '' : styles.still,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
 export const BoardPieces = ({
   pieces,
   images,
   orientation,
   drag,
+  isAnimated,
 }: BoardPiecesProps) => (
   <div className={styles.layer}>
     {pieces.map((piece) => {
       const isDragged = drag?.square === piece.square;
-      const classNames = isDragged
-        ? `${styles.piece} ${styles.dragged}`
-        : styles.piece;
 
       return (
         <img
           key={piece.id}
-          className={classNames}
+          className={pieceClass(isDragged, isAnimated)}
           src={images[pieceCode(piece.color, piece.kind)]}
           alt=""
           draggable={false}

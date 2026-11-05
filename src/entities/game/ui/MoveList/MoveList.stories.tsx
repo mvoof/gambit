@@ -39,7 +39,7 @@ type Story = StoryObj<typeof MoveList>;
 
 export const WithMarks: Story = {
   args: {
-    marks: [{ ply: 3, quality: 'blunder', bestSan: 'd4' }],
+    marks: [{ ply: 3, color: 'white', quality: 'blunder', bestSan: 'd4' }],
   },
 };
 

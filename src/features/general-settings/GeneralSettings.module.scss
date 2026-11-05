@@ -1,19 +1,15 @@
 .general {
   display: flex;
-  flex-direction: column;
-  gap: sp('lg');
-  max-width: rem(320);
+  align-items: center;
+  gap: sp('xxl');
 }
 
-.volume {
-  display: flex;
-  flex-direction: column;
-  gap: sp('xs');
+.label {
   font-size: fs('sm');
+  font-weight: 600;
   color: $text-secondary;
 }
 
-.slider {
-  width: 100%;
-  accent-color: $accent;
+.language {
+  width: rem(280);
 }

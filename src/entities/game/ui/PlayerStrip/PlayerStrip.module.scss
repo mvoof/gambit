@@ -1,22 +1,51 @@
 .strip {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
   gap: sp('lg');
-  min-height: rem(56);
 }
 
 .identity {
+  display: flex;
+  align-items: center;
+  gap: sp('lg');
+  min-width: 0;
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: rem(44);
+  height: rem(44);
+  color: $text-secondary;
+  background: $bg-hover;
+  border-radius: 50%;
+
+  svg {
+    width: rem(24);
+    height: rem(24);
+  }
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
 }
 
 .name {
-  display: block;
   overflow: hidden;
   font-size: fs('md');
-  font-weight: 600;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.elo {
+  font-size: fs('sm');
+  color: $text-muted;
 }
 
 .captured {

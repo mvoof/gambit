@@ -1,9 +1,10 @@
+// A page says how much of the window is not board, through two custom properties.
 .frame {
   position: relative;
   flex: none;
   width: min(
-    calc(100vh - #{$header-height} - #{sp('xxxl')} * 2),
-    calc(100vw - #{$side-panel-width} - #{$eval-bar-width} - #{sp('xxxl')} * 3)
+    calc(100vh - var(--board-reserved-height)),
+    calc(100vw - var(--board-reserved-width))
   );
   min-width: $board-min-size;
 }

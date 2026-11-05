@@ -1,23 +1,24 @@
 .clock {
-  padding: sp('xs') sp('lg');
+  align-self: center;
+  padding: sp('xs') sp('xl');
   font-family: $font-mono;
   font-size: fs('xl');
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: $text-muted;
-  background: $bg-card;
-  border: 1px solid $border-sub;
-  border-radius: radius('lg');
+  color: $text-secondary;
+  background: $bg-panel;
+  border: 1px solid $border-main;
+  border-radius: radius('xl');
 }
 
 .running {
   color: $text-on-accent;
-  background: $accent;
+  background: $accent-gradient;
   border-color: $accent;
 }
 
 .low {
-  color: $text-primary;
+  color: $text-on-accent;
   background: $danger;
   border-color: $danger;
 }

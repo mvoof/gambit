@@ -1,18 +1,20 @@
 .controls {
   display: flex;
-  gap: sp('xs');
+  flex: none;
+  gap: sp('sm');
+  height: $game-controls-height;
+}
 
-  button {
-    padding: sp('sm') sp('md');
-  }
-
-  svg {
-    width: rem(16);
-    height: rem(16);
-  }
+.control {
+  flex-direction: column;
+  gap: sp('xxxs');
+  min-width: rem(84);
+  padding: sp('xs') sp('md');
+  font-size: fs('xxs');
 }
 
 .newGame {
-  flex: 1;
+  margin-left: sp('md');
+  padding: 0 sp('xl');
   white-space: nowrap;
 }

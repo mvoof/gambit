@@ -2,12 +2,12 @@
   "translation": {
     "app": {
       "title": "Gambit",
-      "tagline": "Chess against a real engine, on your own machine."
+      "tagline": "Chess against a real engine, right on your computer."
     },
     "nav": {
-      "play": "Play",
       "archive": "Archive",
-      "settings": "Settings"
+      "settings": "Settings",
+      "home": "Home"
     },
     "common": {
       "cancel": "Cancel",
@@ -27,7 +27,10 @@
         "mistake": "Mistake. Better was {{move}}.",
         "blunder": "Blunder. Better was {{move}}."
       },
-      "engineFailed": "The engine stopped responding. Start a new game."
+      "engineFailed": "The engine stopped responding. Start a new game.",
+      "takeBackShort": "Take back",
+      "offerDrawShort": "Draw",
+      "flipShort": "Flip"
     },
     "result": {
       "whiteWins": "White wins",
@@ -66,7 +69,15 @@
       "showCoordinates": "Coordinates",
       "showLegalMoves": "Legal move dots",
       "showLastMove": "Last move highlight",
-      "showCheck": "Check highlight"
+      "showCheck": "Check highlight",
+      "animateMoves": "Move animation",
+      "preset": {
+        "sand": "Sand",
+        "walnut": "Walnut",
+        "slate": "Slate",
+        "moss": "Moss",
+        "river": "River"
+      }
     },
     "newGame": {
       "title": "New game",
@@ -90,7 +101,18 @@
       "whiteToMove": "White to move",
       "blackToMove": "Black to move",
       "scoreSide": "plus favours White",
-      "thinking": "The engine is thinking…"
+      "thinking": "The engine is thinking…",
+      "bestMove": "Best move",
+      "score": "Score: {{score}} ({{verdict}})",
+      "verdict": {
+        "even": "the position is even",
+        "smallWhite": "a small edge for White",
+        "smallBlack": "a small edge for Black",
+        "clearWhite": "White is clearly better",
+        "clearBlack": "Black is clearly better",
+        "winningWhite": "White is winning",
+        "winningBlack": "Black is winning"
+      }
     },
     "engine": {
       "current": "Current engine: {{name}}",
@@ -108,13 +130,51 @@
       }
     },
     "archive": {
-      "title": "Archive",
+      "title": "Game archive",
       "import": "Import PGN",
       "export": "Export PGN",
       "delete": "Delete",
-      "empty": "Finished games are saved here.",
-      "plies_one": "{{count}} ply",
-      "plies_other": "{{count}} plies"
+      "empty": "Your games will appear here.",
+      "subtitle": "Saved games and their reviews",
+      "nothingFound": "No games match the filter.",
+      "sections": "Archive sections",
+      "section": {
+        "all": "All games",
+        "unfinished": "Unfinished",
+        "wins": "Wins",
+        "losses": "Losses",
+        "draws": "Draws",
+        "reviewed": "Reviewed",
+        "withMistakes": "With mistakes",
+        "favorites": "Favorites"
+      },
+      "search": "Search by opponent or date",
+      "colorFilter": "Colour played",
+      "colorAny": "Colour: any",
+      "colorWhite": "Colour: White",
+      "colorBlack": "Colour: Black",
+      "sortFilter": "Sort order",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "sortLongest": "Longest first",
+      "column": {
+        "opponent": "Opponent",
+        "result": "Result",
+        "moves": "Moves",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "review": "Review",
+      "playOn": "Play on",
+      "favorite": "Favorite",
+      "storage": "Storage",
+      "storageText_one": "{{count}} game · {{size}}",
+      "storageText_other": "{{count}} games · {{size}}",
+      "page": "Page {{page}} of {{count}}",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "moves_one": "{{count}} move",
+      "moves_other": "{{count}} moves"
     },
     "replay": {
       "first": "First position",
@@ -123,17 +183,45 @@
       "last": "Last position",
       "autoplay": "Play or pause",
       "measuring": "Measuring the game: {{measured}} of {{total}}",
-      "measuringFailed": "Could not measure the game."
+      "measuringFailed": "Could not measure the game.",
+      "title": "Game review",
+      "tabAll": "All moves",
+      "tabMistakes": "Mistakes ({{count}})",
+      "tabBest": "Best ({{count}})",
+      "depth": "Depth: {{depth}}",
+      "speed": "Autoplay speed",
+      "nextMistake": "Next mistake",
+      "captured": "Captured pieces",
+      "graph": "Evaluation graph",
+      "graphPending": "The graph grows as the engine measures the game.",
+      "graphPoint": "Ply {{ply}}: {{score}}",
+      "players": "{{white}} — {{black}} · {{result}}"
     },
     "settings": {
       "title": "Settings",
       "engine": "Engine",
       "general": "General",
-      "board": "Board",
+      "board": "Board and pieces",
       "pieces": "Pieces",
-      "volume": "Sound volume: {{volume}}%",
-      "evalBar": "Evaluation bar in training and replay",
-      "updates": "Updates"
+      "evalBar": "Show the position score in training and review",
+      "updates": "Updates",
+      "subtitle": "Make the game your own",
+      "sections": "Settings sections",
+      "language": "Interface language",
+      "interface": "Interface",
+      "sound": "Sound",
+      "data": "Data",
+      "analysis": "Analysis",
+      "analysisDepth": "Analysis depth",
+      "analysisLines": "Number of lines",
+      "volumeLabel": "Volume",
+      "theme": {
+        "dark": "Dark",
+        "light": "Light",
+        "system": "System"
+      },
+      "reset": "Reset settings",
+      "resetNote": "The language, the engine and your games stay."
     },
     "window": {
       "minimize": "Minimize",
@@ -147,6 +235,41 @@
       "available": "Version {{version}} is available.",
       "install": "Install and restart",
       "installing": "Installing the update… {{percent}}%"
+    },
+    "home": {
+      "welcome": "Welcome to Gambit",
+      "tagline": "Play chess, review your games and sharpen your skill.",
+      "resume": "Continue the game",
+      "review": "Game review",
+      "reviewText": "Your games, measured by the engine",
+      "import": "Import PGN",
+      "importText": "Add a game from a file",
+      "recent": "Recent games",
+      "allGames": "Whole archive",
+      "stats": "Your statistics",
+      "winsShare": "Wins"
+    },
+    "leaveGame": {
+      "title": "Stop the game?",
+      "text": "The game will stop and its clocks will pause. You can finish it later from the Unfinished section of the archive.",
+      "stay": "Stay in the game",
+      "leave": "Stop and leave"
+    },
+    "playerResult": {
+      "win": "Win",
+      "loss": "Loss",
+      "draw": "Draw",
+      "unfinished": "Unfinished"
+    },
+    "startGame": {
+      "title": "New game",
+      "play": "Play",
+      "engine": "Engine",
+      "strength": "Strength",
+      "level": "~{{elo}} Elo",
+      "fullStrength": "Full strength",
+      "training": "Training: the engine helps during the game",
+      "options": "Own time or starting position…"
     }
   }
 }

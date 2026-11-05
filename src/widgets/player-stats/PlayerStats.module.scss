@@ -1,0 +1,51 @@
+.body {
+  display: flex;
+  align-items: center;
+  gap: sp('xxl');
+}
+
+.rows {
+  flex: 1;
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: sp('sm') 0;
+  font-size: fs('sm');
+  color: $text-secondary;
+
+  & + & {
+    border-top: 1px solid $border-sub;
+  }
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: sp('md');
+  }
+
+  dd {
+    font-weight: 700;
+    color: $text-primary;
+  }
+}
+
+.icon {
+  width: rem(18);
+  height: rem(18);
+}
+
+.win {
+  color: $success;
+}
+
+.loss {
+  color: $danger;
+}
+
+.draw {
+  color: $text-muted;
+}

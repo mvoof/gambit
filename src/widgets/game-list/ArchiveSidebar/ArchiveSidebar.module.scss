@@ -1,0 +1,32 @@
+.sidebar {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: sp('xl');
+  width: $side-nav-width;
+  padding: sp('md');
+  overflow-y: auto;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xxl');
+}
+
+.storage {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xxxs');
+  padding: sp('md') sp('lg');
+  background: $bg-raised;
+  border-radius: radius('xl');
+}
+
+.storageTitle {
+  font-size: fs('sm');
+  font-weight: 700;
+}
+
+.storageText {
+  font-size: fs('xs');
+  color: $text-muted;
+}

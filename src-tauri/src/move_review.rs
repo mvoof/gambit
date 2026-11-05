@@ -7,7 +7,7 @@ use std::sync::Weak;
 
 use gb_chess::san_line;
 use gb_engine::{lost_win_percent, quality_of, CandidateLine, EngineError, Score, UciEngine};
-use gb_model::MoveMark;
+use gb_model::{Color, MoveMark};
 use tauri::async_runtime::spawn;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
@@ -36,6 +36,7 @@ struct Reviewer {
 /// `reply` is the opponent's score, and `None` here means nothing to mark.
 pub fn mark_of(
     ply: u32,
+    color: Color,
     fen_before: &str,
     best: &CandidateLine,
     played_uci: &str,
@@ -50,6 +51,7 @@ pub fn mark_of(
 
     Some(MoveMark {
         ply,
+        color,
         quality,
         best_san,
     })
@@ -79,6 +81,7 @@ async fn review(
     Ok(after.first().and_then(|reply| {
         mark_of(
             played.ply,
+            played.color,
             &played.fen_before,
             best,
             &played.uci,
@@ -160,26 +163,48 @@ mod tests {
 
     #[test]
     fn the_engines_own_move_has_no_mark() {
-        let mark = mark_of(1, START_FEN, &best_line(), "e2e4", Score::Centipawns(900));
+        let mark = mark_of(
+            1,
+            Color::White,
+            START_FEN,
+            &best_line(),
+            "e2e4",
+            Score::Centipawns(900),
+        );
 
         assert_eq!(mark, None);
     }
 
     #[test]
     fn a_move_that_keeps_the_score_has_no_mark() {
-        let mark = mark_of(1, START_FEN, &best_line(), "d2d4", Score::Centipawns(-25));
+        let mark = mark_of(
+            1,
+            Color::White,
+            START_FEN,
+            &best_line(),
+            "d2d4",
+            Score::Centipawns(-25),
+        );
 
         assert_eq!(mark, None);
     }
 
     #[test]
     fn a_costly_move_is_marked_with_the_better_move_in_san() {
-        let mark = mark_of(1, START_FEN, &best_line(), "f2f3", Score::Mate(3));
+        let mark = mark_of(
+            1,
+            Color::White,
+            START_FEN,
+            &best_line(),
+            "f2f3",
+            Score::Mate(3),
+        );
 
         assert_eq!(
             mark,
             Some(MoveMark {
                 ply: 1,
+                color: Color::White,
                 quality: MoveQuality::Blunder,
                 best_san: "e4".to_owned(),
             })

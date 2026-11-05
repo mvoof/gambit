@@ -3,8 +3,11 @@ import { reaction } from 'mobx';
 import i18n from '@/i18n';
 import { playSound } from '@shared/lib/sound-synth';
 import type { GameSound } from '@shared/lib/sound-synth';
+import type { Theme } from '@shared/contracts/generated/bindings';
 
 import type { RootStores } from '../root-stores';
+
+const DARK_SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
 const volumeOf = ({ settings }: RootStores) =>
   settings.settings?.soundVolume ?? 0;
@@ -16,6 +19,35 @@ const syncLanguage = (stores: RootStores) =>
       if (language) {
         void i18n.changeLanguage(language);
       }
+    },
+    { fireImmediately: true }
+  );
+
+const applyTheme = (theme: Theme) => {
+  const systemTheme = window.matchMedia(DARK_SCHEME_QUERY).matches
+    ? 'dark'
+    : 'light';
+
+  document.documentElement.dataset.theme =
+    theme === 'system' ? systemTheme : theme;
+};
+
+const syncTheme = (stores: RootStores) => {
+  const themeOf = () => stores.settings.settings?.theme ?? 'dark';
+
+  window.matchMedia(DARK_SCHEME_QUERY).addEventListener('change', () => {
+    applyTheme(themeOf());
+  });
+
+  return reaction(themeOf, applyTheme, { fireImmediately: true });
+};
+
+/** Leaving a game with moves on the board stops it, so it asks first. */
+const syncLeaveGuard = (stores: RootStores) =>
+  reaction(
+    () => stores.game.canBeLost,
+    (canBeLost) => {
+      stores.navigation.setLeaveGuarded(canBeLost);
     },
     { fireImmediately: true }
   );
@@ -87,6 +119,8 @@ const syncReplaySounds = (stores: RootStores) =>
 /** Wires the stores to each other: entities never import their siblings. */
 export const startSync = (stores: RootStores) => {
   syncLanguage(stores);
+  syncTheme(stores);
+  syncLeaveGuard(stores);
   syncAnalysis(stores);
   syncReview(stores);
   syncGameSounds(stores);

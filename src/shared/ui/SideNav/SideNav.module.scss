@@ -1,0 +1,72 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xxs');
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: sp('lg');
+  width: 100%;
+  padding: sp('md') sp('lg');
+  font-size: fs('md');
+  font-weight: 600;
+  color: $text-secondary;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: radius('xl');
+  cursor: pointer;
+  transition:
+    background $transition-fast,
+    color $transition-fast;
+
+  &:hover {
+    color: $text-primary;
+    background: $bg-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+}
+
+.active {
+  color: $accent-strong;
+  background: $accent-soft;
+  border-color: $border-accent;
+}
+
+.groupStart {
+  position: relative;
+  margin-top: sp('xl');
+
+  &::before {
+    position: absolute;
+    top: calc(-1 * #{sp('sm')} - 1px);
+    right: sp('lg');
+    left: sp('lg');
+    height: 1px;
+    background: $border-sub;
+    content: '';
+  }
+}
+
+.icon {
+  flex: none;
+  width: rem(20);
+  height: rem(20);
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  font-size: fs('sm');
+  font-weight: 700;
+  color: $text-muted;
+}

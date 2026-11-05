@@ -14,13 +14,14 @@ use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
 use tokio::time::sleep;
 
-use crate::active_game::ActiveGame;
+use crate::active_game::{ActiveGame, ResumeState};
 use crate::civil_date::pgn_date;
 use crate::events::EventSink;
 use crate::move_review::{MoveReviewer, ReviewJob};
 use crate::state::lock;
 
 const NO_GAME: &str = "no game in progress";
+const FINISHED_GAME: &str = "this game is already finished";
 
 struct Opponent {
     engine: UciEngine,
@@ -150,12 +151,90 @@ impl Session {
         *self.opponent.lock().await = None;
     }
 
+    /// Writes the game as it stands. A game with no moves left has no row.
+    fn save_game(&self, active: &mut ActiveGame, now_ms: u64) {
+        let seconds = unix_seconds();
+        let played_at = u32::try_from(seconds).unwrap_or(u32::MAX);
+        let archive = lock(&self.archive);
+
+        let Some(record) = active.record(now_ms, played_at, pgn_date(seconds)) else {
+            if let Some(id) = active.forget_saved() {
+                if let Err(error) = archive.delete(id) {
+                    tracing::error!("cannot delete the game: {error}");
+                }
+            }
+
+            return;
+        };
+        let saved = match active.archive_id() {
+            Some(id) => archive.update(id, &record).map(|()| id),
+            None => archive.save(&record),
+        };
+
+        match saved {
+            Ok(id) => active.mark_saved(id),
+            Err(error) => tracing::error!("cannot save the game: {error}"),
+        }
+    }
+
+    /// Stops the game on the board: it stays in the archive, to be played on.
+    pub fn suspend(&self) {
+        let now = self.now_ms();
+        let mut inner = lock(&self.inner);
+
+        self.bump_generation();
+
+        if let Some(handle) = inner.flag_timer.take() {
+            handle.abort();
+        }
+
+        if let Some(mut active) = inner.active.take() {
+            if !active.is_over() {
+                self.save_game(&mut active, now);
+            }
+        }
+
+        drop(inner);
+
+        *lock(&self.review_engine) = None;
+        self.game_id.fetch_add(1, Ordering::SeqCst);
+    }
+
+    pub async fn resume_game(
+        self: &Arc<Self>,
+        id: u32,
+        engine_path: &Path,
+    ) -> Result<GameView, String> {
+        let text = lock(&self.archive)
+            .resume_state(id)
+            .map_err(|error| error.to_string())?
+            .ok_or_else(|| FINISHED_GAME.to_owned())?;
+        let state: ResumeState = serde_json::from_str(&text).map_err(|error| error.to_string())?;
+        let is_training = state.is_training();
+        let strength = state.opponent_elo().map_or(Strength::Full, Strength::Elo);
+
+        self.suspend();
+
+        if let Err(error) = self.prepare_opponent(engine_path, strength).await {
+            self.discard_opponent().await;
+
+            return Err(error.to_string());
+        }
+
+        let active = ActiveGame::resume(state, id, self.now_ms()).map_err(message)?;
+
+        lock(&self.inner).active = Some(active);
+        *lock(&self.review_engine) = is_training.then(|| engine_path.to_owned());
+
+        self.after_change().ok_or_else(|| NO_GAME.to_owned())
+    }
+
     pub async fn new_game(
         self: &Arc<Self>,
         options: NewGameOptions,
         engine_path: &Path,
     ) -> Result<GameView, String> {
-        self.bump_generation();
+        self.suspend();
 
         let strength = options.elo.map_or(Strength::Full, Strength::Elo);
         let opponent_name = match self.prepare_opponent(engine_path, strength).await {
@@ -271,17 +350,6 @@ impl Session {
         }
     }
 
-    fn save_finished(&self, active: &mut ActiveGame) {
-        let seconds = unix_seconds();
-        let played_at = u32::try_from(seconds).unwrap_or(u32::MAX);
-
-        if let Some(record) = active.take_record(played_at, pgn_date(seconds)) {
-            if let Err(error) = lock(&self.archive).save(&record) {
-                tracing::error!("cannot save the game: {error}");
-            }
-        }
-    }
-
     /// What every change leads to: saving, the timer, the next search, the event.
     fn after_change(self: &Arc<Self>) -> Option<GameView> {
         let now = self.now_ms();
@@ -301,10 +369,14 @@ impl Session {
         if active.is_over() {
             self.bump_generation();
             active.set_thinking(false);
-            self.save_finished(active);
         } else if active.is_engine_turn() && !active.is_thinking() {
             active.set_thinking(true);
             search_generation = Some(*self.generation.borrow());
+        }
+
+        // Every move is written at once, so closing the app loses nothing.
+        if !active.is_saved() {
+            self.save_game(active, now);
         }
 
         let view = active.view(now);

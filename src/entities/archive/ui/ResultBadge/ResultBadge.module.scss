@@ -1,0 +1,36 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: sp('xs');
+  padding: sp('xxs') sp('lg');
+  font-size: fs('xs');
+  font-weight: 700;
+  white-space: nowrap;
+  border-radius: rem(999);
+}
+
+.icon {
+  width: rem(14);
+  height: rem(14);
+}
+
+.win {
+  color: $success;
+  background: $success-soft;
+}
+
+.loss {
+  color: $danger;
+  background: $danger-soft;
+}
+
+.draw,
+.unknown {
+  color: $text-secondary;
+  background: $neutral-soft;
+}
+
+.unfinished {
+  color: $accent-strong;
+  background: $accent-soft;
+}

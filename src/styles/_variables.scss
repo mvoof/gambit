@@ -1,8 +1,8 @@
 @use 'functions' as *;
 
 // Typography
-$font-display: 'Playfair Display Variable', Georgia, serif;
-$font-app: 'Manrope Variable', 'Segoe UI', sans-serif;
+$font-display: 'Source Serif 4 Variable', Georgia, serif;
+$font-app: 'Inter Variable', 'Segoe UI', sans-serif;
 $font-mono: 'JetBrains Mono Variable', Consolas, monospace;
 
 $line-height-base: 1.45;
@@ -12,7 +12,13 @@ $transition-fast: 120ms ease;
 $transition-base: 200ms ease;
 
 // Layout
-$header-height: rem(56);
+$header-height: rem(60);
 $side-panel-width: rem(340);
+$players-panel-width: rem(220);
+$side-nav-width: rem(248);
 $eval-bar-width: rem(22);
 $board-min-size: rem(320);
+$game-controls-height: rem(64);
+$replay-summary-height: rem(116);
+$replay-players-height: rem(58);
+$game-columns: minmax(0, 1.4fr) rem(132) rem(60) minmax(0, 1fr) rem(232);

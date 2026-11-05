@@ -1,0 +1,49 @@
+.meter {
+  flex: none;
+  padding: sp('md') sp('lg');
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xl');
+}
+
+.score {
+  margin-bottom: sp('xs');
+  font-size: fs('xs');
+  color: $text-secondary;
+}
+
+.track {
+  height: rem(10);
+  overflow: hidden;
+  background: $eval-black;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+}
+
+.fill {
+  height: 100%;
+  background: $eval-white;
+  transition: width 300ms ease;
+}
+
+.best {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: sp('xs');
+  padding: sp('md') sp('lg');
+  font-size: fs('sm');
+  color: $text-secondary;
+  background: $success-soft;
+  border-radius: radius('xl');
+
+  strong {
+    color: $success;
+  }
+}
+
+.icon {
+  width: rem(18);
+  height: rem(18);
+  color: $success;
+}

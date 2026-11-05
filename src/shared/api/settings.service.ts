@@ -6,3 +6,5 @@ export const fetchSettings = () => invoke<AppSettings>('get_settings');
 
 export const saveSettings = (settings: AppSettings) =>
   invoke<AppSettings>('save_app_settings', { settings });
+
+export const resetSettings = () => invoke<AppSettings>('reset_app_settings');

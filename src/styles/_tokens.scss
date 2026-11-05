@@ -1,47 +1,41 @@
-@use 'functions' as *;
-
-// Semantic color tokens. Components never hardcode a hex — they name a role,
-// and the palette below is the only place a value changes.
-
-// Palette (raw values — do not use directly in components).
-$palette-stone-950: #141110;
-$palette-stone-900: #1b1715;
-$palette-stone-850: #231e1a;
-$palette-stone-800: #2c2622;
-$palette-stone-700: #3b332d;
-$palette-stone-600: #50463e;
-$palette-sand-500: #8f8272;
-$palette-sand-300: #bbad9a;
-$palette-sand-100: #f0e7d9;
-$palette-brass-600: #8c6f3a;
-$palette-brass-400: #c9a55f;
-$palette-brass-300: #e3c88c;
-$palette-moss-500: #83a05f;
-$palette-ember-500: #cb5a42;
+// Semantic color tokens. Components never hardcode a color: they name a role.
+// The values live in `_themes.scss`, one set per theme, so a theme changes at
+// runtime without touching a component.
 
 // Surfaces
-$bg-app: $palette-stone-950;
-$bg-panel: $palette-stone-900;
-$bg-card: $palette-stone-850;
-$bg-raised: $palette-stone-800;
-$bg-hover: $palette-stone-700;
+$bg-app: var(--bg-app);
+$bg-panel: var(--bg-panel);
+$bg-card: var(--bg-card);
+$bg-raised: var(--bg-raised);
+$bg-hover: var(--bg-hover);
 
 // Lines
-$border-main: $palette-stone-700;
-$border-sub: $palette-stone-800;
-$border-accent: $palette-brass-600;
+$border-main: var(--border-main);
+$border-sub: var(--border-sub);
+$border-accent: var(--border-accent);
 
 // Text
-$text-primary: $palette-sand-100;
-$text-secondary: $palette-sand-300;
-$text-muted: $palette-sand-500;
-$text-on-accent: $palette-stone-950;
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-muted: var(--text-muted);
+$text-on-accent: var(--text-on-accent);
 
 // Status
-$accent: $palette-brass-400;
-$accent-strong: $palette-brass-300;
-$success: $palette-moss-500;
-$danger: $palette-ember-500;
+$accent: var(--accent);
+$accent-strong: var(--accent-strong);
+$accent-gradient: var(--accent-gradient);
+$accent-soft: var(--accent-soft);
+$success: var(--success);
+$success-soft: var(--success-soft);
+$danger: var(--danger);
+$danger-soft: var(--danger-soft);
+$neutral-soft: var(--neutral-soft);
+
+// Elevation
+$scrim: var(--scrim);
+$shadow-board: var(--shadow-board);
+$shadow-dialog: var(--shadow-dialog);
+$shadow-panel: var(--shadow-panel);
 
 // Board overlays: they sit on any board colours, so they carry their own alpha.
 $board-last-move: rgba(227, 200, 140, 0.42);
@@ -54,13 +48,8 @@ $board-arrow: rgba(131, 160, 95, 0.85);
 $board-hint: rgba(227, 200, 140, 0.8);
 $board-coordinate-on-light: rgba(20, 17, 16, 0.6);
 $board-coordinate-on-dark: rgba(240, 231, 217, 0.75);
-
-// Elevation
-$scrim: rgba(20, 17, 16, 0.72);
-$shadow-board: 0 rem(18) rem(48) rgba(0, 0, 0, 0.55);
-$shadow-dialog: 0 rem(24) rem(64) rgba(0, 0, 0, 0.6);
 $shadow-piece: rgba(0, 0, 0, 0.45);
 
-// Evaluation bar
-$eval-white: $palette-sand-100;
-$eval-black: $palette-stone-800;
+// Evaluation bar: White and Black, in every theme.
+$eval-white: #f3ece0;
+$eval-black: #231e19;

@@ -34,3 +34,29 @@ select {
   font: inherit;
   color: inherit;
 }
+
+// Thin, on the app's own colours, in every scrolling list.
+::-webkit-scrollbar {
+  width: rem(8);
+  height: rem(8);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $border-main;
+  background-clip: padding-box;
+  border: 1px solid transparent;
+  border-radius: radius('md');
+
+  &:hover {
+    background: $border-accent;
+    background-clip: padding-box;
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

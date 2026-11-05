@@ -117,7 +117,7 @@ import and export. Replay with stepping, autoplay and keyboard.
 It must look nothing like Marble Trace: this is a beautiful game, not a telemetry
 tool. Direction: warm, dark, premium board-room feel, stone and brass, generous
 space, the board as the hero. Self-hosted fonts with Cyrillic:
-`@fontsource-variable/playfair-display` for display, `manrope` for UI,
+`@fontsource-variable/source-serif-4` for display, `inter` for UI,
 `jetbrains-mono` for clocks. Replace the template tokens.
 
 ## Stage 2: quiet games, training and replay
@@ -204,8 +204,19 @@ never measured again; an empty list means a clean game, `NULL` means not measure
 The clock stays, and a new game now defaults to unlimited time: with a clock the
 engine plans its time and spends far more on a move.
 
-Next, in order: colour for marks in the move list and on the board; saving an unfinished game
-to continue it later, in its own section next to the archive; custom pieces by SVG
+The app opens on a home page, which is also where a game starts: there is no tab for
+the game, its page appears when one begins. Light and system themes run on CSS
+custom properties (`_themes.scss`).
+
+Every move of a game is written to the archive at once, as an unfinished row whose
+`resume` column holds what it takes to play on, so closing the app loses nothing.
+Leaving the game page asks first, then stops the game with its clocks paused. Finished
+games have the player's colour and the engine's Elo with them; marks now name who
+played the move, and a review stores an evaluation graph (`points`). Reviews of the old
+format were dropped by the migration and are measured again on opening. There is no
+player rating, and no prose about moves: both would be invented.
+
+Next, in order: colour for marks in the move list and on the board; custom pieces by SVG
 folder only, dropping the sprite sheet import, since the bundled sets are SVG; then
 Stages 4 to 6.
 

@@ -1,0 +1,65 @@
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: sp('xl');
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: sp('lg');
+  min-width: 0;
+  padding: sp('xl');
+  color: $text-primary;
+  text-align: left;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('xxl');
+  cursor: pointer;
+  transition: border-color $transition-fast;
+
+  &:hover:not(:disabled) {
+    border-color: $border-accent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.icon {
+  flex: none;
+  width: rem(30);
+  height: rem(30);
+  color: $accent;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  font-size: fs('md');
+  font-weight: 700;
+}
+
+.description {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.chevron {
+  flex: none;
+  width: rem(18);
+  height: rem(18);
+  color: $text-muted;
+}

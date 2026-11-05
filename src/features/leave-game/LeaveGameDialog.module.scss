@@ -1,0 +1,11 @@
+.text {
+  margin-bottom: sp('xxl');
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: sp('sm');
+}

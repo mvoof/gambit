@@ -258,6 +258,7 @@ pub fn parse_pgn(pgn: &str) -> Result<ReplayGame, ChessError> {
             .tags
             .time_control
             .unwrap_or_else(|| NO_TIME_CONTROL.to_owned()),
+        human_color: None,
         moves,
         frames,
     })

@@ -1,0 +1,76 @@
+.row {
+  display: grid;
+  grid-template-columns: $game-columns;
+  align-items: center;
+  gap: sp('lg');
+  padding: sp('sm') sp('xl');
+
+  & + & {
+    border-top: 1px solid $border-sub;
+  }
+
+  &:hover {
+    background: $bg-raised;
+  }
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: sp('sm');
+  min-width: 0;
+}
+
+.star {
+  display: flex;
+  flex: none;
+  padding: sp('xxs');
+  color: $text-muted;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+  }
+
+  svg {
+    width: rem(18);
+    height: rem(18);
+  }
+}
+
+.starred {
+  color: $accent;
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.detail {
+  font-size: fs('xs');
+  color: $text-secondary;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: sp('xxs');
+
+  > :first-child {
+    flex: 1;
+    padding: sp('xs') sp('md');
+    white-space: nowrap;
+  }
+}
+
+.iconButton {
+  padding: sp('xs');
+}
