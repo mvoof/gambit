@@ -184,6 +184,9 @@ fact:
 - **Advisor**: hints during a game, by level: idea, piece, move.
 - **Open chat** about the position on screen, by text and by voice.
 
+The LLM connection is a setting and is off by default: the game plays fully
+without it, and hints during a game appear only when it is on.
+
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,
 halfmoves, zobrist_hash::<Zobrist64>(EnPassantMode::Legal)}`, `UciMove::to_move`,
