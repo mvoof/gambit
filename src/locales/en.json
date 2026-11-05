@@ -118,29 +118,7 @@
       "pieces": "Pieces",
       "volume": "Sound volume: {{volume}}%",
       "evalBar": "Evaluation bar",
-      "updates": "Updates",
-      "companion": "AI coach"
-    },
-    "llm": {
-      "hint": "Optional. Runs through LM Studio on your computer. The game plays fully without it.",
-      "enabled": "Connect a local model",
-      "address": "LM Studio address",
-      "model": "Model",
-      "chooseModel": "Choose a model",
-      "language": "Language of the conversation",
-      "languageApp": "Same as the app",
-      "check": "Check the connection"
-    },
-    "companion": {
-      "tabMoves": "Moves",
-      "tabCompanion": "Coach",
-      "autoAdvice": "Advise on every move",
-      "empty": "Ask about the position on the board. The engine measures it, the model puts that into words.",
-      "placeholder": "Ask about the position",
-      "send": "Send",
-      "stop": "Stop",
-      "thinking": "Thinking…",
-      "loadingModel": "Loading the model…"
+      "updates": "Updates"
     },
     "window": {
       "minimize": "Minimize",

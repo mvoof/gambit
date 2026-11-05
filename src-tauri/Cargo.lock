@@ -1297,7 +1297,6 @@ dependencies = [
  "gb-archive",
  "gb-chess",
  "gb-engine",
- "gb-llm",
  "gb-model",
  "gb-pieces",
  "serde",
@@ -1349,18 +1348,6 @@ dependencies = [
  "tokio",
  "tracing",
  "zip",
-]
-
-[[package]]
-name = "gb-llm"
-version = "0.0.0"
-dependencies = [
- "futures-util",
- "gb-model",
- "reqwest",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]

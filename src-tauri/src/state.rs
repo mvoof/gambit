@@ -12,7 +12,6 @@ use gb_pieces::PieceLibrary;
 use tauri::{AppHandle, Manager};
 
 use crate::analysis::Analysis;
-use crate::companion::Companion;
 use crate::events::{EventSink, TauriSink};
 use crate::session::Session;
 use crate::settings::load_settings;
@@ -25,7 +24,6 @@ const ENGINES_FOLDER: &str = "engines";
 pub struct AppState {
     pub session: Arc<Session>,
     pub analysis: Analysis,
-    pub companion: Arc<Companion>,
     pub archive: Arc<Mutex<Archive>>,
     pub pieces: PieceLibrary,
     pub settings: Mutex<AppSettings>,
@@ -67,7 +65,6 @@ impl AppState {
         Ok(Self {
             session: Session::new(Arc::clone(&archive), Arc::clone(&sink)),
             analysis: Analysis::start(Arc::clone(&sink)),
-            companion: Companion::new(Arc::clone(&sink)),
             archive,
             pieces: PieceLibrary::new(data_dir.join(PIECES_FOLDER)),
             settings: Mutex::new(load_settings(&settings_path)),

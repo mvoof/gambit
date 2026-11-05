@@ -1,14 +1,15 @@
 # Gambit: product and technical spec
 
-Chess against a real engine, with a local AI companion that talks by text and
-voice. Everything runs offline on the user's machine. The name is **Gambit**,
-with no "Marble": this project has nothing to do with Marble Trace.
+Chess against a real engine, and training to get better at it. Everything runs
+offline on the user's machine. The name is **Gambit**, with no "Marble": this
+project has nothing to do with Marble Trace.
 
 ## The principle that decides everything
 
-**An LLM never plays or calculates.** Language models lose track of the position
-and invent lines. The rules code decides legality, the UCI engine decides
-strength and evaluation, and the LLM only turns measured facts into words.
+**Every fact comes from code.** The rules code decides legality, the UCI engine
+decides strength and evaluation, and there is no language model. One was tried
+through LM Studio and removed: it invented moves and opening names, it only
+repeated what the engine had found, and the engine can show that directly.
 
 ## Architecture
 
@@ -28,18 +29,14 @@ strength and evaluation, and the LLM only turns measured facts into words.
 
 ### Crates
 
-| Crate        | Holds                                                          |
-| ------------ | -------------------------------------------------------------- |
-| `gb-model`   | every wire type and event name, nothing else                   |
-| `gb-chess`   | shakmaty game state, draw rules, stable piece ids, PGN, clock  |
-| `gb-engine`  | UCI process driver, Stockfish installer, score parsing         |
-| `gb-archive` | saved games in SQLite                                          |
-| `gb-pieces`  | custom piece import, sprite slicing (to add, `image` crate)    |
-| `gb-llm`     | LM Studio client, streaming, prompts built from measured facts |
-| app          | session orchestration, Tauri commands, settings file           |
-
-Later: `gb-voice` (copied from Marble Trace `mt-voice`
-first, shared only once it is clear what is really reused).
+| Crate        | Holds                                                         |
+| ------------ | ------------------------------------------------------------- |
+| `gb-model`   | every wire type and event name, nothing else                  |
+| `gb-chess`   | shakmaty game state, draw rules, stable piece ids, PGN, clock |
+| `gb-engine`  | UCI process driver, Stockfish installer, score parsing        |
+| `gb-archive` | saved games in SQLite                                         |
+| `gb-pieces`  | custom piece import, sprite slicing (to add, `image` crate)   |
+| app          | session orchestration, Tauri commands, settings file          |
 
 ### Wire design
 
@@ -59,7 +56,7 @@ first, shared only once it is clear what is really reused).
 - Everything crossing the boundary is camelCase. Payloads are finite: `Option`,
   never NaN or infinity.
 
-## Stage 1: a playable game, no LLM
+## Stage 1: a playable game
 
 **Board**, top-down view:
 
@@ -88,7 +85,7 @@ fifty-move rule, insufficient material. Also resign, draw offer and takeback.
   - 81431614 bytes
   - sha256 `3c8bf1f9ea66a09350a40df4f632288285ac206d99f33ab5842c408fc30b48a7`
 - A settings tab offers: download Stockfish, pick your own `.exe`, links to other
-  UCI engines. LM Studio cannot be an engine: it serves language models.
+  UCI engines.
 - Name and the `UCI_Elo` range are read from the engine's `uci` reply. Strength
   goes through `UCI_LimitStrength`; an engine without it gets a depth or time
   limit.
@@ -123,28 +120,39 @@ space, the board as the hero. Self-hosted fonts with Cyrillic:
 `@fontsource-variable/playfair-display` for display, `manrope` for UI,
 `jetbrains-mono` for clocks. Replace the template tokens.
 
-## Stage 2: coach
+## Stage 2: best move and mistakes
 
-LM Studio over its OpenAI-compatible API on `localhost:1234`, with streaming. One
-coach and helper, no personas: it only talks, and Stockfish always plays.
+A setting shows the engine's best move as an arrow on the board. After each move
+of the player the engine measures what it cost, and the move is marked as an
+inaccuracy, a mistake or a blunder, with the better move next to it.
 
-## Stage 3: analysis
+## Stage 3: game review
 
-Stockfish scores each move and classifies mistakes; the LLM explains only those
-facts. The user can ask the model while paused on a replay, and it answers with an
-engine line and arrows. Hints go by level: idea, piece, move.
+Stockfish scores every move of a finished game: an evaluation graph, accuracy, and
+a walk through the player's mistakes. Hints go by level: piece, then move.
 
-## Stage 4: voice
+## Stage 4: opening trainer
 
-Piper for speech: split the LLM stream on sentences so speech starts at once, and
-stop when the user talks. Vosk **grammar mode** for moves ("конь эф три"),
-whisper.cpp for free dialogue, since grammar mode cannot do dialogue. Models are
-downloaded on demand. No Edge TTS, no Silero (CC BY-NC).
+Openings come from an open database, whose licence has to be checked first; it also
+names the opening of a game by its moves. The player picks an opening and a colour,
+the app answers from the tree, and a wrong move is taken back and the right one
+shown. Spaced repetition brings back what went wrong, and a repertoire can be
+imported from PGN.
+
+## Stage 5: puzzles
+
+Puzzles from the player's own mistakes, with spaced repetition, and a daily tactics
+set from an open puzzle database downloaded on demand, with a puzzle rating.
+
+## Stage 6: lessons
+
+Lessons as data: text, a position and a task whose move is checked by the rules
+code. Rules of the game, basic mates against Stockfish, tactics by theme, endgames.
 
 ## Later ideas
 
-Puzzles from your own blunders with spaced repetition, memory of recurring
-weaknesses, blindfold voice-only mode, opening trainer.
+Games against a friend, with `shared/ui/Chat` kept for them. Statistics of the
+player's openings and kinds of mistake, play from any position, blindfold mode.
 
 ## Status
 
@@ -165,52 +173,11 @@ Updates go through `tauri-plugin-updater` and GitHub Releases: checked at
 startup, offered in the header and in settings, installed only on request. The
 signing public key still has to be put into `plugins.updater.pubkey`.
 
-Stage 2 has its chat, checked in the real app against LM Studio and Stockfish 19:
-a Coach tab next to the moves, streaming replies and Stop. Rust owns the
-conversation (`CompanionView`) and resets it on a new game. Each question runs a
-third Stockfish process at full strength for its best lines (`MultiPV`), and the
-prompt carries them as SAN with scores. The prompt tells the coach which colour
-the player has and whose turn it is, and every score is from the player's side.
-With `llm.autoAdvice` the coach speaks up when the player's turn comes; advice is
-skipped while it is still talking.
+The language model and the voice plans were dropped. `shared/ui/Chat` stays, unused,
+for games against a friend. `UciEngine::candidates` (`MultiPV`) and `san_line` stay
+for the stages below.
 
-What LM Studio taught us:
-
-- Reasoning stays off (`reasoning_effort: "none"`). A reasoning model is silent for
-  a long time, which looks like a dead connection, and the facts are already
-  measured.
-- A model LM Studio loads for a request has its idle TTL, while `POST
-  /api/v1/models/load` takes no TTL. So a chat goes out first, and only a refusal
-  for a model that is not in memory loads it explicitly and asks once more. The
-  app then owns that model: `POST /api/v1/models/unload` takes it out after ten
-  idle minutes, when the connection is switched off and when the app closes.
-  Models it did not load are never unloaded. This path is tested against a fake
-  server, with the load and unload routes checked by hand on the real one: there
-  just-in-time loading was on.
-- `/v1/models` may list only what is in memory, so the model list comes from
-  `/api/v1/models`, with `/v1/models` as the fallback for other servers.
-- The server binds IPv4 only; `localhost` still works through the fallback.
-
-The language of the conversation is its own setting, `llm.language`, which follows
-the app by default. Voice reads the same setting.
-
-Next, in order:
-
-1. Stage 3: engine-measured game review, then the LLM explaining it.
-2. Stage 4: `gb-voice`, speaking with the model both ways.
-
-The LLM side, always under the principle above, with the engine supplying every
-fact:
-
-- **Teaching**: lessons on ideas and openings, at the player's level.
-- **Trainer**: positions from the player's own games, puzzles from their
-  blunders with spaced repetition.
-- **Game review**: walks through a finished game, mistake by mistake.
-- **Advisor**: hints during a game, by level: idea, piece, move.
-- **Open chat** about the position on screen, by text and by voice.
-
-The LLM connection is a setting and is off by default: the game plays fully
-without it, and hints during a game appear only when it is on.
+Next, in order: Stages 2 to 6 above.
 
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,

@@ -42,7 +42,8 @@ contracts in `src/shared/contracts/generated/` are never edited by hand.
 Everything on the wire is camelCase (`#[serde(rename_all = "camelCase")]` on
 every struct that crosses the boundary).
 
-**An LLM never plays or calculates**: it only puts measured facts into words.
+**Every fact comes from code**: the rules code and the UCI engine. There is no
+language model; see the principle in `docs/spec.md`.
 
 ## Working with the user
 

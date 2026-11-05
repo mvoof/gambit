@@ -7,22 +7,18 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use gb_archive::NewGame;
 use gb_chess::parse_pgn;
 use gb_engine::{install_stockfish, probe_engine};
-use gb_llm::chat_models;
 use gb_model::{
-    AppSettings, CompanionView, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages,
-    PieceSetView, ReplayFrame, ReplayGame, SheetColumnOrder,
+    AppSettings, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages, PieceSetView,
+    ReplayFrame, ReplayGame, SheetColumnOrder,
 };
 use gb_pieces::preview_sheet;
 use tauri::State;
 
 use crate::analysis::AnalysisTarget;
-use crate::companion::Question;
 use crate::settings::{normalise, save_settings};
 use crate::state::{lock, to_message, AppState};
 
 const NO_ENGINE: &str = "no engine installed";
-const LLM_OFF: &str = "the LLM connection is off";
-const EMPTY_QUESTION: &str = "the question is empty";
 
 type Reply<T> = Result<T, String>;
 
@@ -37,10 +33,6 @@ pub fn save_app_settings(state: State<'_, AppState>, settings: AppSettings) -> R
 
     save_settings(&state.settings_path, &normal).map_err(to_message)?;
     lock(&state.settings).clone_from(&normal);
-
-    if !normal.llm.enabled {
-        state.companion.switch_off();
-    }
 
     Ok(normal)
 }
@@ -85,11 +77,7 @@ pub async fn choose_engine(state: State<'_, AppState>, path: String) -> Reply<En
 pub async fn new_game(state: State<'_, AppState>, options: NewGameOptions) -> Reply<GameView> {
     let path = state.engine_path().ok_or_else(|| NO_ENGINE.to_owned())?;
 
-    let view = state.session.new_game(options, &path).await?;
-
-    state.companion.reset();
-
-    Ok(view)
+    state.session.new_game(options, &path).await
 }
 
 #[tauri::command]
@@ -143,74 +131,6 @@ pub fn set_analysis_position(state: State<'_, AppState>, fen: Option<String>) {
     });
 
     state.analysis.set_target(target);
-}
-
-#[tauri::command]
-pub async fn llm_models(base_url: String) -> Reply<Vec<String>> {
-    chat_models(&base_url).await.map_err(to_message)
-}
-
-#[tauri::command]
-pub fn companion_view(state: State<'_, AppState>) -> CompanionView {
-    state.companion.view()
-}
-
-/// `ply` is the position on screen; `None` is the live one. The reply arrives
-/// through events.
-fn question(
-    state: &AppState,
-    settings: AppSettings,
-    ply: Option<u32>,
-    is_advice: bool,
-) -> Reply<Question> {
-    Ok(Question {
-        facts: state.session.position_facts(ply)?,
-        engine_path: state.engine_path(),
-        language: settings.llm.language.clone().unwrap_or(settings.language),
-        settings: settings.llm,
-        is_advice,
-    })
-}
-
-#[tauri::command]
-pub async fn companion_ask(
-    state: State<'_, AppState>,
-    text: String,
-    ply: Option<u32>,
-) -> Reply<()> {
-    let text = text.trim().to_owned();
-    let settings = lock(&state.settings).clone();
-
-    if !settings.llm.enabled {
-        return Err(LLM_OFF.to_owned());
-    }
-
-    if text.is_empty() {
-        return Err(EMPTY_QUESTION.to_owned());
-    }
-
-    state
-        .companion
-        .ask(text, question(&state, settings, ply, false)?)
-}
-
-/// The player's turn has come. Whether advice follows is decided here.
-#[tauri::command]
-pub async fn companion_advise(state: State<'_, AppState>) -> Reply<()> {
-    let settings = lock(&state.settings).clone();
-
-    if !settings.llm.enabled || !settings.llm.auto_advice {
-        return Ok(());
-    }
-
-    state
-        .companion
-        .advise(question(&state, settings, None, true)?)
-}
-
-#[tauri::command]
-pub fn companion_stop(state: State<'_, AppState>) {
-    state.companion.stop();
 }
 
 #[tauri::command]

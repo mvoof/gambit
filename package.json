@@ -1,6 +1,6 @@
 {
   "name": "gambit",
-  "description": "Chess with a local AI companion",
+  "description": "Chess against a real engine, and training",
   "private": true,
   "license": "GPL-3.0-or-later",
   "version": "0.1.0",

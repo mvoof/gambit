@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 pub const EVENT_GAME_UPDATED: &str = "game-updated";
 pub const EVENT_EVALUATION: &str = "evaluation";
 pub const EVENT_ENGINE_INSTALL: &str = "engine-install-progress";
-pub const EVENT_COMPANION: &str = "companion-updated";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
@@ -344,62 +343,6 @@ impl Default for BoardSettings {
     }
 }
 
-/// The LLM is optional: off by default, and the game never needs it.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase")]
-pub struct LlmSettings {
-    pub enabled: bool,
-    pub base_url: String,
-    /// `None` until the user picks one: the server's list order means nothing.
-    pub model: Option<String>,
-    /// The coach speaks up by itself when the player's turn comes.
-    pub auto_advice: bool,
-    /// What the model speaks, by text and later by voice. `None` follows the app.
-    pub language: Option<String>,
-}
-
-impl Default for LlmSettings {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            base_url: "http://localhost:1234".to_owned(),
-            model: None,
-            auto_advice: false,
-            language: None,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase")]
-pub enum ChatSpeaker {
-    Player,
-    Companion,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase")]
-pub struct ChatTurn {
-    pub speaker: ChatSpeaker,
-    pub text: String,
-}
-
-/// The conversation, whole: the frontend renders it and keeps nothing.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase")]
-pub struct CompanionView {
-    pub turns: Vec<ChatTurn>,
-    /// The reply so far; `Some` from the question until the reply ends.
-    pub draft: Option<String>,
-    /// The model is not in memory yet, so the first word will take a while.
-    pub loading_model: bool,
-    pub error: Option<String>,
-}
-
 const DEFAULT_SOUND_VOLUME: u32 = 70;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -414,7 +357,6 @@ pub struct AppSettings {
     pub eval_bar_enabled: bool,
     pub engine_path: Option<String>,
     pub last_game: Option<NewGameOptions>,
-    pub llm: LlmSettings,
 }
 
 impl Default for AppSettings {
@@ -427,7 +369,6 @@ impl Default for AppSettings {
             eval_bar_enabled: true,
             engine_path: None,
             last_game: None,
-            llm: LlmSettings::default(),
         }
     }
 }

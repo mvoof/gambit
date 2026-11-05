@@ -1,6 +1,6 @@
 # Gambit
 
-Chess against a real engine, with a local AI companion. See `docs/spec.md`.
+Chess against a real engine, and training to get better. See `docs/spec.md`.
 
 ## Scripts
 
@@ -30,8 +30,8 @@ Chess against a real engine, with a local AI companion. See `docs/spec.md`.
   (80 cols, single quotes, semicolons).
 - **lefthook** (`lefthook.yml`) — pre-commit hook, installed by `npm install`.
   Runs on **staged files only**, in parallel: oxlint `--fix`, oxfmt, `tsc
---noEmit`, `vitest related`, and for Rust `cargo fmt`, `cargo clippy -D
-warnings`, `cargo test`.
+  --noEmit`, `vitest related`, and for Rust `cargo fmt`, `cargo clippy -D
+  warnings`, `cargo test`.
 - **Vitest** — configured inside `vite.config.ts`, picks up `src/**/*.test.ts(x)`.
 - **Storybook 10** — `.storybook/`, shares the Vite aliases and the SCSS token
   injection with the app, and stubs `@tauri-apps/api/core` so stories run in a

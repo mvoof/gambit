@@ -4,7 +4,6 @@ import { fetchSettings, saveSettings } from '@shared/api/settings.service';
 import type {
   AppSettings,
   BoardSettings,
-  LlmSettings,
 } from '@shared/contracts/generated/bindings';
 
 export class SettingsStore {
@@ -45,14 +44,6 @@ export class SettingsStore {
     }
 
     return this.update({ board: { ...this.settings.board, ...patch } });
-  };
-
-  updateLlm = (patch: Partial<LlmSettings>) => {
-    if (!this.settings) {
-      return Promise.resolve();
-    }
-
-    return this.update({ llm: { ...this.settings.llm, ...patch } });
   };
 
   /** The engine path is written by the backend when an engine is chosen. */

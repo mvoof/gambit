@@ -412,6 +412,15 @@ pub fn san_line(fen: &str, moves: &[String]) -> Vec<String> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn a_san_line_stops_at_the_first_move_that_cannot_be_played() {
+        let fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        let moves = ["e2e4", "e7e5", "e1e8", "g1f3"].map(str::to_owned);
+
+        assert_eq!(san_line(fen, &moves), vec!["e4", "e5"]);
+        assert!(san_line("not a position", &moves).is_empty());
+    }
+
     fn play_all(game: &mut Game, moves: &[&str]) {
         for uci in moves {
             game.play_uci(uci).unwrap();

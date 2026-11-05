@@ -8,7 +8,6 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use gb_archive::Archive;
 use gb_chess::ChessError;
 use gb_engine::{EngineError, SearchOutcome, Strength, UciEngine};
-use gb_llm::PositionFacts;
 use gb_model::{Color, ColorChoice, GameView, NewGameOptions, ReplayFrame};
 use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
@@ -109,18 +108,6 @@ impl Session {
             .as_ref()
             .ok_or_else(|| NO_GAME.to_owned())?
             .frames()
-            .map_err(message)
-    }
-
-    /// The game at `ply`, or as it stands now, for the companion.
-    pub fn position_facts(&self, ply: Option<u32>) -> Result<PositionFacts, String> {
-        let now = self.now_ms();
-
-        lock(&self.inner)
-            .active
-            .as_ref()
-            .ok_or_else(|| NO_GAME.to_owned())?
-            .position_facts(ply, now)
             .map_err(message)
     }
 
