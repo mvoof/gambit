@@ -50,3 +50,21 @@
     background: $accent-strong;
   }
 }
+
+.inaccuracy {
+  margin-left: sp('xxs');
+  font-weight: 700;
+  color: $accent;
+}
+
+.mistake {
+  margin-left: sp('xxs');
+  font-weight: 700;
+  color: $danger;
+}
+
+.blunder {
+  margin-left: sp('xxs');
+  font-weight: 800;
+  color: $danger;
+}

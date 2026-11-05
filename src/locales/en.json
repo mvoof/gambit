@@ -22,6 +22,11 @@
       "flip": "Flip the board",
       "thinking": "The engine is thinking…",
       "drawDeclined": "The engine declined the draw.",
+      "mark": {
+        "inaccuracy": "Inaccuracy. Better was {{move}}.",
+        "mistake": "Mistake. Better was {{move}}.",
+        "blunder": "Blunder. Better was {{move}}."
+      },
       "engineFailed": "The engine stopped responding. Start a new game."
     },
     "result": {
@@ -119,6 +124,7 @@
       "volume": "Sound volume: {{volume}}%",
       "evalBar": "Evaluation bar",
       "showBestMove": "Show the best move on my turn",
+      "markMistakes": "Mark my mistakes (from the next game)",
       "updates": "Updates"
     },
     "window": {

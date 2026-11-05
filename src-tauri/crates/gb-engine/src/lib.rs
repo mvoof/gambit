@@ -9,5 +9,7 @@ mod uci;
 pub use error::EngineError;
 pub use install::{install_stockfish, stockfish_path};
 pub use protocol::{SearchLimit, Strength};
-pub use score::{accepts_draw, evaluation_of, CandidateLine, Score, SearchInfo};
+pub use score::{
+    accepts_draw, evaluation_of, lost_win_percent, quality_of, CandidateLine, Score, SearchInfo,
+};
 pub use uci::{probe_engine, SearchOutcome, UciEngine};

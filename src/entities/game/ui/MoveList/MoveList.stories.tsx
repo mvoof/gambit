@@ -37,6 +37,12 @@ export default meta;
 
 type Story = StoryObj<typeof MoveList>;
 
+export const WithMarks: Story = {
+  args: {
+    marks: [{ ply: 3, quality: 'blunder', bestSan: 'd4' }],
+  },
+};
+
 export const FromTheStart: Story = {};
 
 export const BlackMovesFirst: Story = {

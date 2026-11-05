@@ -1,13 +1,24 @@
 import { useEffect, useRef } from 'react';
 
-import type { MoveRecord } from '@shared/contracts/generated/bindings';
+import type {
+  MoveMark,
+  MoveQuality,
+  MoveRecord,
+} from '@shared/contracts/generated/bindings';
 
 import styles from './MoveList.module.scss';
 
 const PLIES_PER_ROW = 2;
+const QUALITY_GLYPHS: Record<MoveQuality, string> = {
+  inaccuracy: '?!',
+  mistake: '?',
+  blunder: '??',
+};
+const NO_MARKS: MoveMark[] = [];
 
 interface MoveListProps {
   moves: MoveRecord[];
+  marks?: MoveMark[];
   /** The ply shown on the board: 0 before the first move. */
   activePly: number;
   onSelect: (ply: number) => void;
@@ -29,7 +40,17 @@ const toRows = (moves: MoveRecord[]) => {
   return rows;
 };
 
-export const MoveList = ({ moves, activePly, onSelect }: MoveListProps) => {
+const MoveGlyph = ({ quality }: { quality?: MoveQuality }) =>
+  quality ? (
+    <span className={styles[quality]}>{QUALITY_GLYPHS[quality]}</span>
+  ) : null;
+
+export const MoveList = ({
+  moves,
+  marks = NO_MARKS,
+  activePly,
+  onSelect,
+}: MoveListProps) => {
   const activeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -57,6 +78,9 @@ export const MoveList = ({ moves, activePly, onSelect }: MoveListProps) => {
               }}
             >
               {move.san}
+              <MoveGlyph
+                quality={marks.find((mark) => mark.ply === move.ply)?.quality}
+              />
             </button>
           ))}
         </li>

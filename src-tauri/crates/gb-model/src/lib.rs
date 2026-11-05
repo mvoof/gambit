@@ -149,6 +149,25 @@ pub struct ClockView {
     pub sync_ms: u32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum MoveQuality {
+    Inaccuracy,
+    Mistake,
+    Blunder,
+}
+
+/// What the engine measured about one of the player's moves.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct MoveMark {
+    pub ply: u32,
+    pub quality: MoveQuality,
+    pub best_san: String,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
@@ -166,6 +185,7 @@ pub struct GameView {
     pub last_move: Option<LastMove>,
     pub check_square: Option<String>,
     pub moves: Vec<MoveRecord>,
+    pub move_marks: Vec<MoveMark>,
     pub captured: CapturedPieces,
     /// Positive when White is ahead.
     pub material_diff: i32,
@@ -358,6 +378,8 @@ pub struct AppSettings {
     pub sound_volume: u32,
     pub eval_bar_enabled: bool,
     pub show_best_move: bool,
+    /// Read when a game starts.
+    pub mark_mistakes: bool,
     pub engine_path: Option<String>,
     pub last_game: Option<NewGameOptions>,
 }
@@ -371,6 +393,7 @@ impl Default for AppSettings {
             sound_volume: DEFAULT_SOUND_VOLUME,
             eval_bar_enabled: true,
             show_best_move: false,
+            mark_mistakes: true,
             engine_path: None,
             last_game: None,
         }

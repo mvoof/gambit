@@ -1,6 +1,6 @@
 //! Reading `info` lines and turning a score into what the bar shows.
 
-use gb_model::{Evaluation, LastMove};
+use gb_model::{Evaluation, LastMove, MoveQuality};
 
 /// Lichess' fit of win chance against centipawns.
 const WIN_CURVE_STEEPNESS: f64 = -0.003_682_08;
@@ -10,6 +10,11 @@ const ALL_PERCENT: f64 = 100.0;
 const DRAW_ACCEPT_CENTIPAWNS: i32 = 30;
 /// Shallower than this, the first move still jumps around.
 const MIN_BEST_MOVE_DEPTH: u32 = 10;
+/// Win percent a move may lose, as Lichess draws the lines: a tenth, a fifth and
+/// three tenths of its win chance scale, which runs from -1 to 1.
+const INACCURACY_LOSS: f64 = 5.0;
+const MISTAKE_LOSS: f64 = 10.0;
+const BLUNDER_LOSS: f64 = 15.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Score {
@@ -139,6 +144,32 @@ fn win_percent(centipawns: i32) -> f64 {
     EVEN_PERCENT + EVEN_PERCENT * chance
 }
 
+fn side_win_percent(score: Score) -> f64 {
+    match score {
+        Score::Centipawns(centipawns) => win_percent(centipawns),
+        Score::Mate(moves) if moves > 0 => ALL_PERCENT,
+        Score::Mate(_) => 0.0,
+    }
+}
+
+/// What a move cost its side. `before` is the mover's score, `after` the
+/// opponent's, since the opponent is the side to move by then.
+pub fn lost_win_percent(before: Score, after: Score) -> f64 {
+    side_win_percent(before) - (ALL_PERCENT - side_win_percent(after))
+}
+
+pub fn quality_of(lost_percent: f64) -> Option<MoveQuality> {
+    if lost_percent >= BLUNDER_LOSS {
+        Some(MoveQuality::Blunder)
+    } else if lost_percent >= MISTAKE_LOSS {
+        Some(MoveQuality::Mistake)
+    } else if lost_percent >= INACCURACY_LOSS {
+        Some(MoveQuality::Inaccuracy)
+    } else {
+        None
+    }
+}
+
 /// `info` scores are for the side to move; the wire is White's point of view.
 pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
     let white_to_move = is_white_to_move(fen);
@@ -263,6 +294,37 @@ mod tests {
                 to: "e8".to_owned(),
             })
         );
+    }
+
+    #[test]
+    fn keeping_the_evaluation_costs_nothing() {
+        let lost = lost_win_percent(Score::Centipawns(40), Score::Centipawns(-40));
+
+        assert!(lost.abs() < 1e-9);
+        assert_eq!(quality_of(lost), None);
+    }
+
+    #[test]
+    fn hanging_a_piece_is_a_blunder_and_a_small_slip_an_inaccuracy() {
+        let hung = lost_win_percent(Score::Centipawns(0), Score::Centipawns(300));
+        let slip = lost_win_percent(Score::Centipawns(0), Score::Centipawns(60));
+
+        assert_eq!(quality_of(hung), Some(MoveQuality::Blunder));
+        assert_eq!(quality_of(slip), Some(MoveQuality::Inaccuracy));
+    }
+
+    #[test]
+    fn missing_a_mate_costs_the_win() {
+        let lost = lost_win_percent(Score::Mate(2), Score::Centipawns(0));
+
+        assert_eq!(quality_of(lost), Some(MoveQuality::Blunder));
+    }
+
+    #[test]
+    fn walking_into_mate_counts_from_the_movers_side() {
+        let lost = lost_win_percent(Score::Centipawns(0), Score::Mate(1));
+
+        assert_eq!(lost, 50.0);
     }
 
     #[test]

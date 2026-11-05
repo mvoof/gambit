@@ -12,6 +12,9 @@ const RESULT_KEYS: Record<GameOutcome['result'], string> = {
   draw: 'result.draw',
 };
 
+/** A mark stays until the player's next move. */
+const PLIES_OF_A_ROUND = 2;
+
 export const GameStatus = observer(() => {
   const { t } = useTranslation();
   const { view, drawDeclined, error } = useGameStore();
@@ -35,6 +38,18 @@ export const GameStatus = observer(() => {
 
   if (drawDeclined) {
     return <p className={styles.note}>{t('game.drawDeclined')}</p>;
+  }
+
+  const lastMark = view?.moveMarks.at(-1);
+  const isFresh =
+    lastMark && lastMark.ply + PLIES_OF_A_ROUND > (view?.moves.length ?? 0);
+
+  if (lastMark && isFresh) {
+    return (
+      <p className={styles.problem}>
+        {t(`game.mark.${lastMark.quality}`, { move: lastMark.bestSan })}
+      </p>
+    );
   }
 
   return (

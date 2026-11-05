@@ -2,7 +2,7 @@
 
 use gb_model::{
     CapturedPieces, ClockView, Color, GameEndReason, GameOutcome, GameResult, GameView, LastMove,
-    MoveOption, MoveRecord, MoveSound, PieceKind, ReplayFrame,
+    MoveMark, MoveOption, MoveRecord, MoveSound, PieceKind, ReplayFrame,
 };
 use shakmaty::fen::Fen;
 use shakmaty::san::{San, SanPlus, Suffix};
@@ -34,6 +34,7 @@ pub struct GameExtras {
     pub human_color: Color,
     pub opponent_name: String,
     pub premove: Option<MoveOption>,
+    pub move_marks: Vec<MoveMark>,
     pub clock: Option<ClockView>,
     pub engine_thinking: bool,
     pub engine_failed: bool,
@@ -358,6 +359,7 @@ impl Game {
             last_move: self.last_move(),
             check_square: self.check_square(),
             moves: self.moves(),
+            move_marks: extras.move_marks,
             captured: self.captured(),
             material_diff: self.material_diff(),
             clock: extras.clock,
@@ -438,6 +440,7 @@ mod tests {
 
     fn extras() -> GameExtras {
         GameExtras {
+            move_marks: Vec::new(),
             human_color: Color::White,
             opponent_name: "Engine".to_owned(),
             premove: None,

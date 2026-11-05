@@ -2,13 +2,14 @@
 //! decisions live in `ActiveGame`; this is what happens around them.
 
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use gb_archive::Archive;
 use gb_chess::ChessError;
 use gb_engine::{EngineError, SearchOutcome, Strength, UciEngine};
-use gb_model::{Color, ColorChoice, GameView, NewGameOptions, ReplayFrame};
+use gb_model::{Color, ColorChoice, GameView, MoveMark, NewGameOptions, ReplayFrame};
 use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
 use tokio::time::sleep;
@@ -16,6 +17,7 @@ use tokio::time::sleep;
 use crate::active_game::ActiveGame;
 use crate::civil_date::pgn_date;
 use crate::events::EventSink;
+use crate::move_review::{MoveReviewer, ReviewJob};
 use crate::state::lock;
 
 const NO_GAME: &str = "no game in progress";
@@ -36,6 +38,11 @@ pub struct Session {
     opponent: tokio::sync::Mutex<Option<Opponent>>,
     /// Bumped whenever a running search stops mattering: its reply is dropped.
     generation: watch::Sender<u64>,
+    /// Which game a late measurement belongs to.
+    game_id: AtomicU64,
+    /// `None` when the player's moves are not being measured.
+    review_engine: Mutex<Option<PathBuf>>,
+    reviewer: MoveReviewer,
     origin: Instant,
     archive: Arc<Mutex<Archive>>,
     sink: Arc<dyn EventSink>,
@@ -73,10 +80,13 @@ impl Session {
     pub fn new(archive: Arc<Mutex<Archive>>, sink: Arc<dyn EventSink>) -> Arc<Self> {
         let (generation, _) = watch::channel(0);
 
-        Arc::new(Self {
+        Arc::new_cyclic(|session| Self {
             inner: Mutex::new(Inner::default()),
             opponent: tokio::sync::Mutex::new(None),
             generation,
+            game_id: AtomicU64::new(0),
+            review_engine: Mutex::new(None),
+            reviewer: MoveReviewer::start(session.clone()),
             origin: Instant::now(),
             archive,
             sink,
@@ -144,6 +154,7 @@ impl Session {
         self: &Arc<Self>,
         options: NewGameOptions,
         engine_path: &Path,
+        mark_mistakes: bool,
     ) -> Result<GameView, String> {
         self.bump_generation();
 
@@ -160,6 +171,8 @@ impl Session {
         let active = ActiveGame::new(&options, human_color, opponent_name).map_err(message)?;
 
         lock(&self.inner).active = Some(active);
+        *lock(&self.review_engine) = mark_mistakes.then(|| engine_path.to_owned());
+        self.game_id.fetch_add(1, Ordering::SeqCst);
 
         self.after_change().ok_or_else(|| NO_GAME.to_owned())
     }
@@ -226,6 +239,39 @@ impl Session {
             .map(|(accepted, _)| accepted)
     }
 
+    /// The measurement of a move arrived, which may be long after the move.
+    pub fn add_move_mark(&self, game_id: u64, uci: &str, mark: MoveMark) {
+        if self.game_id.load(Ordering::SeqCst) != game_id {
+            return;
+        }
+
+        let now = self.now_ms();
+        let view = lock(&self.inner).active.as_mut().map(|active| {
+            active.add_move_mark(uci, mark);
+            active.view(now)
+        });
+
+        if let Some(view) = view {
+            self.sink.game_updated(&view);
+        }
+    }
+
+    fn submit_reviews(&self, active: &mut ActiveGame) {
+        let played_moves = active.take_played_moves();
+        let engine_path = lock(&self.review_engine).clone();
+        let game_id = self.game_id.load(Ordering::SeqCst);
+
+        if let Some(engine_path) = engine_path {
+            for played in played_moves {
+                self.reviewer.submit(ReviewJob {
+                    game_id,
+                    played,
+                    engine_path: engine_path.clone(),
+                });
+            }
+        }
+    }
+
     fn save_finished(&self, active: &mut ActiveGame) {
         let seconds = unix_seconds();
         let played_at = u32::try_from(seconds).unwrap_or(u32::MAX);
@@ -250,6 +296,8 @@ impl Session {
         let active = inner.active.as_mut()?;
         let flag_wait = active.ms_to_flag(now);
         let mut search_generation = None;
+
+        self.submit_reviews(active);
 
         if active.is_over() {
             self.bump_generation();

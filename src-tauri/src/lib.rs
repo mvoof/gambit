@@ -7,6 +7,7 @@ mod bindings;
 mod civil_date;
 mod commands;
 mod events;
+mod move_review;
 mod session;
 mod settings;
 mod state;

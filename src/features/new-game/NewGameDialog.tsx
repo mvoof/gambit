@@ -21,7 +21,7 @@ import {
 } from './time-presets';
 import styles from './NewGameDialog.module.scss';
 
-const DEFAULT_PRESET = '5+0';
+const DEFAULT_PRESET = UNLIMITED_PRESET;
 const DEFAULT_ELO = 1500;
 const DEFAULT_CUSTOM_MINUTES = 7;
 const DEFAULT_CUSTOM_INCREMENT = 5;

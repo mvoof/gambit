@@ -39,6 +39,7 @@ export const GameSidePanel = observer(() => {
       />
       <MoveList
         moves={view.moves}
+        marks={view.moveMarks}
         activePly={browsedPly ?? view.moves.length}
         onSelect={browseTo}
       />

@@ -57,6 +57,13 @@ export const GeneralSettings = observer(() => {
           void store.update({ showBestMove });
         }}
       />
+      <Toggle
+        label={t('settings.markMistakes')}
+        isChecked={settings.markMistakes}
+        onChange={(markMistakes) => {
+          void store.update({ markMistakes });
+        }}
+      />
     </div>
   );
 });

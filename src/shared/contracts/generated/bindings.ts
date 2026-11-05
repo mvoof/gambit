@@ -13,6 +13,8 @@ export type AppSettings = {
 	soundVolume: number,
 	evalBarEnabled: boolean,
 	showBestMove: boolean,
+	/**  Read when a game starts. */
+	markMistakes: boolean,
 	enginePath: string | null,
 	lastGame: NewGameOptions | null,
 };
@@ -126,6 +128,7 @@ export type GameView = {
 	lastMove: LastMove | null,
 	checkSquare: string | null,
 	moves: MoveRecord[],
+	moveMarks: MoveMark[],
 	captured: CapturedPieces,
 	/**  Positive when White is ahead. */
 	materialDiff: number,
@@ -141,6 +144,13 @@ export type LastMove = {
 	to: string,
 };
 
+/**  What the engine measured about one of the player's moves. */
+export type MoveMark = {
+	ply: number,
+	quality: MoveQuality,
+	bestSan: string,
+};
+
 /**  A move the player may choose. A promotion is one option per piece. */
 export type MoveOption = {
 	from: string,
@@ -148,6 +158,8 @@ export type MoveOption = {
 	uci: string,
 	promotion: PieceKind | null,
 };
+
+export type MoveQuality = "inaccuracy" | "mistake" | "blunder";
 
 export type MoveRecord = {
 	ply: number,

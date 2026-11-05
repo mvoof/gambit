@@ -182,7 +182,16 @@ bar also reports its first move, from depth 10 so that the arrow does not jump, 
 it runs for the arrow even with the bar off. The arrow shows on the player's turn
 only, in `settings.showBestMove`.
 
-Next, in order: the marking of mistakes in Stage 2, then Stages 3 to 6 above.
+Stage 2 is done with the marking of mistakes: a fourth engine process
+(`move_review.rs`) searches the positions before and after each of the player's
+moves for 300 ms, and the win percent lost decides the mark, on the Lichess lines.
+Marks stay in the running game for now: they are not saved with it.
+
+The clock stays, and a new game now defaults to unlimited time: with a clock the
+engine plans its time and spends far more on a move.
+
+Next, in order: saving an unfinished game to continue it later, in its own section
+next to the archive, then Stages 3 to 6 above.
 
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,

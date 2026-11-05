@@ -1,17 +1,30 @@
 //! The game in progress: everything the session decides, with no I/O and no
 //! async. The caller passes the time, so all of it is testable.
 
+use std::mem::take;
+
 use gb_archive::NewGame;
 use gb_chess::{
     export_pgn, format_time_control, ChessError, Clock, ClockSnapshot, Game, GameExtras, PgnHeaders,
 };
 use gb_engine::{accepts_draw, Score, SearchLimit};
-use gb_model::{Color, GameResult, GameView, MoveOption, NewGameOptions, ReplayFrame, TimeControl};
+use gb_model::{
+    Color, GameResult, GameView, MoveMark, MoveOption, NewGameOptions, ReplayFrame, TimeControl,
+};
 
 /// The opponent's thinking time when there is no clock.
 const UNLIMITED_MOVE_TIME_MS: u32 = 1_500;
 const HUMAN_NAME: &str = "Player";
 const PLIES_IN_A_ROUND: usize = 2;
+
+/// A move of the player, waiting for the engine to measure it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PlayedMove {
+    pub ply: u32,
+    pub uci: String,
+    pub fen_before: String,
+    pub fen_after: String,
+}
 
 pub struct ActiveGame {
     game: Game,
@@ -22,6 +35,8 @@ pub struct ActiveGame {
     /// The clock as each ply began; the first entry is the start of the game.
     clock_history: Vec<ClockSnapshot>,
     premove: Option<MoveOption>,
+    played_moves: Vec<PlayedMove>,
+    move_marks: Vec<MoveMark>,
     engine_score: Option<Score>,
     engine_thinking: bool,
     engine_failed: bool,
@@ -48,6 +63,8 @@ impl ActiveGame {
             clock_history: clock.iter().map(|start| start.snapshot(0)).collect(),
             clock,
             premove: None,
+            played_moves: Vec::new(),
+            move_marks: Vec::new(),
             engine_score: None,
             engine_thinking: false,
             engine_failed: false,
@@ -128,7 +145,40 @@ impl ActiveGame {
         }
 
         self.premove = None;
-        self.play(uci, now_ms)
+
+        let fen_before = self.game.fen();
+        let plies_before = self.game.ply_count();
+
+        self.play(uci, now_ms)?;
+
+        // Out of time, the move was not played.
+        if self.game.ply_count() > plies_before {
+            self.played_moves.push(PlayedMove {
+                ply: clamp_u32(self.game.ply_count() as u64),
+                uci: uci.to_owned(),
+                fen_before,
+                fen_after: self.game.fen(),
+            });
+        }
+
+        Ok(())
+    }
+
+    pub fn take_played_moves(&mut self) -> Vec<PlayedMove> {
+        take(&mut self.played_moves)
+    }
+
+    /// A takeback may have replaced the move while it was being measured.
+    pub fn add_move_mark(&mut self, uci: &str, mark: MoveMark) {
+        let moves = self.game.moves();
+        let is_current = (mark.ply as usize)
+            .checked_sub(1)
+            .and_then(|index| moves.get(index))
+            .is_some_and(|record| record.uci == uci);
+
+        if is_current {
+            self.move_marks.push(mark);
+        }
     }
 
     pub fn engine_move(
@@ -206,6 +256,10 @@ impl ActiveGame {
             clock.restore(*snapshot, now_ms);
         }
 
+        let ply_count = self.game.ply_count();
+
+        self.move_marks
+            .retain(|mark| (mark.ply as usize) <= ply_count);
         self.premove = None;
         self.engine_thinking = false;
 
@@ -284,6 +338,7 @@ impl ActiveGame {
             human_color: self.human_color,
             opponent_name: self.opponent_name.clone(),
             premove: self.premove.clone(),
+            move_marks: self.move_marks.clone(),
             clock: self.clock.as_ref().map(|clock| clock.view(now_ms)),
             engine_thinking: self.engine_thinking,
             engine_failed: self.engine_failed,
@@ -334,6 +389,74 @@ impl ActiveGame {
             time_control: format_time_control(self.time_control),
             pgn,
         })
+    }
+}
+
+#[cfg(test)]
+mod review_tests {
+    use gb_model::{ColorChoice, MoveQuality};
+
+    use super::*;
+
+    fn game() -> ActiveGame {
+        let options = NewGameOptions {
+            color: ColorChoice::White,
+            time_control: None,
+            elo: None,
+            start_fen: None,
+        };
+
+        ActiveGame::new(&options, Color::White, "Fake".to_owned()).unwrap()
+    }
+
+    fn mark(ply: u32) -> MoveMark {
+        MoveMark {
+            ply,
+            quality: MoveQuality::Mistake,
+            best_san: "d4".to_owned(),
+        }
+    }
+
+    #[test]
+    fn only_the_players_moves_wait_for_measuring() {
+        let mut game = game();
+
+        game.human_move("e2e4", 0).unwrap();
+        game.engine_move("e7e5", None, 0).unwrap();
+
+        let played = game.take_played_moves();
+
+        assert_eq!(played.len(), 1);
+        assert_eq!(played[0].ply, 1);
+        assert_eq!(played[0].uci, "e2e4");
+        assert_ne!(played[0].fen_before, played[0].fen_after);
+        assert!(game.take_played_moves().is_empty());
+    }
+
+    #[test]
+    fn a_mark_reaches_the_view_and_a_takeback_removes_it() {
+        let mut game = game();
+
+        game.human_move("e2e4", 0).unwrap();
+        game.engine_move("e7e5", None, 0).unwrap();
+        game.add_move_mark("e2e4", mark(1));
+
+        assert_eq!(game.view(0).move_marks, vec![mark(1)]);
+
+        game.take_back(0).unwrap();
+
+        assert!(game.view(0).move_marks.is_empty());
+    }
+
+    #[test]
+    fn a_late_mark_for_a_replaced_move_is_dropped() {
+        let mut game = game();
+
+        game.human_move("d2d4", 0).unwrap();
+        game.add_move_mark("e2e4", mark(1));
+        game.add_move_mark("d2d4", mark(5));
+
+        assert!(game.view(0).move_marks.is_empty());
     }
 }
 
