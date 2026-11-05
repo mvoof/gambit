@@ -1,11 +1,9 @@
-/// <reference types="vitest/config" />
-import { resolve } from 'node:path';
-
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 
-import { SCSS_ADDITIONAL_DATA } from './scss.config';
+import { SCSS_ADDITIONAL_DATA } from './scss.config.ts';
+import { createLayerAliases } from './vite.aliases.ts';
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -22,9 +20,7 @@ export default defineConfig(() => ({
   base: './',
 
   resolve: {
-    alias: {
-      '@': resolve(__dirname, './src'),
-    },
+    alias: createLayerAliases(),
   },
 
   css: {
@@ -38,6 +34,7 @@ export default defineConfig(() => ({
   test: {
     environment: 'node',
     include: ['src/**/*.test.{ts,tsx}'],
+    passWithNoTests: true,
   },
 
   // Vite options tailored for Tauri development and only applied in

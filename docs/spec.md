@@ -22,7 +22,8 @@ strength and evaluation, and the LLM only turns measured facts into words.
   `shared/api/*.service.ts` is the only place that calls `invoke`.
 - Contract: specta generates `src/shared/contracts/generated/bindings.ts` from
   `gb-model` under the `dev` feature. Generated files are never edited. Specta is
-  pinned (`=2.0.0-rc.22`, typescript `=0.0.9`): later rcs change the contract.
+  pinned exactly (`=2.0.0-rc.28`, typescript `=0.0.15`): an rc may change the
+  contract.
 - Licence GPL-3.0-or-later (shakmaty is GPL-3, Stockfish is GPLv3).
 
 ### Crates

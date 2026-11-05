@@ -3,7 +3,7 @@ pre-commit:
   commands:
     lint:
       glob: "*.{ts,tsx,js,mjs}"
-      exclude: "src/types/bindings.ts"
+      exclude: "src/shared/contracts/generated/*"
       run: npx oxlint --type-aware --fix --deny-warnings {staged_files}
       stage_fixed: true
     format:
@@ -24,4 +24,4 @@ pre-commit:
     rust-clippy:
       glob: "*.rs"
       root: "src-tauri/"
-      run: cargo clippy --all-targets -- -D warnings && cargo test
+      run: cargo clippy -j 2 --all-targets -- -D warnings && cargo test -j 2 -- --test-threads=2

@@ -1,16 +1,24 @@
-//! Application wiring. Commands live in `commands.rs`; this file only builds
-//! the Tauri app and registers what it needs.
+//! Application wiring: builds the Tauri app and registers what it needs.
 
-mod commands;
+#[cfg(feature = "dev")]
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![
-            commands::greet,
-            commands::get_app_info
-        ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .plugin(tauri_plugin_dialog::init());
+
+    #[cfg(feature = "dev")]
+    let builder = builder
+        .plugin(tauri_plugin_mcp_bridge::init())
+        .setup(|app| {
+            app.add_capability(include_str!("../capabilities-dev/mcp-bridge.json"))?;
+
+            Ok(())
+        });
+
+    if let Err(error) = builder.run(tauri::generate_context!()) {
+        eprintln!("error while running tauri application: {error}");
+    }
 }

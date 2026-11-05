@@ -1,13 +1,8 @@
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import type { StorybookConfig } from '@storybook/react-vite';
 import svgr from 'vite-plugin-svgr';
 
 import { SCSS_ADDITIONAL_DATA } from '../scss.config.ts';
-
-// This config is ESM, so `__dirname` does not exist here.
-const currentDir = dirname(fileURLToPath(import.meta.url));
+import { createStorybookAliases } from '../vite.aliases.ts';
 
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(ts|tsx)'],
@@ -20,11 +15,7 @@ const config: StorybookConfig = {
     ];
 
     config.resolve = config.resolve ?? {};
-    config.resolve.alias = {
-      // No Tauri runtime in a browser — the backend calls are stubbed.
-      '@tauri-apps/api/core': resolve(currentDir, '../src/mocks/tauri-core.ts'),
-      '@': resolve(currentDir, '../src'),
-    };
+    config.resolve.alias = createStorybookAliases();
 
     config.css = config.css ?? {};
     config.css.preprocessorOptions = {

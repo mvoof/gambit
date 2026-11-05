@@ -5,7 +5,30 @@
   },
   "rules": {
     "react-hooks/exhaustive-deps": "error",
-    "no-console": ["warn", { "allow": ["warn", "error"] }]
+    "no-console": [
+      "warn",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@tauri-apps/**"],
+            "message": "Tauri sits behind src/shared/api/: call a service, through a store."
+          }
+        ]
+      }
+    ],
+    "layers/boundaries": [
+      "error",
+      {
+        "allowedSiblings": {}
+      }
+    ]
   },
   "env": {
     "browser": true,
@@ -16,11 +39,18 @@
     "node_modules/**",
     "src-tauri/target/**",
     "src-tauri/gen/schemas/**",
-    ".storybook/**"
+    ".storybook/**",
+    "src/shared/contracts/generated/**",
+    "src/storybook/mocks/**"
   ],
   "overrides": [
     {
-      "files": ["scripts/**/*.{js,mjs}", "vite.config.ts"],
+      "files": [
+        "scripts/**/*.{js,mjs}",
+        "vite.config.ts",
+        "vite.aliases.ts",
+        "scss.config.ts"
+      ],
       "env": {
         "node": true
       },
@@ -30,13 +60,49 @@
     },
     {
       "files": [
+        "src/app/**/*.tsx",
+        "src/pages/**",
+        "src/widgets/**",
+        "src/features/**/*.tsx",
+        "src/shared/lib/**",
+        "src/shared/ui/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@tauri-apps/**"],
+                "message": "Tauri sits behind src/shared/api/: call a service, through a store."
+              },
+              {
+                "group": ["@shared/api/**", "**/shared/api/**"],
+                "message": "The UI talks to stores only: a backend action belongs in a store method."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/shared/api/**"],
+      "rules": {
+        "no-restricted-imports": "off"
+      }
+    },
+    {
+      "files": [
         "src/**/*.test.ts",
         "src/**/*.test.tsx",
         "src/**/*.stories.tsx"
       ],
       "rules": {
-        "no-console": "off"
+        "no-console": "off",
+        "no-restricted-imports": "off",
+        "layers/boundaries": "off"
       }
     }
-  ]
+  ],
+  "jsPlugins": ["./scripts/lint/layers-plugin.mjs"]
 }

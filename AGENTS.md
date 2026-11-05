@@ -67,7 +67,7 @@ every struct that crosses the boundary).
 - Comment only what is unclear with the surrounding context in view.
 - No barrel files — always import the direct file path.
 - `@/` is the alias for `src/`.
-- Components never import from `@tauri-apps/*` — they call `@/lib/tauri`.
+- Components never import from `@tauri-apps/*` or `@shared/api` — they read stores.
 - All user-facing strings go through i18next (`src/locales/`), never inline.
 
 ### if/else

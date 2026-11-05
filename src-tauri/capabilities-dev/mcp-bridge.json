@@ -1,0 +1,6 @@
+{
+  "identifier": "mcp-bridge",
+  "description": "The Tauri MCP Bridge. Added at runtime under the dev feature, because a release build does not link the plugin and would reject the permission.",
+  "windows": ["main"],
+  "permissions": ["mcp-bridge:default"]
+}

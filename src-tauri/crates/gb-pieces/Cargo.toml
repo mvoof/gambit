@@ -1,0 +1,15 @@
+[package]
+name = "gb-pieces"
+description = "Custom piece sets: validates and slices sprite sheets."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+gb-model.workspace = true
+image.workspace = true
+
+[lints]
+workspace = true
