@@ -223,6 +223,48 @@ impl UciEngine {
         }
     }
 
+    async fn set_line_count(&mut self, count: u32) -> Result<(), EngineError> {
+        self.send(&format!("setoption name MultiPV value {count}"))
+            .await?;
+        self.sync().await
+    }
+
+    /// Searches `fen` until `cancel` resolves or the search ends by itself, with
+    /// the lines so far, best first, after every line the engine reports.
+    pub async fn search_lines(
+        &mut self,
+        fen: &str,
+        count: u32,
+        cancel: impl Future<Output = ()>,
+        mut on_lines: impl FnMut(&[CandidateLine]),
+    ) -> Result<(), EngineError> {
+        self.set_line_count(count).await?;
+        self.send(&position_command(Some(fen), &[])).await?;
+        self.send(&go_command(SearchLimit::Infinite, None)).await?;
+
+        let mut lines = BTreeMap::new();
+
+        tokio::pin!(cancel);
+
+        loop {
+            let line = tokio::select! {
+                line = self.next_line() => line?,
+                () = &mut cancel => {
+                    self.send("stop").await?;
+
+                    return self.drain_after_stop(None).await.map(|_| ());
+                }
+            };
+
+            if let Some((rank, candidate)) = parse_candidate(&line) {
+                lines.insert(rank, candidate);
+                on_lines(&lines.values().cloned().collect::<Vec<_>>());
+            } else if parse_best_move(&line).is_some() {
+                return Ok(());
+            }
+        }
+    }
+
     /// The engine's `count` best lines, best first. An engine without `MultiPV`
     /// gives one line, and a finished position gives none.
     pub async fn candidates(
@@ -231,9 +273,7 @@ impl UciEngine {
         count: u32,
         think_ms: u32,
     ) -> Result<Vec<CandidateLine>, EngineError> {
-        self.send(&format!("setoption name MultiPV value {count}"))
-            .await?;
-        self.sync().await?;
+        self.set_line_count(count).await?;
         self.send(&position_command(Some(fen), &[])).await?;
         self.send(&go_command(SearchLimit::MoveTime(think_ms), None))
             .await?;
@@ -345,6 +385,23 @@ mod tests {
         }
 
         standard_reply(line)
+    }
+
+    #[tokio::test]
+    async fn search_lines_reports_every_line_best_first() {
+        let mut engine = connected(ranked_reply).await;
+        let mut last = Vec::new();
+
+        engine
+            .search_lines("4k3/8/8/8/8/8/8/4K2R w - - 0 1", 2, pending(), |lines| {
+                last = lines.to_vec()
+            })
+            .await
+            .unwrap();
+
+        assert_eq!(last.len(), 2);
+        assert_eq!(last[0].moves, vec!["e2e4", "e7e5"]);
+        assert_eq!(last[1].moves, vec!["g1f3", "d7d5"]);
     }
 
     #[tokio::test]

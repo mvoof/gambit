@@ -39,6 +39,7 @@ pub struct GameExtras {
     pub engine_thinking: bool,
     pub engine_failed: bool,
     pub can_takeback: bool,
+    pub is_training: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -366,6 +367,7 @@ impl Game {
             engine_thinking: extras.engine_thinking,
             engine_failed: extras.engine_failed,
             can_takeback: extras.can_takeback,
+            is_training: extras.is_training,
         }
     }
 
@@ -441,6 +443,7 @@ mod tests {
     fn extras() -> GameExtras {
         GameExtras {
             move_marks: Vec::new(),
+            is_training: false,
             human_color: Color::White,
             opponent_name: "Engine".to_owned(),
             premove: None,

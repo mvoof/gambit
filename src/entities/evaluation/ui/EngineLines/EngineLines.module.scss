@@ -1,0 +1,40 @@
+// Three rows always: the panel must not push the move list around.
+.lines {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: sp('xxs');
+  min-height: rem(84);
+  padding: sp('xs') sp('sm');
+  list-style: none;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+}
+
+.line {
+  display: flex;
+  gap: sp('sm');
+  font-size: fs('xs');
+  line-height: 1.6;
+}
+
+.score {
+  flex: none;
+  width: rem(48);
+  font-family: $font-mono;
+  font-weight: 600;
+  color: $accent-strong;
+}
+
+.moves {
+  overflow: hidden;
+  color: $text-secondary;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waiting {
+  font-size: fs('xs');
+  color: $text-muted;
+}

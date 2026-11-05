@@ -82,7 +82,12 @@
       "strength": "Engine strength: {{elo}} Elo",
       "fen": "Starting position (FEN, optional)",
       "fenPlaceholder": "The standard start",
-      "start": "Start"
+      "start": "Start",
+      "training": "Training: show the best move, mistakes and the engine's lines"
+    },
+    "analysis": {
+      "lines": "The engine's lines",
+      "thinking": "The engine is thinking…"
     },
     "engine": {
       "current": "Current engine: {{name}}",
@@ -122,9 +127,7 @@
       "board": "Board",
       "pieces": "Pieces",
       "volume": "Sound volume: {{volume}}%",
-      "evalBar": "Evaluation bar",
-      "showBestMove": "Show the best move on my turn",
-      "markMistakes": "Mark my mistakes (from the next game)",
+      "evalBar": "Evaluation bar in training and replay",
       "updates": "Updates"
     },
     "window": {

@@ -38,6 +38,9 @@ export class EvaluationStore {
   bestMoveFor = (fen: string) =>
     this.latest?.fen === fen ? this.latest.bestMove : null;
 
+  linesFor = (fen: string) =>
+    this.latest?.fen === fen ? this.latest.lines : [];
+
   get whiteWinPercent() {
     return this.latest?.whiteWinPercent ?? EVEN_PERCENT;
   }

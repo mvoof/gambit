@@ -154,7 +154,6 @@ impl Session {
         self: &Arc<Self>,
         options: NewGameOptions,
         engine_path: &Path,
-        mark_mistakes: bool,
     ) -> Result<GameView, String> {
         self.bump_generation();
 
@@ -171,7 +170,7 @@ impl Session {
         let active = ActiveGame::new(&options, human_color, opponent_name).map_err(message)?;
 
         lock(&self.inner).active = Some(active);
-        *lock(&self.review_engine) = mark_mistakes.then(|| engine_path.to_owned());
+        *lock(&self.review_engine) = options.training.then(|| engine_path.to_owned());
         self.game_id.fetch_add(1, Ordering::SeqCst);
 
         self.after_change().ok_or_else(|| NO_GAME.to_owned())

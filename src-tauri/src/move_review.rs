@@ -47,7 +47,8 @@ async fn review(
         return Ok(None);
     }
 
-    // No line means the move ended the game, which no one calls a mistake.
+    // A move that ended the game still has a score here: mate, or a draw that a
+    // better move would have avoided.
     let after = engine
         .candidates(&played.fen_after, LINES, THINK_MS)
         .await?;
@@ -55,7 +56,7 @@ async fn review(
         return Ok(None);
     };
     let quality = quality_of(lost_win_percent(best.score, reply.score));
-    let best_san = san_line(&played.fen_before, &best.moves[..1]).pop();
+    let best_san = san_line(&played.fen_before, best.moves.get(..1).unwrap_or_default()).pop();
 
     Ok(quality.zip(best_san).map(|(quality, best_san)| MoveMark {
         ply: played.ply,

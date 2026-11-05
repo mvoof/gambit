@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { useArchiveStore } from '@entities/archive/archive-context';
 import { Board } from '@entities/board/ui/Board/Board';
 import { ResizableBoardFrame } from '@entities/board/ui/ResizableBoardFrame/ResizableBoardFrame';
+import { useEvaluationStore } from '@entities/evaluation/evaluation-context';
+import { EngineLines } from '@entities/evaluation/ui/EngineLines/EngineLines';
 import { usePiecesStore } from '@entities/pieces/pieces-context';
 import { useSettingsStore } from '@entities/settings/settings-context';
 import { Button } from '@shared/ui/Button/Button';
@@ -27,6 +29,7 @@ const STEP_BACK = -1;
 export const ReplayViewer = observer(() => {
   const { t } = useTranslation();
   const archive = useArchiveStore();
+  const evaluation = useEvaluationStore();
   const pieceSets = usePiecesStore();
   const { settings } = useSettingsStore();
   const { replay, frame, frameIndex, lastFrameIndex } = archive;
@@ -45,6 +48,7 @@ export const ReplayViewer = observer(() => {
           settings={settings.board}
           lastMove={frame.lastMove}
           checkSquare={frame.checkSquare}
+          hint={evaluation.bestMoveFor(frame.fen)}
         />
       </ResizableBoardFrame>
       <aside className={styles.panel}>
@@ -68,6 +72,7 @@ export const ReplayViewer = observer(() => {
           activePly={frameIndex}
           onSelect={archive.goTo}
         />
+        <EngineLines lines={evaluation.linesFor(frame.fen)} />
         <div className={styles.controls}>
           <Button
             aria-label={t('replay.first')}

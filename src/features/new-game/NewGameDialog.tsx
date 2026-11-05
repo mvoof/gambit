@@ -12,6 +12,7 @@ import type {
 import { Button } from '@shared/ui/Button/Button';
 import { Dialog } from '@shared/ui/Dialog/Dialog';
 import { Segmented } from '@shared/ui/Segmented/Segmented';
+import { Toggle } from '@shared/ui/Toggle/Toggle';
 
 import {
   CUSTOM_PRESET,
@@ -48,6 +49,7 @@ export const NewGameDialog = observer(
     );
     const [elo, setElo] = useState(DEFAULT_ELO);
     const [startFen, setStartFen] = useState('');
+    const [isTraining, setTraining] = useState(false);
     const eloRange = engine?.eloRange ?? null;
     const shownElo = eloRange
       ? Math.min(Math.max(elo, eloRange.min), eloRange.max)
@@ -77,6 +79,7 @@ export const NewGameDialog = observer(
         timeControl: timeControl(),
         elo: shownElo,
         startFen: startFen.trim() || null,
+        training: isTraining,
       };
 
       onClose();
@@ -168,6 +171,11 @@ export const NewGameDialog = observer(
               }}
             />
           </label>
+          <Toggle
+            label={t('newGame.training')}
+            isChecked={isTraining}
+            onChange={setTraining}
+          />
           <div className={styles.actions}>
             <Button variant="ghost" onClick={onClose}>
               {t('common.cancel')}

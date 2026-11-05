@@ -21,7 +21,7 @@ export const GameBoard = observer(() => {
 
   const shown = browsedFrame ?? view;
   const canHint =
-    settings.showBestMove &&
+    view.isTraining &&
     !browsedFrame &&
     !view.outcome &&
     view.turn === view.humanColor;

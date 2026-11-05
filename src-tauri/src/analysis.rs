@@ -4,11 +4,16 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use gb_engine::{evaluation_of, EngineError, SearchLimit, Strength, UciEngine};
+use gb_chess::san_line;
+use gb_engine::{evaluation_of, CandidateLine, EngineError, SearchInfo, Strength, UciEngine};
+use gb_model::{Evaluation, EvaluationLine};
 use tauri::async_runtime::spawn;
 use tokio::sync::watch;
 
 use crate::events::EventSink;
+
+const LINES: u32 = 3;
+const LINE_PLIES: usize = 6;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AnalysisTarget {
@@ -46,6 +51,38 @@ async fn start_analyst(path: PathBuf) -> Option<Analyst> {
     }
 }
 
+fn line_view(fen: &str, line: &CandidateLine) -> Option<EvaluationLine> {
+    let shown = line.moves.len().min(LINE_PLIES);
+    let moves = san_line(fen, &line.moves[..shown]);
+    let measured = evaluation_of(fen, &info_of(line));
+
+    (!moves.is_empty()).then_some(EvaluationLine {
+        moves,
+        centipawns: measured.centipawns,
+        mate_in: measured.mate_in,
+    })
+}
+
+fn info_of(line: &CandidateLine) -> SearchInfo {
+    SearchInfo {
+        depth: line.depth,
+        score: line.score,
+        best_move: line.moves.first().cloned(),
+    }
+}
+
+fn evaluation_with_lines(fen: &str, lines: &[CandidateLine]) -> Option<Evaluation> {
+    let best = lines.first()?;
+
+    Some(Evaluation {
+        lines: lines
+            .iter()
+            .filter_map(|line| line_view(fen, line))
+            .collect(),
+        ..evaluation_of(fen, &info_of(best))
+    })
+}
+
 async fn analyse_until_changed(
     analyst: &mut Analyst,
     fen: &str,
@@ -59,8 +96,10 @@ async fn analyse_until_changed(
     };
     let searched = analyst
         .engine
-        .search(Some(fen), &[], SearchLimit::Infinite, cancel, |info| {
-            sink.evaluation(&evaluation_of(fen, &info));
+        .search_lines(fen, LINES, cancel, |lines| {
+            if let Some(evaluation) = evaluation_with_lines(fen, lines) {
+                sink.evaluation(&evaluation);
+            }
         })
         .await;
 
@@ -120,5 +159,59 @@ impl Analysis {
 
             is_new
         });
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use gb_engine::Score;
+    use gb_model::LastMove;
+
+    use super::*;
+
+    const START_FEN: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const MATED_FEN: &str = "rnb1kbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 1 3";
+
+    fn line(score: Score, moves: &[&str]) -> CandidateLine {
+        CandidateLine {
+            depth: 12,
+            score,
+            moves: moves.iter().map(|text| (*text).to_owned()).collect(),
+        }
+    }
+
+    #[test]
+    fn the_first_line_measures_and_every_line_is_san() {
+        let lines = [
+            line(Score::Centipawns(30), &["e2e4", "e7e5"]),
+            line(Score::Centipawns(20), &["d2d4"]),
+        ];
+        let evaluation = evaluation_with_lines(START_FEN, &lines).unwrap();
+
+        assert_eq!(evaluation.centipawns, Some(30));
+        assert_eq!(
+            evaluation.best_move,
+            Some(LastMove {
+                from: "e2".to_owned(),
+                to: "e4".to_owned(),
+            })
+        );
+        assert_eq!(evaluation.lines[0].moves, vec!["e4", "e5"]);
+        assert_eq!(evaluation.lines[1].centipawns, Some(20));
+    }
+
+    #[test]
+    fn a_mated_position_still_reaches_the_bar_with_no_lines() {
+        let lines = [line(Score::Mate(0), &[])];
+        let evaluation = evaluation_with_lines(MATED_FEN, &lines).unwrap();
+
+        assert_eq!(evaluation.white_win_percent, 0.0);
+        assert!(evaluation.lines.is_empty());
+        assert_eq!(evaluation.best_move, None);
+    }
+
+    #[test]
+    fn no_lines_yet_is_no_evaluation() {
+        assert_eq!(evaluation_with_lines(START_FEN, &[]), None);
     }
 }

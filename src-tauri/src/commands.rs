@@ -76,9 +76,8 @@ pub async fn choose_engine(state: State<'_, AppState>, path: String) -> Reply<En
 #[tauri::command]
 pub async fn new_game(state: State<'_, AppState>, options: NewGameOptions) -> Reply<GameView> {
     let path = state.engine_path().ok_or_else(|| NO_ENGINE.to_owned())?;
-    let mark_mistakes = lock(&state.settings).mark_mistakes;
 
-    state.session.new_game(options, &path, mark_mistakes).await
+    state.session.new_game(options, &path).await
 }
 
 #[tauri::command]

@@ -1,6 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 
+import { useEvaluationStore } from '@entities/evaluation/evaluation-context';
+import { EngineLines } from '@entities/evaluation/ui/EngineLines/EngineLines';
 import { useGameStore } from '@entities/game/game-context';
 import { usePiecesStore } from '@entities/pieces/pieces-context';
 import { useSettingsStore } from '@entities/settings/settings-context';
@@ -14,6 +16,7 @@ import styles from './GameSidePanel.module.scss';
 export const GameSidePanel = observer(() => {
   const { t } = useTranslation();
   const game = useGameStore();
+  const evaluation = useEvaluationStore();
   const pieceSets = usePiecesStore();
   const { settings } = useSettingsStore();
   const { view, browsedPly, browseTo } = game;
@@ -43,6 +46,9 @@ export const GameSidePanel = observer(() => {
         activePly={browsedPly ?? view.moves.length}
         onSelect={browseTo}
       />
+      {view.isTraining ? (
+        <EngineLines lines={evaluation.linesFor(game.displayedFen ?? '')} />
+      ) : null}
       <GameStatus />
       <GameControls />
       <PlayerStrip

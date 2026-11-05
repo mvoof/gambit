@@ -194,6 +194,7 @@ pub struct GameView {
     /// The opponent process died or gave no move: the game cannot go on.
     pub engine_failed: bool,
     pub can_takeback: bool,
+    pub is_training: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -223,6 +224,9 @@ pub struct NewGameOptions {
     /// `None` is full strength.
     pub elo: Option<u32>,
     pub start_fen: Option<String>,
+    /// The engine helps during the game. An ordinary game shows nothing.
+    #[serde(default)]
+    pub training: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -262,6 +266,17 @@ pub struct EngineInstallProgress {
     pub total_bytes: u32,
 }
 
+/// One of the engine's best lines, White's point of view.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct EvaluationLine {
+    /// SAN, first move first.
+    pub moves: Vec<String>,
+    pub centipawns: Option<i32>,
+    pub mate_in: Option<i32>,
+}
+
 /// A measurement from the full-strength analysis engine, White's point of view.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
@@ -276,6 +291,8 @@ pub struct Evaluation {
     pub depth: u32,
     /// `None` until the search is deep enough for its first move to settle.
     pub best_move: Option<LastMove>,
+    /// Best first.
+    pub lines: Vec<EvaluationLine>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -377,9 +394,6 @@ pub struct AppSettings {
     /// From 0 to 100.
     pub sound_volume: u32,
     pub eval_bar_enabled: bool,
-    pub show_best_move: bool,
-    /// Read when a game starts.
-    pub mark_mistakes: bool,
     pub engine_path: Option<String>,
     pub last_game: Option<NewGameOptions>,
 }
@@ -392,8 +406,6 @@ impl Default for AppSettings {
             board: BoardSettings::default(),
             sound_volume: DEFAULT_SOUND_VOLUME,
             eval_bar_enabled: true,
-            show_best_move: false,
-            mark_mistakes: true,
             engine_path: None,
             last_game: None,
         }

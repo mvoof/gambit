@@ -20,24 +20,20 @@ const syncLanguage = (stores: RootStores) =>
     { fireImmediately: true }
   );
 
-/** One position at a time reaches the analysis engine. */
+/** One position at a time reaches the analysis engine: a replay, or a training
+ * game. An ordinary game gets no help, so nothing is analysed during it. */
 const syncAnalysis = (stores: RootStores) =>
   reaction(
     () => {
-      const { navigation, archive, game, settings } = stores;
-
-      if (
-        !settings.settings?.evalBarEnabled &&
-        !settings.settings?.showBestMove
-      ) {
-        return null;
-      }
+      const { navigation, archive, game } = stores;
 
       if (navigation.page === 'archive') {
         return archive.frame?.fen ?? null;
       }
 
-      return navigation.page === 'play' ? game.displayedFen : null;
+      const isTraining = navigation.page === 'play' && game.view?.isTraining;
+
+      return isTraining ? game.displayedFen : null;
     },
     (fen) => {
       void stores.evaluation.setTarget(fen);

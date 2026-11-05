@@ -31,6 +31,7 @@ pub struct ActiveGame {
     human_color: Color,
     opponent_name: String,
     time_control: Option<TimeControl>,
+    is_training: bool,
     clock: Option<Clock>,
     /// The clock as each ply began; the first entry is the start of the game.
     clock_history: Vec<ClockSnapshot>,
@@ -60,6 +61,7 @@ impl ActiveGame {
             human_color,
             opponent_name,
             time_control: options.time_control,
+            is_training: options.training,
             clock_history: clock.iter().map(|start| start.snapshot(0)).collect(),
             clock,
             premove: None,
@@ -343,6 +345,7 @@ impl ActiveGame {
             engine_thinking: self.engine_thinking,
             engine_failed: self.engine_failed,
             can_takeback: self.can_take_back(),
+            is_training: self.is_training,
         })
     }
 
@@ -404,6 +407,7 @@ mod review_tests {
             time_control: None,
             elo: None,
             start_fen: None,
+            training: true,
         };
 
         ActiveGame::new(&options, Color::White, "Fake".to_owned()).unwrap()
@@ -475,6 +479,7 @@ mod tests {
             time_control,
             elo: None,
             start_fen: None,
+            training: false,
         }
     }
 

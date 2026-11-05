@@ -80,7 +80,7 @@ export const PlayPage = observer(() => {
 
   return (
     <main className={styles.page}>
-      {settings?.evalBarEnabled ? (
+      {settings?.evalBarEnabled && game.view.isTraining ? (
         <EvalBar orientation={game.orientation} />
       ) : null}
       <GameBoard />

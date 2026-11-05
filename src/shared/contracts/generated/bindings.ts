@@ -12,9 +12,6 @@ export type AppSettings = {
 	/**  From 0 to 100. */
 	soundVolume: number,
 	evalBarEnabled: boolean,
-	showBestMove: boolean,
-	/**  Read when a game starts. */
-	markMistakes: boolean,
 	enginePath: string | null,
 	lastGame: NewGameOptions | null,
 };
@@ -89,6 +86,16 @@ export type Evaluation = {
 	depth: number,
 	/**  `None` until the search is deep enough for its first move to settle. */
 	bestMove: LastMove | null,
+	/**  Best first. */
+	lines: EvaluationLine[],
+};
+
+/**  One of the engine's best lines, White's point of view. */
+export type EvaluationLine = {
+	/**  SAN, first move first. */
+	moves: string[],
+	centipawns: number | null,
+	mateIn: number | null,
 };
 
 export type GameEndReason = "checkmate" | "stalemate" | "threefoldRepetition" | "fiftyMoveRule" | "insufficientMaterial" | "resignation" | "drawAgreement" | "timeout" | 
@@ -137,6 +144,7 @@ export type GameView = {
 	/**  The opponent process died or gave no move: the game cannot go on. */
 	engineFailed: boolean,
 	canTakeback: boolean,
+	isTraining: boolean,
 };
 
 export type LastMove = {
@@ -180,6 +188,8 @@ export type NewGameOptions = {
 	/**  `None` is full strength. */
 	elo: number | null,
 	startFen: string | null,
+	/**  The engine helps during the game. An ordinary game shows nothing. */
+	training?: boolean,
 };
 
 export type PieceKind = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";

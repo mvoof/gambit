@@ -34,13 +34,15 @@ pub struct SearchInfo {
 /// One of the engine's best lines, from `MultiPV`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CandidateLine {
+    pub depth: u32,
     /// For the side to move.
     pub score: Score,
     /// UCI, first move first.
     pub moves: Vec<String>,
 }
 
-/// The rank and the line of an `info` line with a principal variation.
+/// The rank and the line of an `info` line with a score. A position with no move
+/// left has a score and no variation.
 pub fn parse_candidate(line: &str) -> Option<(u32, CandidateLine)> {
     let mut tokens = line.split_whitespace();
 
@@ -49,12 +51,14 @@ pub fn parse_candidate(line: &str) -> Option<(u32, CandidateLine)> {
     }
 
     let mut rank = 1;
+    let mut depth = 0;
     let mut score = None;
 
     while let Some(token) = tokens.next() {
         match token {
             "string" => return None,
             "multipv" => rank = tokens.next()?.parse().ok()?,
+            "depth" => depth = tokens.next()?.parse().ok()?,
             "score" => {
                 let kind = tokens.next();
                 let value = tokens.next().and_then(|text| text.parse().ok());
@@ -71,6 +75,7 @@ pub fn parse_candidate(line: &str) -> Option<(u32, CandidateLine)> {
                 return Some((
                     rank,
                     CandidateLine {
+                        depth,
                         score: score?,
                         moves,
                     },
@@ -80,7 +85,14 @@ pub fn parse_candidate(line: &str) -> Option<(u32, CandidateLine)> {
         }
     }
 
-    None
+    Some((
+        rank,
+        CandidateLine {
+            depth,
+            score: score?,
+            moves: Vec::new(),
+        },
+    ))
 }
 
 /// `None` for an `info` line that carries no score, such as `info string`.
@@ -188,6 +200,7 @@ pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
             white_win_percent: win_percent(centipawns * sign),
             depth: info.depth,
             best_move,
+            lines: Vec::new(),
         },
         Score::Mate(moves) => {
             // `mate 0`: the side to move is already mated.
@@ -204,6 +217,7 @@ pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
                 white_win_percent: if white_mates { ALL_PERCENT } else { 0.0 },
                 depth: info.depth,
                 best_move,
+                lines: Vec::new(),
             }
         }
     }
@@ -264,6 +278,7 @@ mod tests {
             Some((
                 2,
                 CandidateLine {
+                    depth: 12,
                     score: Score::Centipawns(-14),
                     moves: vec!["g1f3".to_owned(), "b8c6".to_owned()],
                 }
@@ -272,8 +287,17 @@ mod tests {
     }
 
     #[test]
-    fn a_line_with_no_variation_is_no_candidate() {
-        assert_eq!(parse_candidate("info depth 3 score cp 10"), None);
+    fn a_finished_position_is_a_line_with_no_moves() {
+        let (rank, line) = parse_candidate("info depth 0 score mate 0").unwrap();
+
+        assert_eq!(rank, 1);
+        assert_eq!(line.score, Score::Mate(0));
+        assert!(line.moves.is_empty());
+    }
+
+    #[test]
+    fn a_line_with_no_score_is_no_candidate() {
+        assert_eq!(parse_candidate("info depth 3 currmove e2e4"), None);
         assert_eq!(parse_candidate("info string pv a2a3"), None);
         assert_eq!(parse_candidate("bestmove e2e4"), None);
     }

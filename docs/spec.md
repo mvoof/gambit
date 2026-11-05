@@ -120,11 +120,16 @@ space, the board as the hero. Self-hosted fonts with Cyrillic:
 `@fontsource-variable/playfair-display` for display, `manrope` for UI,
 `jetbrains-mono` for clocks. Replace the template tokens.
 
-## Stage 2: best move and mistakes
+## Stage 2: quiet games, training and replay
 
-A setting shows the engine's best move as an arrow on the board. After each move
-of the player the engine measures what it cost, and the move is marked as an
-inaccuracy, a mistake or a blunder, with the better move next to it.
+An ordinary game shows nothing: no arrow, no marks, no lines and no evaluation bar,
+and the analysis engine does not run. A game started as training shows all of them.
+A replay always has the engine's lines, its evaluation and the best-move arrow for
+the frame on screen.
+
+The best move is an arrow on the board. After each move of the player the engine
+measures what it cost, and the move is marked as an inaccuracy, a mistake or a
+blunder, with the better move next to it.
 
 ## Stage 3: game review
 
@@ -177,21 +182,24 @@ The language model and the voice plans were dropped. `shared/ui/Chat` stays, unu
 for games against a friend. `UciEngine::candidates` (`MultiPV`) and `san_line` stay
 for the stages below.
 
-The best-move arrow of Stage 2 is built: the analysis process behind the evaluation
-bar also reports its first move, from depth 10 so that the arrow does not jump, and
-it runs for the arrow even with the bar off. The arrow shows on the player's turn
-only, in `settings.showBestMove`.
+Stage 2 is built: the analysis process behind the evaluation bar reports three
+lines (`MultiPV`). Its first move is the arrow, from depth 10 so that it does not
+jump, on the player's turn only in training and on every frame in a replay.
 
 Stage 2 is done with the marking of mistakes: a fourth engine process
 (`move_review.rs`) searches the positions before and after each of the player's
 moves for 300 ms, and the win percent lost decides the mark, on the Lichess lines.
-Marks stay in the running game for now: they are not saved with it.
+It runs in training games only, and marks stay in the running game: they are not
+saved with it.
 
 The clock stays, and a new game now defaults to unlimited time: with a clock the
 engine plans its time and spends far more on a move.
 
-Next, in order: saving an unfinished game to continue it later, in its own section
-next to the archive, then Stages 3 to 6 above.
+Next, in order: mistake marks in a replay, which means measuring a whole saved
+game; colour for marks in the move list and on the board; saving an unfinished game
+to continue it later, in its own section next to the archive; custom pieces by SVG
+folder only, dropping the sprite sheet import, since the bundled sets are SVG; then
+Stages 4 to 6.
 
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,
