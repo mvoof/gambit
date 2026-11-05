@@ -1299,6 +1299,7 @@ dependencies = [
  "gb-engine",
  "gb-model",
  "gb-pieces",
+ "rand 0.10.3",
  "serde",
  "serde_json",
  "specta",

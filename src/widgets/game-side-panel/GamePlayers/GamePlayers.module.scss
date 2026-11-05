@@ -1,7 +1,5 @@
 .players {
   flex: none;
-  justify-content: space-between;
-  width: $players-panel-width;
-  align-self: stretch;
-  padding: sp('xl');
+  gap: sp('md');
+  padding: sp('md') sp('lg');
 }

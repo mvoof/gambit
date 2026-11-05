@@ -10,7 +10,6 @@ import { useArrowKeys } from '@shared/lib/use-arrow-keys';
 import { Button } from '@shared/ui/Button/Button';
 import { GameBoard } from '@widgets/game-board/GameBoard';
 import { GameControls } from '@widgets/game-side-panel/GameControls/GameControls';
-import { GamePlayers } from '@widgets/game-side-panel/GamePlayers/GamePlayers';
 import { GameSidePanel } from '@widgets/game-side-panel/GameSidePanel';
 
 import styles from './PlayPage.module.scss';
@@ -82,7 +81,6 @@ export const PlayPage = observer(() => {
 
   return (
     <main className={styles.page}>
-      <GamePlayers />
       <div className={styles.center}>
         <GameBoard />
         <GameControls />

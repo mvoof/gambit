@@ -3,7 +3,9 @@ import { observer } from 'mobx-react-lite';
 import { useGameStore } from '@entities/game/game-context';
 import { MoveList } from '@entities/game/ui/MoveList/MoveList';
 
+import { GameAlert } from './GameAlert/GameAlert';
 import { GameEvaluation } from './GameEvaluation/GameEvaluation';
+import { GamePlayers } from './GamePlayers/GamePlayers';
 import { GameStatus } from './GameStatus/GameStatus';
 import styles from './GameSidePanel.module.scss';
 
@@ -16,6 +18,8 @@ export const GameSidePanel = observer(() => {
 
   return (
     <aside className={styles.panel}>
+      <GamePlayers />
+      <GameAlert />
       <MoveList
         moves={view.moves}
         marks={view.moveMarks}

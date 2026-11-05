@@ -34,7 +34,7 @@
 }
 
 .check {
-  background-image: radial-gradient(circle, $board-check 0%, transparent 72%);
+  background-image: linear-gradient($board-check, $board-check);
 }
 
 .marked {

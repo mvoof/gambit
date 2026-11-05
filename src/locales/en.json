@@ -249,11 +249,16 @@
       "stats": "Your statistics",
       "winsShare": "Wins"
     },
+    "alert": {
+      "check": "Check!",
+      "mate": "Checkmate!"
+    },
     "leaveGame": {
       "title": "Stop the game?",
       "text": "The game will stop and its clocks will pause. You can finish it later from the Unfinished section of the archive.",
       "stay": "Stay in the game",
-      "leave": "Stop and leave"
+      "leave": "Stop and leave",
+      "startNew": "On to a new game"
     },
     "playerResult": {
       "win": "Win",

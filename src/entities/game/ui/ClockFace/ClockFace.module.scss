@@ -1,8 +1,8 @@
 .clock {
-  align-self: center;
-  padding: sp('xs') sp('xl');
+  flex: none;
+  padding: sp('xxs') sp('md');
   font-family: $font-mono;
-  font-size: fs('xl');
+  font-size: fs('lg');
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: $text-secondary;

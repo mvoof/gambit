@@ -10,6 +10,7 @@ use gb_archive::Archive;
 use gb_chess::ChessError;
 use gb_engine::{EngineError, SearchOutcome, Strength, UciEngine};
 use gb_model::{Color, ColorChoice, GameView, MoveMark, NewGameOptions, ReplayFrame};
+use rand::random;
 use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
 use tokio::time::sleep;
@@ -60,11 +61,7 @@ fn pick_color(choice: ColorChoice) -> Color {
         ColorChoice::White => Color::White,
         ColorChoice::Black => Color::Black,
         ColorChoice::Random => {
-            let nanos = SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map_or(0, |elapsed| elapsed.subsec_nanos());
-
-            if nanos.is_multiple_of(2) {
+            if random() {
                 Color::White
             } else {
                 Color::Black
@@ -505,5 +502,17 @@ mod tests {
     fn a_chosen_color_is_kept() {
         assert_eq!(pick_color(ColorChoice::White), Color::White);
         assert_eq!(pick_color(ColorChoice::Black), Color::Black);
+    }
+
+    #[test]
+    fn a_random_color_comes_out_both_ways() {
+        const DRAWS: usize = 64;
+
+        let colors: Vec<Color> = (0..DRAWS)
+            .map(|_| pick_color(ColorChoice::Random))
+            .collect();
+
+        assert!(colors.contains(&Color::White));
+        assert!(colors.contains(&Color::Black));
     }
 }

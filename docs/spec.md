@@ -210,7 +210,9 @@ custom properties (`_themes.scss`).
 
 Every move of a game is written to the archive at once, as an unfinished row whose
 `resume` column holds what it takes to play on, so closing the app loses nothing.
-Leaving the game page asks first, then stops the game with its clocks paused. Finished
+Leaving the game page or asking for a new game warns first; the running game stops with
+its clocks paused. Players, clocks and a large check or result banner sit in the column
+right of the board; a game gives no move hints beyond its training mode. Finished
 games have the player's colour and the engine's Elo with them; marks now name who
 played the move, and a review stores an evaluation graph (`points`). Reviews of the old
 format were dropped by the migration and are measured again on opening. There is no

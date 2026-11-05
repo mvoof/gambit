@@ -47,7 +47,7 @@ export const StartGameCard = observer(() => {
   const eloRange = engine?.eloRange ?? null;
   const levels = eloRange ? eloLevels(eloRange) : [];
   const [preset, setPreset] = useState(TIME_PRESETS[0]);
-  const [color, setColor] = useState<ColorChoice>(last?.color ?? 'white');
+  const [color, setColor] = useState<ColorChoice>('random');
   const [level, setLevel] = useState<string | null>(null);
   const [isTraining, setTraining] = useState(false);
   const [isOptionsOpen, setOptionsOpen] = useState(false);

@@ -1,15 +1,7 @@
 .strip {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: sp('lg');
-}
-
-.identity {
-  display: flex;
   align-items: center;
-  gap: sp('lg');
-  min-width: 0;
+  gap: sp('md');
 }
 
 .avatar {
@@ -17,21 +9,27 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  width: rem(44);
-  height: rem(44);
+  width: rem(36);
+  height: rem(36);
   color: $text-secondary;
   background: $bg-hover;
   border-radius: 50%;
 
   svg {
-    width: rem(24);
-    height: rem(24);
+    width: rem(20);
+    height: rem(20);
   }
 }
 
-.text {
+.details {
+  flex: 1;
+  min-width: 0;
+}
+
+.heading {
   display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  gap: sp('sm');
   min-width: 0;
 }
 
@@ -44,7 +42,8 @@
 }
 
 .elo {
-  font-size: fs('sm');
+  flex: none;
+  font-size: fs('xs');
   color: $text-muted;
 }
 
@@ -52,7 +51,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  min-height: rem(20);
+  min-height: rem(18);
 }
 
 .capturedPiece {

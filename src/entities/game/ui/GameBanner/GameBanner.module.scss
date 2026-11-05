@@ -1,0 +1,58 @@
+.banner {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: sp('xxs');
+  padding: sp('lg') sp('xl');
+  text-align: center;
+  border: 1px solid $border-accent;
+  border-radius: radius('xl');
+}
+
+.icon {
+  width: rem(36);
+  height: rem(36);
+}
+
+.success {
+  background: $success-soft;
+  border-color: $success;
+
+  .icon {
+    color: $accent-strong;
+  }
+}
+
+.danger {
+  background: $danger-soft;
+  border-color: $danger;
+
+  .icon {
+    color: $danger;
+  }
+}
+
+.neutral {
+  background: $accent-soft;
+  border-color: $accent;
+
+  .icon {
+    color: $accent;
+  }
+}
+
+.title {
+  font-family: $font-display;
+  font-size: fs('xxxl');
+  font-weight: 700;
+}
+
+.text {
+  font-size: fs('sm');
+  color: $text-secondary;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}

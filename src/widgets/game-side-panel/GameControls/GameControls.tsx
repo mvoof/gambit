@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useGameStore } from '@entities/game/game-context';
+import { LeaveGamePrompt } from '@features/leave-game/LeaveGamePrompt';
 import { NewGameDialog } from '@features/new-game/NewGameDialog';
 import { Button } from '@shared/ui/Button/Button';
 
@@ -43,7 +44,22 @@ export const GameControls = observer(() => {
   const { t } = useTranslation();
   const game = useGameStore();
   const [isNewGameOpen, setNewGameOpen] = useState(false);
-  const { view, isPlaying } = game;
+  const [isLeavePromptOpen, setLeavePromptOpen] = useState(false);
+  const { view, isPlaying, canBeLost } = game;
+
+  const askForNewGame = () => {
+    if (canBeLost) {
+      setLeavePromptOpen(true);
+    } else {
+      setNewGameOpen(true);
+    }
+  };
+
+  /** The running game is saved when the new one starts, so it can still go on. */
+  const continueToNewGame = () => {
+    setLeavePromptOpen(false);
+    setNewGameOpen(true);
+  };
 
   return (
     <div className={styles.controls}>
@@ -78,13 +94,19 @@ export const GameControls = observer(() => {
       <Button
         variant="primary"
         className={styles.newGame}
-        onClick={() => {
-          setNewGameOpen(true);
-        }}
+        onClick={askForNewGame}
       >
         <Plus aria-hidden />
         {t('game.newGame')}
       </Button>
+      <LeaveGamePrompt
+        isOpen={isLeavePromptOpen}
+        leaveLabel={t('leaveGame.startNew')}
+        onStay={() => {
+          setLeavePromptOpen(false);
+        }}
+        onLeave={continueToNewGame}
+      />
       <NewGameDialog
         isOpen={isNewGameOpen}
         onClose={() => {

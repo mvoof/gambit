@@ -2,9 +2,7 @@
   --board-reserved-height: calc(
     #{$header-height} + #{$game-controls-height} + #{sp('xl')} * 3
   );
-  --board-reserved-width: calc(
-    #{$players-panel-width} + #{$side-panel-width} + #{sp('xxl')} * 4
-  );
+  --board-reserved-width: calc(#{$side-panel-width} + #{sp('xxl')} * 3);
 
   display: flex;
   justify-content: center;
