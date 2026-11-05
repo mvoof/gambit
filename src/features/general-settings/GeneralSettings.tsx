@@ -50,6 +50,13 @@ export const GeneralSettings = observer(() => {
           void store.update({ evalBarEnabled });
         }}
       />
+      <Toggle
+        label={t('settings.showBestMove')}
+        isChecked={settings.showBestMove}
+        onChange={(showBestMove) => {
+          void store.update({ showBestMove });
+        }}
+      />
     </div>
   );
 });

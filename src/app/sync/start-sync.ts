@@ -26,7 +26,10 @@ const syncAnalysis = (stores: RootStores) =>
     () => {
       const { navigation, archive, game, settings } = stores;
 
-      if (!settings.settings?.evalBarEnabled) {
+      if (
+        !settings.settings?.evalBarEnabled &&
+        !settings.settings?.showBestMove
+      ) {
         return null;
       }
 

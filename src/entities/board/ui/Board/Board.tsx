@@ -30,6 +30,7 @@ interface BoardProps {
   premove?: MoveOption | null;
   lastMove?: LastMove | null;
   checkSquare?: string | null;
+  hint?: LastMove | null;
   onMove?: (uci: string) => void;
   onPremove?: (uci: string) => void;
   onCancelPremove?: () => void;
@@ -45,6 +46,7 @@ export const Board = ({
   premove = null,
   lastMove = null,
   checkSquare = null,
+  hint = null,
   onMove = doNothing,
   onPremove = doNothing,
   onCancelPremove = doNothing,
@@ -93,7 +95,11 @@ export const Board = ({
           orientation={orientation}
           drag={gestures.drag}
         />
-        <BoardArrows arrows={gestures.arrows} orientation={orientation} />
+        <BoardArrows
+          arrows={gestures.arrows}
+          hint={hint}
+          orientation={orientation}
+        />
       </div>
       {gestures.promotion && promotionColor ? (
         <PromotionPicker

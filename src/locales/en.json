@@ -118,6 +118,7 @@
       "pieces": "Pieces",
       "volume": "Sound volume: {{volume}}%",
       "evalBar": "Evaluation bar",
+      "showBestMove": "Show the best move on my turn",
       "updates": "Updates"
     },
     "window": {

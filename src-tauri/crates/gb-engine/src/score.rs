@@ -1,6 +1,6 @@
 //! Reading `info` lines and turning a score into what the bar shows.
 
-use gb_model::Evaluation;
+use gb_model::{Evaluation, LastMove};
 
 /// Lichess' fit of win chance against centipawns.
 const WIN_CURVE_STEEPNESS: f64 = -0.003_682_08;
@@ -8,6 +8,8 @@ const EVEN_PERCENT: f64 = 50.0;
 const ALL_PERCENT: f64 = 100.0;
 /// The engine takes a draw unless it stands better than this.
 const DRAW_ACCEPT_CENTIPAWNS: i32 = 30;
+/// Shallower than this, the first move still jumps around.
+const MIN_BEST_MOVE_DEPTH: u32 = 10;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Score {
@@ -16,10 +18,12 @@ pub enum Score {
     Mate(i32),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SearchInfo {
     pub depth: u32,
     pub score: Score,
+    /// UCI: the first move of the principal variation.
+    pub best_move: Option<String>,
 }
 
 /// One of the engine's best lines, from `MultiPV`.
@@ -84,10 +88,16 @@ pub fn parse_info(line: &str) -> Option<SearchInfo> {
 
     let mut depth = None;
     let mut score = None;
+    let mut best_move = None;
 
     while let Some(token) = tokens.next() {
         match token {
             "string" => break,
+            "pv" => {
+                best_move = tokens.next().map(str::to_owned);
+
+                break;
+            }
             "multipv" if tokens.next() != Some("1") => return None,
             "depth" => depth = tokens.next().and_then(|value| value.parse().ok()),
             "score" => {
@@ -107,6 +117,15 @@ pub fn parse_info(line: &str) -> Option<SearchInfo> {
     Some(SearchInfo {
         depth: depth?,
         score: score?,
+        best_move,
+    })
+}
+
+/// `e7e8q` to its squares; the promotion piece does not change the arrow.
+fn arrow_of(uci: &str) -> Option<LastMove> {
+    Some(LastMove {
+        from: uci.get(..2)?.to_owned(),
+        to: uci.get(2..4)?.to_owned(),
     })
 }
 
@@ -121,9 +140,14 @@ fn win_percent(centipawns: i32) -> f64 {
 }
 
 /// `info` scores are for the side to move; the wire is White's point of view.
-pub fn evaluation_of(fen: &str, info: SearchInfo) -> Evaluation {
+pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
     let white_to_move = is_white_to_move(fen);
     let sign = if white_to_move { 1 } else { -1 };
+    let best_move = info
+        .best_move
+        .as_deref()
+        .filter(|_| info.depth >= MIN_BEST_MOVE_DEPTH)
+        .and_then(arrow_of);
 
     match info.score {
         Score::Centipawns(centipawns) => Evaluation {
@@ -132,6 +156,7 @@ pub fn evaluation_of(fen: &str, info: SearchInfo) -> Evaluation {
             mate_in: None,
             white_win_percent: win_percent(centipawns * sign),
             depth: info.depth,
+            best_move,
         },
         Score::Mate(moves) => {
             // `mate 0`: the side to move is already mated.
@@ -147,6 +172,7 @@ pub fn evaluation_of(fen: &str, info: SearchInfo) -> Evaluation {
                 mate_in: Some(moves * sign),
                 white_win_percent: if white_mates { ALL_PERCENT } else { 0.0 },
                 depth: info.depth,
+                best_move,
             }
         }
     }
@@ -177,6 +203,7 @@ mod tests {
             Some(SearchInfo {
                 depth: 12,
                 score: Score::Centipawns(34),
+                best_move: Some("e2e4".to_owned()),
             })
         );
     }
@@ -221,14 +248,33 @@ mod tests {
     }
 
     #[test]
+    fn the_best_move_appears_once_the_search_is_deep_enough() {
+        let info = |depth| SearchInfo {
+            depth,
+            score: Score::Centipawns(0),
+            best_move: Some("e7e8q".to_owned()),
+        };
+
+        assert_eq!(evaluation_of(WHITE_FEN, &info(9)).best_move, None);
+        assert_eq!(
+            evaluation_of(WHITE_FEN, &info(10)).best_move,
+            Some(LastMove {
+                from: "e7".to_owned(),
+                to: "e8".to_owned(),
+            })
+        );
+    }
+
+    #[test]
     fn a_score_for_black_flips_to_white_point_of_view() {
         let info = SearchInfo {
             depth: 10,
             score: Score::Centipawns(100),
+            best_move: None,
         };
 
-        assert_eq!(evaluation_of(WHITE_FEN, info).centipawns, Some(100));
-        assert_eq!(evaluation_of(BLACK_FEN, info).centipawns, Some(-100));
+        assert_eq!(evaluation_of(WHITE_FEN, &info).centipawns, Some(100));
+        assert_eq!(evaluation_of(BLACK_FEN, &info).centipawns, Some(-100));
     }
 
     #[test]
@@ -244,13 +290,14 @@ mod tests {
         let mate = |moves| SearchInfo {
             depth: 5,
             score: Score::Mate(moves),
+            best_move: None,
         };
 
-        assert_eq!(evaluation_of(WHITE_FEN, mate(2)).white_win_percent, 100.0);
-        assert_eq!(evaluation_of(BLACK_FEN, mate(2)).white_win_percent, 0.0);
-        assert_eq!(evaluation_of(BLACK_FEN, mate(-2)).white_win_percent, 100.0);
-        assert_eq!(evaluation_of(WHITE_FEN, mate(0)).white_win_percent, 0.0);
-        assert_eq!(evaluation_of(BLACK_FEN, mate(0)).white_win_percent, 100.0);
+        assert_eq!(evaluation_of(WHITE_FEN, &mate(2)).white_win_percent, 100.0);
+        assert_eq!(evaluation_of(BLACK_FEN, &mate(2)).white_win_percent, 0.0);
+        assert_eq!(evaluation_of(BLACK_FEN, &mate(-2)).white_win_percent, 100.0);
+        assert_eq!(evaluation_of(WHITE_FEN, &mate(0)).white_win_percent, 0.0);
+        assert_eq!(evaluation_of(BLACK_FEN, &mate(0)).white_win_percent, 100.0);
     }
 
     #[test]

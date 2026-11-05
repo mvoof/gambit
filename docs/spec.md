@@ -177,7 +177,12 @@ The language model and the voice plans were dropped. `shared/ui/Chat` stays, unu
 for games against a friend. `UciEngine::candidates` (`MultiPV`) and `san_line` stay
 for the stages below.
 
-Next, in order: Stages 2 to 6 above.
+The best-move arrow of Stage 2 is built: the analysis process behind the evaluation
+bar also reports its first move, from depth 10 so that the arrow does not jump, and
+it runs for the arrow even with the bar off. The arrow shows on the player's turn
+only, in `settings.showBestMove`.
+
+Next, in order: the marking of mistakes in Stage 2, then Stages 3 to 6 above.
 
 APIs already checked. shakmaty 0.30: `Chess`, `Position::{legal_moves,
 play_unchecked, is_check, is_checkmate, is_stalemate, has_insufficient_material,

@@ -254,6 +254,8 @@ pub struct Evaluation {
     /// White's chance from 0 to 100, so the bar only sets a height.
     pub white_win_percent: f64,
     pub depth: u32,
+    /// `None` until the search is deep enough for its first move to settle.
+    pub best_move: Option<LastMove>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -355,6 +357,7 @@ pub struct AppSettings {
     /// From 0 to 100.
     pub sound_volume: u32,
     pub eval_bar_enabled: bool,
+    pub show_best_move: bool,
     pub engine_path: Option<String>,
     pub last_game: Option<NewGameOptions>,
 }
@@ -367,6 +370,7 @@ impl Default for AppSettings {
             board: BoardSettings::default(),
             sound_volume: DEFAULT_SOUND_VOLUME,
             eval_bar_enabled: true,
+            show_best_move: false,
             engine_path: None,
             last_game: None,
         }

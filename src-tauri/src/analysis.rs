@@ -60,7 +60,7 @@ async fn analyse_until_changed(
     let searched = analyst
         .engine
         .search(Some(fen), &[], SearchLimit::Infinite, cancel, |info| {
-            sink.evaluation(&evaluation_of(fen, info));
+            sink.evaluation(&evaluation_of(fen, &info));
         })
         .await;
 

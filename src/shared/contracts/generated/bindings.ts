@@ -12,6 +12,7 @@ export type AppSettings = {
 	/**  From 0 to 100. */
 	soundVolume: number,
 	evalBarEnabled: boolean,
+	showBestMove: boolean,
 	enginePath: string | null,
 	lastGame: NewGameOptions | null,
 };
@@ -84,6 +85,8 @@ export type Evaluation = {
 	/**  White's chance from 0 to 100, so the bar only sets a height. */
 	whiteWinPercent: number | null,
 	depth: number,
+	/**  `None` until the search is deep enough for its first move to settle. */
+	bestMove: LastMove | null,
 };
 
 export type GameEndReason = "checkmate" | "stalemate" | "threefoldRepetition" | "fiftyMoveRule" | "insufficientMaterial" | "resignation" | "drawAgreement" | "timeout" | 

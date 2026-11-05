@@ -72,6 +72,10 @@ export const WithLastMoveAndCheck: Story = {
   },
 };
 
+export const WithHint: Story = {
+  args: { hint: { from: 'e2', to: 'e4' } },
+};
+
 export const WithMoves: Story = { args: { moveOptions: [queenMove] } };
 
 export const WithPremove: Story = {

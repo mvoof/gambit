@@ -16,3 +16,13 @@
 .head {
   fill: $board-arrow;
 }
+
+.hintLine {
+  stroke: $board-hint;
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+
+.hintHead {
+  fill: $board-hint;
+}

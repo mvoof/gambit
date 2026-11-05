@@ -34,6 +34,10 @@ export class EvaluationStore {
     await analysePosition(fen);
   };
 
+  /** The last reply may still be about the position before this one. */
+  bestMoveFor = (fen: string) =>
+    this.latest?.fen === fen ? this.latest.bestMove : null;
+
   get whiteWinPercent() {
     return this.latest?.whiteWinPercent ?? EVEN_PERCENT;
   }
