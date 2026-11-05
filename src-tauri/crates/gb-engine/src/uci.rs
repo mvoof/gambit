@@ -1,5 +1,6 @@
 //! The engine process. Reading and writing are boxed, so tests drive a fake.
 
+use std::collections::BTreeMap;
 use std::future::Future;
 use std::path::Path;
 use std::process::Stdio;
@@ -15,7 +16,7 @@ use crate::protocol::{
     fallback_depth, go_command, parse_best_move, position_command, strength_commands,
     EngineIdentity, SearchLimit, Strength,
 };
-use crate::score::{parse_info, Score, SearchInfo};
+use crate::score::{parse_candidate, parse_info, CandidateLine, Score, SearchInfo};
 
 const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(10);
 const STOP_TIMEOUT: Duration = Duration::from_secs(5);
@@ -207,6 +208,44 @@ impl UciEngine {
         }
     }
 
+    async fn read_candidates(&mut self) -> Result<Vec<CandidateLine>, EngineError> {
+        let mut lines = BTreeMap::new();
+
+        loop {
+            let line = self.next_line().await?;
+
+            // A later line of a rank comes from a deeper search and replaces it.
+            if let Some((rank, candidate)) = parse_candidate(&line) {
+                lines.insert(rank, candidate);
+            } else if parse_best_move(&line).is_some() {
+                return Ok(lines.into_values().collect());
+            }
+        }
+    }
+
+    /// The engine's `count` best lines, best first. An engine without `MultiPV`
+    /// gives one line, and a finished position gives none.
+    pub async fn candidates(
+        &mut self,
+        fen: &str,
+        count: u32,
+        think_ms: u32,
+    ) -> Result<Vec<CandidateLine>, EngineError> {
+        self.send(&format!("setoption name MultiPV value {count}"))
+            .await?;
+        self.sync().await?;
+        self.send(&position_command(Some(fen), &[])).await?;
+        self.send(&go_command(SearchLimit::MoveTime(think_ms), None))
+            .await?;
+
+        timeout(
+            Duration::from_millis(u64::from(think_ms)) + STOP_TIMEOUT,
+            self.read_candidates(),
+        )
+        .await
+        .map_err(|_| EngineError::Timeout("candidates"))?
+    }
+
     async fn drain_after_stop(
         &mut self,
         score: Option<Score>,
@@ -283,6 +322,19 @@ mod tests {
         }
     }
 
+    fn ranked_reply(line: &str) -> Vec<String> {
+        if line.starts_with("go") {
+            return vec![
+                "info depth 1 multipv 1 score cp 5 pv d2d4".to_owned(),
+                "info depth 2 multipv 2 score cp 1 pv g1f3 d7d5".to_owned(),
+                "info depth 2 multipv 1 score cp 30 pv e2e4 e7e5".to_owned(),
+                "bestmove e2e4".to_owned(),
+            ];
+        }
+
+        standard_reply(line)
+    }
+
     fn silent_search_reply(line: &str) -> Vec<String> {
         if line.starts_with("go") {
             return vec!["info depth 1 score cp 5".to_owned()];
@@ -293,6 +345,20 @@ mod tests {
         }
 
         standard_reply(line)
+    }
+
+    #[tokio::test]
+    async fn candidates_come_best_first_from_the_deepest_search() {
+        let mut engine = connected(ranked_reply).await;
+        let lines = engine
+            .candidates("4k3/8/8/8/8/8/8/4K2R w - - 0 1", 2, 10)
+            .await
+            .unwrap();
+
+        assert_eq!(lines.len(), 2);
+        assert_eq!(lines[0].moves, vec!["e2e4", "e7e5"]);
+        assert_eq!(lines[0].score, Score::Centipawns(30));
+        assert_eq!(lines[1].moves, vec!["g1f3", "d7d5"]);
     }
 
     async fn connected(reply: fn(&str) -> Vec<String>) -> UciEngine {

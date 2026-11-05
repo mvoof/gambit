@@ -1,0 +1,38 @@
+.chat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: sp('sm');
+  min-height: 0;
+}
+
+.form {
+  display: flex;
+  gap: sp('xs');
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  color: $text-primary;
+  background: $bg-card;
+  border: 1px solid $border-main;
+  border-radius: radius('md');
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: 1px;
+  }
+
+  &::placeholder {
+    color: $text-muted;
+  }
+}
+
+.error {
+  font-size: fs('xs');
+  color: $danger;
+  overflow-wrap: anywhere;
+}

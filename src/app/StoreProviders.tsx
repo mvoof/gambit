@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { ArchiveStoreContext } from '@entities/archive/archive-context';
+import { CompanionStoreContext } from '@entities/companion/companion-context';
 import { EngineStoreContext } from '@entities/engine/engine-context';
 import { EvaluationStoreContext } from '@entities/evaluation/evaluation-context';
 import { GameStoreContext } from '@entities/game/game-context';
@@ -24,9 +25,11 @@ export const StoreProviders = ({ stores, children }: StoreProvidersProps) => (
           <GameStoreContext.Provider value={stores.game}>
             <EvaluationStoreContext.Provider value={stores.evaluation}>
               <ArchiveStoreContext.Provider value={stores.archive}>
-                <UpdateStoreContext.Provider value={stores.update}>
-                  {children}
-                </UpdateStoreContext.Provider>
+                <CompanionStoreContext.Provider value={stores.companion}>
+                  <UpdateStoreContext.Provider value={stores.update}>
+                    {children}
+                  </UpdateStoreContext.Provider>
+                </CompanionStoreContext.Provider>
               </ArchiveStoreContext.Provider>
             </EvaluationStoreContext.Provider>
           </GameStoreContext.Provider>

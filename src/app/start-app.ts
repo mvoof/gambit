@@ -10,6 +10,7 @@ export const startApp = async (stores: RootStores) => {
     stores.pieces.start(),
     stores.game.start(),
     stores.evaluation.start(),
+    stores.companion.start(),
   ]);
 
   // Not awaited: a slow network must not hold the app back.

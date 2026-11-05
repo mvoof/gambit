@@ -10,5 +10,5 @@ mod tracker;
 
 pub use clock::{Clock, ClockSnapshot, ClockTick};
 pub use error::ChessError;
-pub use game::{Game, GameExtras};
+pub use game::{san_line, Game, GameExtras};
 pub use pgn::{export_pgn, format_time_control, parse_pgn, PgnHeaders};

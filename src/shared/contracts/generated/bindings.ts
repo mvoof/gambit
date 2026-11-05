@@ -4,6 +4,7 @@
 export const EVENT_GAME_UPDATED = 'game-updated';
 export const EVENT_EVALUATION = 'evaluation';
 export const EVENT_ENGINE_INSTALL = 'engine-install-progress';
+export const EVENT_COMPANION = 'companion-updated';
 
 export type AppSettings = {
 	language: string,
@@ -14,6 +15,7 @@ export type AppSettings = {
 	evalBarEnabled: boolean,
 	enginePath: string | null,
 	lastGame: NewGameOptions | null,
+	llm: LlmSettings,
 };
 
 /**  A piece on the board. `id` survives moves, so the frontend animates by key. */
@@ -39,6 +41,13 @@ export type CapturedPieces = {
 	black: PieceKind[],
 };
 
+export type ChatSpeaker = "player" | "companion";
+
+export type ChatTurn = {
+	speaker: ChatSpeaker,
+	text: string,
+};
+
 /**
  *  Rust owns the clock. The frontend counts `running` down from the moment
  *  `sync_ms` changes, for display only.
@@ -54,6 +63,18 @@ export type ClockView = {
 export type Color = "white" | "black";
 
 export type ColorChoice = "white" | "black" | "random";
+
+export type CompanionRole = "coach" | "sparring" | "commentator" | "opponent";
+
+/**  The conversation, whole: the frontend renders it and keeps nothing. */
+export type CompanionView = {
+	turns: ChatTurn[],
+	/**  The reply so far; `Some` from the question until the reply ends. */
+	draft: string | null,
+	/**  The model is not in memory yet, so the first word will take a while. */
+	loadingModel: boolean,
+	error: string | null,
+};
 
 export type EloRange = {
 	min: number,
@@ -136,6 +157,17 @@ export type GameView = {
 export type LastMove = {
 	from: string,
 	to: string,
+};
+
+/**  The LLM is optional: off by default, and the game never needs it. */
+export type LlmSettings = {
+	enabled: boolean,
+	baseUrl: string,
+	/**  `None` until the user picks one: the server's list order means nothing. */
+	model: string | null,
+	role: CompanionRole,
+	/**  What the model speaks, by text and later by voice. `None` follows the app. */
+	language: string | null,
 };
 
 /**  A move the player may choose. A promotion is one option per piece. */

@@ -6,6 +6,7 @@ mod analysis;
 mod bindings;
 mod civil_date;
 mod commands;
+mod companion;
 mod events;
 mod session;
 mod settings;
@@ -16,7 +17,7 @@ use tracing_subscriber::EnvFilter;
 
 use crate::state::AppState;
 
-const DEFAULT_LOG_FILTER: &str = "gambit_lib=info,gb_engine=info";
+const DEFAULT_LOG_FILTER: &str = "gambit_lib=info,gb_engine=info,gb_llm=info";
 
 fn init_logging() {
     let filter =
@@ -69,6 +70,10 @@ pub fn run() {
             commands::resign,
             commands::offer_draw,
             commands::set_analysis_position,
+            commands::llm_models,
+            commands::companion_view,
+            commands::companion_ask,
+            commands::companion_stop,
             commands::list_games,
             commands::load_replay,
             commands::delete_game,

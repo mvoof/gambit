@@ -4,6 +4,7 @@ import { UpdateSettings } from '@features/app-update/UpdateSettings';
 import { BoardCustomise } from '@features/board-customise/BoardCustomise';
 import { EngineSetup } from '@features/engine-setup/EngineSetup';
 import { GeneralSettings } from '@features/general-settings/GeneralSettings';
+import { LlmSetup } from '@features/llm-setup/LlmSetup';
 import { PieceImport } from '@features/piece-import/PieceImport';
 import { PieceSetPicker } from '@features/piece-import/PieceSetPicker';
 
@@ -18,6 +19,10 @@ export const SettingsPage = () => {
       <section className={styles.section}>
         <h2 className={styles.heading}>{t('settings.engine')}</h2>
         <EngineSetup />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>{t('settings.companion')}</h2>
+        <LlmSetup />
       </section>
       <section className={styles.section}>
         <h2 className={styles.heading}>{t('settings.general')}</h2>

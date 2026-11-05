@@ -1,4 +1,5 @@
 import { ArchiveStore } from '@entities/archive/archive.store';
+import { CompanionStore } from '@entities/companion/companion.store';
 import { EngineStore } from '@entities/engine/engine.store';
 import { EvaluationStore } from '@entities/evaluation/evaluation.store';
 import { GameStore } from '@entities/game/game.store';
@@ -9,6 +10,7 @@ import { UpdateStore } from '@entities/update/update.store';
 
 export const createRootStores = () => ({
   archive: new ArchiveStore(),
+  companion: new CompanionStore(),
   engine: new EngineStore(),
   evaluation: new EvaluationStore(),
   game: new GameStore(),

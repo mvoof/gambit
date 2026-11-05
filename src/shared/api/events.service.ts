@@ -1,11 +1,13 @@
 import { listen } from '@tauri-apps/api/event';
 
 import {
+  EVENT_COMPANION,
   EVENT_ENGINE_INSTALL,
   EVENT_EVALUATION,
   EVENT_GAME_UPDATED,
 } from '@shared/contracts/generated/bindings';
 import type {
+  CompanionView,
   EngineInstallProgress,
   Evaluation,
   GameView,
@@ -26,6 +28,9 @@ export const onGameUpdated = (handler: (view: GameView) => void) =>
 
 export const onEvaluation = (handler: (evaluation: Evaluation) => void) =>
   subscribe(EVENT_EVALUATION, handler);
+
+export const onCompanionUpdated = (handler: (view: CompanionView) => void) =>
+  subscribe(EVENT_COMPANION, handler);
 
 export const onEngineInstall = (
   handler: (progress: EngineInstallProgress) => void

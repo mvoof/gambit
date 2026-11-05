@@ -1,0 +1,46 @@
+.log {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: sp('sm');
+  min-height: 0;
+  overflow-y: auto;
+  padding: sp('sm');
+  list-style: none;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+}
+
+.empty {
+  flex: 1;
+  padding: sp('lg');
+  font-size: fs('sm');
+  color: $text-muted;
+  background: $bg-card;
+  border: 1px solid $border-sub;
+  border-radius: radius('lg');
+}
+
+.turn {
+  align-self: flex-start;
+  max-width: 92%;
+  padding: sp('xs') sp('md');
+  font-size: fs('sm');
+  line-height: 1.5;
+  color: $text-primary;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: $bg-raised;
+  border-radius: radius('md');
+}
+
+.player {
+  align-self: flex-end;
+  color: $text-on-accent;
+  background: $accent;
+}
+
+.waiting {
+  color: $text-muted;
+}

@@ -22,6 +22,58 @@ pub struct SearchInfo {
     pub score: Score,
 }
 
+/// One of the engine's best lines, from `MultiPV`.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CandidateLine {
+    /// For the side to move.
+    pub score: Score,
+    /// UCI, first move first.
+    pub moves: Vec<String>,
+}
+
+/// The rank and the line of an `info` line with a principal variation.
+pub fn parse_candidate(line: &str) -> Option<(u32, CandidateLine)> {
+    let mut tokens = line.split_whitespace();
+
+    if tokens.next() != Some("info") {
+        return None;
+    }
+
+    let mut rank = 1;
+    let mut score = None;
+
+    while let Some(token) = tokens.next() {
+        match token {
+            "string" => return None,
+            "multipv" => rank = tokens.next()?.parse().ok()?,
+            "score" => {
+                let kind = tokens.next();
+                let value = tokens.next().and_then(|text| text.parse().ok());
+
+                score = match (kind, value) {
+                    (Some("cp"), Some(centipawns)) => Some(Score::Centipawns(centipawns)),
+                    (Some("mate"), Some(moves)) => Some(Score::Mate(moves)),
+                    _ => None,
+                };
+            }
+            "pv" => {
+                let moves = tokens.map(str::to_owned).collect();
+
+                return Some((
+                    rank,
+                    CandidateLine {
+                        score: score?,
+                        moves,
+                    },
+                ));
+            }
+            _ => {}
+        }
+    }
+
+    None
+}
+
 /// `None` for an `info` line that carries no score, such as `info string`.
 pub fn parse_info(line: &str) -> Option<SearchInfo> {
     let mut tokens = line.split_whitespace();
@@ -143,6 +195,29 @@ mod tests {
         assert_eq!(parse_info("info depth 3 currmove e2e4"), None);
         assert_eq!(parse_info("info depth 9 multipv 2 score cp 10"), None);
         assert_eq!(parse_info("bestmove e2e4"), None);
+    }
+
+    #[test]
+    fn reads_a_ranked_line() {
+        let line = "info depth 12 multipv 2 score cp -14 nodes 900 pv g1f3 b8c6";
+
+        assert_eq!(
+            parse_candidate(line),
+            Some((
+                2,
+                CandidateLine {
+                    score: Score::Centipawns(-14),
+                    moves: vec!["g1f3".to_owned(), "b8c6".to_owned()],
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn a_line_with_no_variation_is_no_candidate() {
+        assert_eq!(parse_candidate("info depth 3 score cp 10"), None);
+        assert_eq!(parse_candidate("info string pv a2a3"), None);
+        assert_eq!(parse_candidate("bestmove e2e4"), None);
     }
 
     #[test]

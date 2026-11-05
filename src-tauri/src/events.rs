@@ -2,8 +2,8 @@
 //! names Tauri's emitter.
 
 use gb_model::{
-    EngineInstallProgress, Evaluation, GameView, EVENT_ENGINE_INSTALL, EVENT_EVALUATION,
-    EVENT_GAME_UPDATED,
+    CompanionView, EngineInstallProgress, Evaluation, GameView, EVENT_COMPANION,
+    EVENT_ENGINE_INSTALL, EVENT_EVALUATION, EVENT_GAME_UPDATED,
 };
 use serde::Serialize;
 use tauri::{AppHandle, Emitter};
@@ -12,6 +12,7 @@ pub trait EventSink: Send + Sync {
     fn game_updated(&self, view: &GameView);
     fn evaluation(&self, evaluation: &Evaluation);
     fn install_progress(&self, progress: EngineInstallProgress);
+    fn companion_updated(&self, view: &CompanionView);
 }
 
 pub struct TauriSink {
@@ -41,5 +42,9 @@ impl EventSink for TauriSink {
 
     fn install_progress(&self, progress: EngineInstallProgress) {
         self.emit(EVENT_ENGINE_INSTALL, progress);
+    }
+
+    fn companion_updated(&self, view: &CompanionView) {
+        self.emit(EVENT_COMPANION, view);
     }
 }

@@ -28,16 +28,17 @@ strength and evaluation, and the LLM only turns measured facts into words.
 
 ### Crates
 
-| Crate        | Holds                                                         |
-| ------------ | ------------------------------------------------------------- |
-| `gb-model`   | every wire type and event name, nothing else                  |
-| `gb-chess`   | shakmaty game state, draw rules, stable piece ids, PGN, clock |
-| `gb-engine`  | UCI process driver, Stockfish installer, score parsing        |
-| `gb-archive` | saved games in SQLite                                         |
-| `gb-pieces`  | custom piece import, sprite slicing (to add, `image` crate)   |
-| app          | session orchestration, Tauri commands, settings file          |
+| Crate        | Holds                                                          |
+| ------------ | -------------------------------------------------------------- |
+| `gb-model`   | every wire type and event name, nothing else                   |
+| `gb-chess`   | shakmaty game state, draw rules, stable piece ids, PGN, clock  |
+| `gb-engine`  | UCI process driver, Stockfish installer, score parsing         |
+| `gb-archive` | saved games in SQLite                                          |
+| `gb-pieces`  | custom piece import, sprite slicing (to add, `image` crate)    |
+| `gb-llm`     | LM Studio client, streaming, prompts built from measured facts |
+| app          | session orchestration, Tauri commands, settings file           |
 
-Later: `gb-llm` (LM Studio) and `gb-voice` (copied from Marble Trace `mt-voice`
+Later: `gb-voice` (copied from Marble Trace `mt-voice`
 first, shared only once it is clear what is really reused).
 
 ### Wire design
@@ -166,9 +167,34 @@ Updates go through `tauri-plugin-updater` and GitHub Releases: checked at
 startup, offered in the header and in settings, installed only on request. The
 signing public key still has to be put into `plugins.updater.pubkey`.
 
+Stage 2 has its chat, checked in the real app against LM Studio and Stockfish 19:
+a Companion tab next to the moves, streaming replies, Stop, and the four roles as
+personas. Rust owns the conversation (`CompanionView`) and resets it on a new
+game. Each question runs a third Stockfish process at full strength for its best
+lines (`MultiPV`), and the prompt carries them as SAN with scores. The opponent
+persona never receives them, so it cannot give the best move away.
+
+What LM Studio taught us:
+
+- Reasoning stays off (`reasoning_effort: "none"`). A reasoning model is silent for
+  a long time, which looks like a dead connection, and the facts are already
+  measured.
+- A model LM Studio loads for a request has its idle TTL, while `POST
+  /api/v1/models/load` takes no TTL and pins the model in memory. So a chat goes
+  out first, and only a refusal for a model that is not in memory loads it
+  explicitly and asks once more. This path is tested against a fake server only:
+  on the real one just-in-time loading was on.
+- `/v1/models` may list only what is in memory, so the model list comes from
+  `/api/v1/models`, with `/v1/models` as the fallback for other servers.
+- The server binds IPv4 only; `localhost` still works through the fallback.
+
+The language of the conversation is its own setting, `llm.language`, which follows
+the app by default. Voice reads the same setting.
+
 Next, in order:
 
-1. Stage 2: `gb-llm` over the LM Studio API, streaming chat, the roles below.
+1. Stage 2: the opponent persona picks its move from Stockfish's candidates, with
+   the engine's own move as the fallback, then the "model plays alone" mode.
 2. Stage 3: engine-measured game review, then the LLM explaining it.
 3. Stage 4: `gb-voice`, speaking with the model both ways.
 

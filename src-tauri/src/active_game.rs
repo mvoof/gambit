@@ -6,6 +6,7 @@ use gb_chess::{
     export_pgn, format_time_control, ChessError, Clock, ClockSnapshot, Game, GameExtras, PgnHeaders,
 };
 use gb_engine::{accepts_draw, Score, SearchLimit};
+use gb_llm::PositionFacts;
 use gb_model::{Color, GameResult, GameView, MoveOption, NewGameOptions, ReplayFrame, TimeControl};
 
 /// The opponent's thinking time when there is no clock.
@@ -288,6 +289,41 @@ impl ActiveGame {
             engine_thinking: self.engine_thinking,
             engine_failed: self.engine_failed,
             can_takeback: self.can_take_back(),
+        })
+    }
+
+    /// What the rules code knows at `ply`, `None` being the live position.
+    pub fn position_facts(
+        &self,
+        ply: Option<u32>,
+        now_ms: u64,
+    ) -> Result<PositionFacts, ChessError> {
+        let view = self.view(now_ms);
+        let ply_count = view.moves.len();
+        let shown = ply.map_or(ply_count, |ply| (ply as usize).min(ply_count));
+        let frames = self.game.frames()?;
+        let frame = frames
+            .get(shown)
+            .ok_or_else(|| ChessError::IllegalMove(format!("no position at ply {shown}")))?;
+        let is_same_side = (ply_count - shown).is_multiple_of(PLIES_IN_A_ROUND);
+
+        Ok(PositionFacts {
+            fen: frame.fen.clone(),
+            turn: if is_same_side {
+                view.turn
+            } else {
+                view.turn.opposite()
+            },
+            human_color: self.human_color,
+            opponent_name: self.opponent_name.clone(),
+            moves: view.moves[..shown]
+                .iter()
+                .map(|record| record.san.clone())
+                .collect(),
+            material_diff: frame.material_diff,
+            in_check: frame.check_square.is_some(),
+            outcome: view.outcome.filter(|_| shown == ply_count),
+            lines: Vec::new(),
         })
     }
 

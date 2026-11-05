@@ -5,7 +5,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-use gb_model::AppSettings;
+use gb_model::{AppSettings, LlmSettings};
 use serde_json::Value;
 
 const MAX_SOUND_VOLUME: u32 = 100;
@@ -47,6 +47,11 @@ pub fn load_settings(path: &Path) -> AppSettings {
 
 pub fn normalise(mut settings: AppSettings) -> AppSettings {
     settings.sound_volume = settings.sound_volume.min(MAX_SOUND_VOLUME);
+    settings.llm.base_url = settings.llm.base_url.trim().to_owned();
+
+    if settings.llm.base_url.is_empty() {
+        settings.llm.base_url = LlmSettings::default().base_url;
+    }
 
     settings
 }
@@ -105,6 +110,22 @@ mod tests {
         assert!(!settings.board.show_check);
         assert!(settings.board.show_coordinates);
         assert_eq!(settings.piece_set, AppSettings::default().piece_set);
+    }
+
+    #[test]
+    fn the_llm_stays_off_and_an_emptied_address_returns_to_the_default() {
+        let old_file = merged_with_defaults(r#"{"soundVolume":5}"#).unwrap();
+
+        assert!(!old_file.llm.enabled);
+
+        let mut settings = AppSettings::default();
+
+        settings.llm.base_url = "  ".to_owned();
+
+        assert_eq!(
+            normalise(settings).llm.base_url,
+            LlmSettings::default().base_url
+        );
     }
 
     #[test]

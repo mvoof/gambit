@@ -395,6 +395,19 @@ impl Game {
     }
 }
 
+/// `moves` from `fen` in SAN, up to the first one that cannot be played.
+pub fn san_line(fen: &str, moves: &[String]) -> Vec<String> {
+    let Ok(mut game) = Game::new(Some(fen)) else {
+        return Vec::new();
+    };
+
+    moves
+        .iter()
+        .map_while(|uci| game.play_uci(uci).ok())
+        .map(|record| record.san)
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
