@@ -41,6 +41,9 @@ export class EvaluationStore {
   linesFor = (fen: string) =>
     this.latest?.fen === fen ? this.latest.lines : [];
 
+  turnFor = (fen: string) =>
+    this.latest?.fen === fen ? this.latest.turn : null;
+
   get whiteWinPercent() {
     return this.latest?.whiteWinPercent ?? EVEN_PERCENT;
   }

@@ -183,20 +183,28 @@ for games against a friend. `UciEngine::candidates` (`MultiPV`) and `san_line` s
 for the stages below.
 
 Stage 2 is built: the analysis process behind the evaluation bar reports three
-lines (`MultiPV`). Its first move is the arrow, from depth 10 so that it does not
-jump, on the player's turn only in training and on every frame in a replay.
+lines (`MultiPV`). The bar follows every report, but the lines and the arrow change
+only as a complete set of one depth, from depth 10 and at most every two seconds, so
+they can be read. The arrow shows on the player's turn only in training and on every
+frame in a replay. Lines carry move numbers from Rust, and the panel says whose move
+it is; scores stay White's point of view.
 
 Stage 2 is done with the marking of mistakes: a fourth engine process
 (`move_review.rs`) searches the positions before and after each of the player's
 moves for 300 ms, and the win percent lost decides the mark, on the Lichess lines.
-It runs in training games only, and marks stay in the running game: they are not
-saved with it.
+It runs in training games only, and those marks stay in the running game.
+
+A replay measures the whole saved game (`game_review.rs`), both sides, since a PGN
+does not say who the player was. Each position is searched once for 300 ms, because
+the score after a move is the score before the next, so 40 moves take about 25
+seconds. The process lives only while a replay is on screen; leaving stops it and
+the next visit starts over. Finished marks are stored in `games.marks` as JSON and
+never measured again; an empty list means a clean game, `NULL` means not measured.
 
 The clock stays, and a new game now defaults to unlimited time: with a clock the
 engine plans its time and spends far more on a move.
 
-Next, in order: mistake marks in a replay, which means measuring a whole saved
-game; colour for marks in the move list and on the board; saving an unfinished game
+Next, in order: colour for marks in the move list and on the board; saving an unfinished game
 to continue it later, in its own section next to the archive; custom pieces by SVG
 folder only, dropping the sprite sheet import, since the bundled sets are SVG; then
 Stages 4 to 6.

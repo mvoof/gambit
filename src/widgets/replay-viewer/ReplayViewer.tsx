@@ -20,6 +20,8 @@ import { useSettingsStore } from '@entities/settings/settings-context';
 import { Button } from '@shared/ui/Button/Button';
 import { MoveList } from '@entities/game/ui/MoveList/MoveList';
 
+import { ReplayNote } from './ReplayNote/ReplayNote';
+
 import styles from './ReplayViewer.module.scss';
 
 const FIRST_FRAME = 0;
@@ -69,10 +71,15 @@ export const ReplayViewer = observer(() => {
         </header>
         <MoveList
           moves={replay.moves}
+          marks={archive.marks}
           activePly={frameIndex}
           onSelect={archive.goTo}
         />
-        <EngineLines lines={evaluation.linesFor(frame.fen)} />
+        <ReplayNote />
+        <EngineLines
+          lines={evaluation.linesFor(frame.fen)}
+          turn={evaluation.turnFor(frame.fen)}
+        />
         <div className={styles.controls}>
           <Button
             aria-label={t('replay.first')}

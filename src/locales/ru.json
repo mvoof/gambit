@@ -87,6 +87,9 @@
     },
     "analysis": {
       "lines": "Варианты движка",
+      "whiteToMove": "Ход белых",
+      "blackToMove": "Ход чёрных",
+      "scoreSide": "плюс — лучше белым",
       "thinking": "Движок считает…"
     },
     "engine": {
@@ -120,7 +123,9 @@
       "previous": "Предыдущий ход",
       "next": "Следующий ход",
       "last": "Конечная позиция",
-      "autoplay": "Пуск или пауза"
+      "autoplay": "Пуск или пауза",
+      "measuring": "Разбор партии: {{measured}} из {{total}}",
+      "measuringFailed": "Не удалось разобрать партию."
     },
     "settings": {
       "title": "Настройки",

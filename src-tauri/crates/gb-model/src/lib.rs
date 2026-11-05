@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub const EVENT_GAME_UPDATED: &str = "game-updated";
 pub const EVENT_EVALUATION: &str = "evaluation";
 pub const EVENT_ENGINE_INSTALL: &str = "engine-install-progress";
+pub const EVENT_GAME_REVIEW: &str = "game-review";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
@@ -168,6 +169,28 @@ pub struct MoveMark {
     pub best_san: String,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum GameReviewStatus {
+    Measuring,
+    Done,
+    Failed,
+}
+
+/// How far the measuring of a saved game has come. `marks` holds all found so far.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct GameReview {
+    pub game_id: u32,
+    pub status: GameReviewStatus,
+    /// Positions measured, out of `total`.
+    pub measured: u32,
+    pub total: u32,
+    pub marks: Vec<MoveMark>,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
@@ -271,7 +294,7 @@ pub struct EngineInstallProgress {
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
 pub struct EvaluationLine {
-    /// SAN, first move first.
+    /// SAN with move numbers, first move first.
     pub moves: Vec<String>,
     pub centipawns: Option<i32>,
     pub mate_in: Option<i32>,
@@ -284,6 +307,7 @@ pub struct EvaluationLine {
 pub struct Evaluation {
     /// The position measured: a reply for another position is dropped.
     pub fen: String,
+    pub turn: Color,
     pub centipawns: Option<i32>,
     pub mate_in: Option<i32>,
     /// White's chance from 0 to 100, so the bar only sets a height.

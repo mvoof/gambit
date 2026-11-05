@@ -3,11 +3,11 @@
 use std::fmt;
 use std::path::Path;
 
-use gb_model::{GameEndReason, GameSummary};
+use gb_model::{GameEndReason, GameSummary, MoveMark};
 use rusqlite::{params, Connection, OptionalExtension, Row};
 
 /// Bump and add a step to `migrate` when the schema changes.
-const SCHEMA_VERSION: i32 = 1;
+const SCHEMA_VERSION: i32 = 2;
 
 const CREATE_GAMES: &str = "
     CREATE TABLE games (
@@ -24,9 +24,13 @@ const CREATE_GAMES: &str = "
     CREATE INDEX games_played_at ON games (played_at DESC);
 ";
 
+/// JSON, empty until the engine has measured the game.
+const ADD_MARKS: &str = "ALTER TABLE games ADD COLUMN marks TEXT;";
+
 #[derive(Debug)]
 pub enum ArchiveError {
     Database(rusqlite::Error),
+    Marks(serde_json::Error),
     NotFound(u32),
 }
 
@@ -34,6 +38,7 @@ impl fmt::Display for ArchiveError {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Database(error) => write!(formatter, "archive database: {error}"),
+            Self::Marks(error) => write!(formatter, "cannot store the marks: {error}"),
             Self::NotFound(id) => write!(formatter, "no saved game {id}"),
         }
     }
@@ -111,8 +116,15 @@ impl Archive {
             .connection
             .query_row("PRAGMA user_version", [], |row| row.get(0))?;
 
-        if version < SCHEMA_VERSION {
+        if version < 1 {
             self.connection.execute_batch(CREATE_GAMES)?;
+        }
+
+        if version < 2 {
+            self.connection.execute_batch(ADD_MARKS)?;
+        }
+
+        if version < SCHEMA_VERSION {
             self.connection
                 .pragma_update(None, "user_version", SCHEMA_VERSION)?;
         }
@@ -160,6 +172,34 @@ impl Archive {
             .ok_or(ArchiveError::NotFound(id))
     }
 
+    /// `None` until the game has been measured.
+    pub fn marks(&self, id: u32) -> Result<Option<Vec<MoveMark>>, ArchiveError> {
+        let text: Option<String> = self
+            .connection
+            .query_row("SELECT marks FROM games WHERE id = ?1", [id], |row| {
+                row.get(0)
+            })
+            .optional()?
+            .ok_or(ArchiveError::NotFound(id))?;
+
+        // Marks that cannot be read are measured again.
+        Ok(text.and_then(|json| serde_json::from_str(&json).ok()))
+    }
+
+    pub fn save_marks(&self, id: u32, marks: &[MoveMark]) -> Result<(), ArchiveError> {
+        let json = serde_json::to_string(marks).map_err(ArchiveError::Marks)?;
+        let updated = self.connection.execute(
+            "UPDATE games SET marks = ?1 WHERE id = ?2",
+            params![json, id],
+        )?;
+
+        if updated == 0 {
+            return Err(ArchiveError::NotFound(id));
+        }
+
+        Ok(())
+    }
+
     pub fn delete(&self, id: u32) -> Result<(), ArchiveError> {
         let deleted = self
             .connection
@@ -175,6 +215,7 @@ impl Archive {
 
 #[cfg(test)]
 mod tests {
+    use gb_model::MoveQuality;
     use tempfile::tempdir;
 
     use super::*;
@@ -243,6 +284,63 @@ mod tests {
 
         assert!(matches!(archive.delete(id), Err(ArchiveError::NotFound(_))));
         assert!(matches!(archive.pgn(id), Err(ArchiveError::NotFound(_))));
+    }
+
+    #[test]
+    fn marks_stay_with_their_game() {
+        let archive = Archive::open_in_memory().unwrap();
+        let id = archive.save(&sample(100)).unwrap();
+        let marks = vec![MoveMark {
+            ply: 3,
+            quality: MoveQuality::Blunder,
+            best_san: "Nf3".to_owned(),
+        }];
+
+        assert_eq!(archive.marks(id).unwrap(), None);
+
+        archive.save_marks(id, &marks).unwrap();
+
+        assert_eq!(archive.marks(id).unwrap(), Some(marks));
+    }
+
+    #[test]
+    fn a_measured_game_with_no_mistakes_is_not_measured_again() {
+        let archive = Archive::open_in_memory().unwrap();
+        let id = archive.save(&sample(100)).unwrap();
+
+        archive.save_marks(id, &[]).unwrap();
+
+        assert_eq!(archive.marks(id).unwrap(), Some(Vec::new()));
+    }
+
+    #[test]
+    fn marks_for_a_deleted_game_are_an_error() {
+        let archive = Archive::open_in_memory().unwrap();
+
+        assert!(matches!(
+            archive.save_marks(9, &[]),
+            Err(ArchiveError::NotFound(9))
+        ));
+    }
+
+    #[test]
+    fn a_database_of_the_first_version_keeps_its_games() {
+        let connection = Connection::open_in_memory().unwrap();
+
+        connection.execute_batch(CREATE_GAMES).unwrap();
+        connection
+            .execute_batch(
+                "INSERT INTO games
+                     (white, black, result, played_at, ply_count, time_control, pgn)
+                 VALUES ('A', 'B', '1-0', 1, 1, '-', '1. e4 1-0');
+                 PRAGMA user_version = 1;",
+            )
+            .unwrap();
+
+        let archive = Archive::with_connection(connection).unwrap();
+        let id = archive.list().unwrap()[0].id;
+
+        assert_eq!(archive.marks(id).unwrap(), None);
     }
 
     #[test]

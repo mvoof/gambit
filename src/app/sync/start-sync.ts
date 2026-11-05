@@ -41,6 +41,17 @@ const syncAnalysis = (stores: RootStores) =>
     { fireImmediately: true }
   );
 
+/** A saved game is measured only while its replay is on screen. */
+const syncReview = (stores: RootStores) =>
+  reaction(
+    () =>
+      stores.navigation.page === 'archive' ? stores.archive.replayId : null,
+    (id) => {
+      void stores.archive.setReviewTarget(id);
+    },
+    { fireImmediately: true }
+  );
+
 const syncGameSounds = (stores: RootStores) =>
   reaction(
     () => stores.game.view,
@@ -77,6 +88,7 @@ const syncReplaySounds = (stores: RootStores) =>
 export const startSync = (stores: RootStores) => {
   syncLanguage(stores);
   syncAnalysis(stores);
+  syncReview(stores);
   syncGameSounds(stores);
   syncReplaySounds(stores);
 };

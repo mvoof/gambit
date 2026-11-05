@@ -6,15 +6,20 @@ import {
   fetchGames,
   fetchReplay,
   importGame,
+  setReviewGame,
 } from '@shared/api/archive.service';
+import { onGameReview } from '@shared/api/events.service';
 import { pickFile, pickSavePath } from '@shared/api/system.service';
 import type {
+  GameReview,
   GameSummary,
+  MoveMark,
   ReplayGame,
 } from '@shared/contracts/generated/bindings';
 
 const PGN_EXTENSIONS = ['pgn'];
 const AUTOPLAY_INTERVAL_MS = 900;
+const NO_MARKS: MoveMark[] = [];
 
 export class ArchiveStore {
   games: GameSummary[] = [];
@@ -22,6 +27,7 @@ export class ArchiveStore {
   replayId: number | null = null;
   frameIndex = 0;
   isAutoplaying = false;
+  review: GameReview | null = null;
   error: string | null = null;
 
   private autoplayTimer: ReturnType<typeof setInterval> | null = null;
@@ -29,6 +35,14 @@ export class ArchiveStore {
   constructor() {
     makeAutoObservable(this);
   }
+
+  start = async () => {
+    await onGameReview(this.receiveReview);
+  };
+
+  private receiveReview = (review: GameReview) => {
+    this.review = review;
+  };
 
   private attempt = async (action: () => Promise<void>) => {
     try {
@@ -70,6 +84,10 @@ export class ArchiveStore {
     this.replayId = null;
   };
 
+  /** Measuring follows the replay on screen; `null` stops it. */
+  setReviewTarget = (id: number | null) =>
+    this.attempt(() => setReviewGame(id));
+
   remove = (id: number) =>
     this.attempt(async () => {
       await deleteGame(id);
@@ -105,6 +123,19 @@ export class ArchiveStore {
 
   get frame() {
     return this.replay?.frames[this.frameIndex] ?? null;
+  }
+
+  /** The last report may still be about the game opened before this one. */
+  get activeReview() {
+    return this.review?.gameId === this.replayId ? this.review : null;
+  }
+
+  get marks() {
+    return this.activeReview?.marks ?? NO_MARKS;
+  }
+
+  get frameMark() {
+    return this.marks.find((mark) => mark.ply === this.frameIndex) ?? null;
   }
 
   get lastFrameIndex() {

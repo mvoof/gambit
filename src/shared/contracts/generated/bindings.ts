@@ -4,6 +4,7 @@
 export const EVENT_GAME_UPDATED = 'game-updated';
 export const EVENT_EVALUATION = 'evaluation';
 export const EVENT_ENGINE_INSTALL = 'engine-install-progress';
+export const EVENT_GAME_REVIEW = 'game-review';
 
 export type AppSettings = {
 	language: string,
@@ -79,6 +80,7 @@ export type EngineInstallStage = "downloading" | "verifying" | "extracting" | "d
 export type Evaluation = {
 	/**  The position measured: a reply for another position is dropped. */
 	fen: string,
+	turn: Color,
 	centipawns: number | null,
 	mateIn: number | null,
 	/**  White's chance from 0 to 100, so the bar only sets a height. */
@@ -92,7 +94,7 @@ export type Evaluation = {
 
 /**  One of the engine's best lines, White's point of view. */
 export type EvaluationLine = {
-	/**  SAN, first move first. */
+	/**  SAN with move numbers, first move first. */
 	moves: string[],
 	centipawns: number | null,
 	mateIn: number | null,
@@ -108,6 +110,18 @@ export type GameOutcome = {
 };
 
 export type GameResult = "whiteWins" | "blackWins" | "draw";
+
+/**  How far the measuring of a saved game has come. `marks` holds all found so far. */
+export type GameReview = {
+	gameId: number,
+	status: GameReviewStatus,
+	/**  Positions measured, out of `total`. */
+	measured: number,
+	total: number,
+	marks: MoveMark[],
+};
+
+export type GameReviewStatus = "measuring" | "done" | "failed";
 
 export type GameSummary = {
 	id: number,

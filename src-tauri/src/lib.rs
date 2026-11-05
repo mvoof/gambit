@@ -7,6 +7,7 @@ mod bindings;
 mod civil_date;
 mod commands;
 mod events;
+mod game_review;
 mod move_review;
 mod session;
 mod settings;
@@ -70,6 +71,7 @@ pub fn run() {
             commands::resign,
             commands::offer_draw,
             commands::set_analysis_position,
+            commands::set_review_game,
             commands::list_games,
             commands::load_replay,
             commands::delete_game,

@@ -1,37 +1,64 @@
-// Three rows always: the panel must not push the move list around.
-.lines {
+.panel {
   display: flex;
   flex: none;
   flex-direction: column;
-  gap: sp('xxs');
-  min-height: rem(84);
+  gap: sp('xs');
   padding: sp('xs') sp('sm');
-  list-style: none;
   background: $bg-card;
   border: 1px solid $border-sub;
   border-radius: radius('lg');
 }
 
-.line {
+.header {
   display: flex;
-  gap: sp('sm');
+  justify-content: space-between;
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.turn {
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+// Three rows always: the panel must not push the move list around.
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xs');
+  min-height: rem(84);
+  list-style: none;
+}
+
+.line {
+  display: grid;
+  grid-template-columns: rem(56) minmax(0, 1fr);
+  align-items: center;
+  column-gap: sp('md');
   font-size: fs('xs');
   line-height: 1.6;
 }
 
 .score {
-  flex: none;
-  width: rem(48);
+  padding: 0 sp('xs');
   font-family: $font-mono;
   font-weight: 600;
   color: $accent-strong;
+  text-align: center;
+  background: $bg-hover;
+  border-radius: radius('md');
 }
 
 .moves {
   overflow: hidden;
-  color: $text-secondary;
+  color: $text-muted;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.firstMove {
+  font-weight: 700;
+  color: $text-primary;
 }
 
 .waiting {

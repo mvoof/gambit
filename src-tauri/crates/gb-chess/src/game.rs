@@ -17,6 +17,7 @@ use crate::tracker::{Capture, PieceTracker};
 
 const FIFTY_MOVE_HALFMOVES: u32 = 100;
 const THREEFOLD_COUNT: usize = 3;
+const FIRST_MOVE_NUMBER: u32 = 1;
 
 #[derive(Debug, Clone)]
 struct PlyEntry {
@@ -412,9 +413,56 @@ pub fn san_line(fen: &str, moves: &[String]) -> Vec<String> {
         .collect()
 }
 
+/// Adds move numbers to a line played from `fen`: `12. Nf3`, `Nc6`, `13. d4`, or
+/// `12... Nc6` when Black moves first.
+pub fn numbered_line(fen: &str, sans: &[String]) -> Vec<String> {
+    let mut fields = fen.split_whitespace();
+    let black_first = fields.nth(1) == Some("b");
+    let mut number: u32 = fields
+        .nth(3)
+        .and_then(|text| text.parse().ok())
+        .unwrap_or(FIRST_MOVE_NUMBER);
+
+    sans.iter()
+        .enumerate()
+        .map(|(index, san)| {
+            let is_white = index.is_multiple_of(2) != black_first;
+            let text = if is_white {
+                format!("{number}. {san}")
+            } else if index == 0 {
+                format!("{number}... {san}")
+            } else {
+                san.clone()
+            };
+
+            if !is_white {
+                number += 1;
+            }
+
+            text
+        })
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_line_is_numbered_from_its_position() {
+        let sans = ["Nf3", "Nc6", "d4"].map(str::to_owned);
+        let white = "r1bqkbnr/pppppppp/2n5/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 3 12";
+        let black = "r1bqkbnr/pppppppp/2n5/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 3 12";
+
+        assert_eq!(
+            numbered_line(white, &sans),
+            vec!["12. Nf3", "Nc6", "13. d4"]
+        );
+        assert_eq!(
+            numbered_line(black, &sans),
+            vec!["12... Nf3", "13. Nc6", "d4"]
+        );
+    }
 
     #[test]
     fn a_san_line_stops_at_the_first_move_that_cannot_be_played() {

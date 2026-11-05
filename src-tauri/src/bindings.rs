@@ -3,9 +3,9 @@
 use std::path::PathBuf;
 
 use gb_model::{
-    AppSettings, EngineInfo, EngineInstallProgress, Evaluation, GameSummary, GameView,
+    AppSettings, EngineInfo, EngineInstallProgress, Evaluation, GameReview, GameSummary, GameView,
     NewGameOptions, PieceSetView, ReplayGame, SheetColumnOrder, EVENT_ENGINE_INSTALL,
-    EVENT_EVALUATION, EVENT_GAME_UPDATED,
+    EVENT_EVALUATION, EVENT_GAME_REVIEW, EVENT_GAME_UPDATED,
 };
 use specta::Types;
 use specta_typescript::Typescript;
@@ -19,6 +19,7 @@ fn collect_types() -> Types {
         .register::<EngineInfo>()
         .register::<EngineInstallProgress>()
         .register::<Evaluation>()
+        .register::<GameReview>()
         .register::<GameSummary>()
         .register::<GameView>()
         .register::<NewGameOptions>()
@@ -31,7 +32,8 @@ fn event_constants() -> String {
     format!(
         "export const EVENT_GAME_UPDATED = '{EVENT_GAME_UPDATED}';\n\
          export const EVENT_EVALUATION = '{EVENT_EVALUATION}';\n\
-         export const EVENT_ENGINE_INSTALL = '{EVENT_ENGINE_INSTALL}';\n"
+         export const EVENT_ENGINE_INSTALL = '{EVENT_ENGINE_INSTALL}';\n\
+         export const EVENT_GAME_REVIEW = '{EVENT_GAME_REVIEW}';\n"
     )
 }
 

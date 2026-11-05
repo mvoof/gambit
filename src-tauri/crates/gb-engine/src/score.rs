@@ -1,6 +1,6 @@
 //! Reading `info` lines and turning a score into what the bar shows.
 
-use gb_model::{Evaluation, LastMove, MoveQuality};
+use gb_model::{Color, Evaluation, LastMove, MoveQuality};
 
 /// Lichess' fit of win chance against centipawns.
 const WIN_CURVE_STEEPNESS: f64 = -0.003_682_08;
@@ -9,7 +9,7 @@ const ALL_PERCENT: f64 = 100.0;
 /// The engine takes a draw unless it stands better than this.
 const DRAW_ACCEPT_CENTIPAWNS: i32 = 30;
 /// Shallower than this, the first move still jumps around.
-const MIN_BEST_MOVE_DEPTH: u32 = 10;
+pub const MIN_BEST_MOVE_DEPTH: u32 = 10;
 /// Win percent a move may lose, as Lichess draws the lines: a tenth, a fifth and
 /// three tenths of its win chance scale, which runs from -1 to 1.
 const INACCURACY_LOSS: f64 = 5.0;
@@ -186,6 +186,11 @@ pub fn quality_of(lost_percent: f64) -> Option<MoveQuality> {
 pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
     let white_to_move = is_white_to_move(fen);
     let sign = if white_to_move { 1 } else { -1 };
+    let turn = if white_to_move {
+        Color::White
+    } else {
+        Color::Black
+    };
     let best_move = info
         .best_move
         .as_deref()
@@ -195,6 +200,7 @@ pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
     match info.score {
         Score::Centipawns(centipawns) => Evaluation {
             fen: fen.to_owned(),
+            turn,
             centipawns: Some(centipawns * sign),
             mate_in: None,
             white_win_percent: win_percent(centipawns * sign),
@@ -212,6 +218,7 @@ pub fn evaluation_of(fen: &str, info: &SearchInfo) -> Evaluation {
 
             Evaluation {
                 fen: fen.to_owned(),
+                turn,
                 centipawns: None,
                 mate_in: Some(moves * sign),
                 white_win_percent: if white_mates { ALL_PERCENT } else { 0.0 },

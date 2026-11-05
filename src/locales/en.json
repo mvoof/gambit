@@ -87,6 +87,9 @@
     },
     "analysis": {
       "lines": "The engine's lines",
+      "whiteToMove": "White to move",
+      "blackToMove": "Black to move",
+      "scoreSide": "plus favours White",
       "thinking": "The engine is thinking…"
     },
     "engine": {
@@ -118,7 +121,9 @@
       "previous": "Previous move",
       "next": "Next move",
       "last": "Last position",
-      "autoplay": "Play or pause"
+      "autoplay": "Play or pause",
+      "measuring": "Measuring the game: {{measured}} of {{total}}",
+      "measuringFailed": "Could not measure the game."
     },
     "settings": {
       "title": "Settings",

@@ -47,7 +47,10 @@ export const GameSidePanel = observer(() => {
         onSelect={browseTo}
       />
       {view.isTraining ? (
-        <EngineLines lines={evaluation.linesFor(game.displayedFen ?? '')} />
+        <EngineLines
+          lines={evaluation.linesFor(game.displayedFen ?? '')}
+          turn={evaluation.turnFor(game.displayedFen ?? '')}
+        />
       ) : null}
       <GameStatus />
       <GameControls />

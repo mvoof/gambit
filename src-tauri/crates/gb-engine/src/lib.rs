@@ -11,5 +11,6 @@ pub use install::{install_stockfish, stockfish_path};
 pub use protocol::{SearchLimit, Strength};
 pub use score::{
     accepts_draw, evaluation_of, lost_win_percent, quality_of, CandidateLine, Score, SearchInfo,
+    MIN_BEST_MOVE_DEPTH,
 };
 pub use uci::{probe_engine, SearchOutcome, UciEngine};

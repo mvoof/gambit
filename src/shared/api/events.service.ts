@@ -3,11 +3,13 @@ import { listen } from '@tauri-apps/api/event';
 import {
   EVENT_ENGINE_INSTALL,
   EVENT_EVALUATION,
+  EVENT_GAME_REVIEW,
   EVENT_GAME_UPDATED,
 } from '@shared/contracts/generated/bindings';
 import type {
   EngineInstallProgress,
   Evaluation,
+  GameReview,
   GameView,
 } from '@shared/contracts/generated/bindings';
 
@@ -26,6 +28,9 @@ export const onGameUpdated = (handler: (view: GameView) => void) =>
 
 export const onEvaluation = (handler: (evaluation: Evaluation) => void) =>
   subscribe(EVENT_EVALUATION, handler);
+
+export const onGameReview = (handler: (review: GameReview) => void) =>
+  subscribe(EVENT_GAME_REVIEW, handler);
 
 export const onEngineInstall = (
   handler: (progress: EngineInstallProgress) => void

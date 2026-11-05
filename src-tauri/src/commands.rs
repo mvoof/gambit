@@ -1,7 +1,7 @@
 //! Tauri commands. Thin on purpose: validate, delegate, return.
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use gb_archive::NewGame;
@@ -15,6 +15,7 @@ use gb_pieces::preview_sheet;
 use tauri::State;
 
 use crate::analysis::AnalysisTarget;
+use crate::game_review::ReviewTarget;
 use crate::settings::{normalise, save_settings};
 use crate::state::{lock, to_message, AppState};
 
@@ -131,6 +132,22 @@ pub fn set_analysis_position(state: State<'_, AppState>, fen: Option<String>) {
     });
 
     state.analysis.set_target(target);
+}
+
+fn review_target(id: Option<u32>, engine_path: Option<PathBuf>) -> Option<ReviewTarget> {
+    id.zip(engine_path)
+        .map(|(game_id, engine_path)| ReviewTarget {
+            game_id,
+            engine_path,
+        })
+}
+
+/// The saved game to measure, or `None` when no replay is on screen.
+#[tauri::command]
+pub fn set_review_game(state: State<'_, AppState>, id: Option<u32>) {
+    state
+        .game_reviewer
+        .set_target(review_target(id, state.engine_path()));
 }
 
 #[tauri::command]
@@ -253,5 +270,20 @@ mod tests {
             parse_pgn(&archive.pgn(id).unwrap()).unwrap().frames.len(),
             4
         );
+    }
+
+    #[test]
+    fn a_game_is_measured_only_with_an_engine() {
+        let path = PathBuf::from("engine.exe");
+
+        assert_eq!(
+            review_target(Some(3), Some(path.clone())),
+            Some(ReviewTarget {
+                game_id: 3,
+                engine_path: path.clone(),
+            })
+        );
+        assert_eq!(review_target(Some(3), None), None);
+        assert_eq!(review_target(None, Some(path)), None);
     }
 }

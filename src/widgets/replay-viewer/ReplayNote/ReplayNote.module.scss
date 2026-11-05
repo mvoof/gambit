@@ -1,0 +1,13 @@
+.note,
+.mark {
+  min-height: rem(20);
+  font-size: fs('xs');
+}
+
+.note {
+  color: $text-muted;
+}
+
+.mark {
+  color: $danger;
+}

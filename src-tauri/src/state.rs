@@ -13,6 +13,7 @@ use tauri::{AppHandle, Manager};
 
 use crate::analysis::Analysis;
 use crate::events::{EventSink, TauriSink};
+use crate::game_review::GameReviewer;
 use crate::session::Session;
 use crate::settings::load_settings;
 
@@ -24,6 +25,7 @@ const ENGINES_FOLDER: &str = "engines";
 pub struct AppState {
     pub session: Arc<Session>,
     pub analysis: Analysis,
+    pub game_reviewer: GameReviewer,
     pub archive: Arc<Mutex<Archive>>,
     pub pieces: PieceLibrary,
     pub settings: Mutex<AppSettings>,
@@ -65,6 +67,7 @@ impl AppState {
         Ok(Self {
             session: Session::new(Arc::clone(&archive), Arc::clone(&sink)),
             analysis: Analysis::start(Arc::clone(&sink)),
+            game_reviewer: GameReviewer::start(Arc::clone(&archive), Arc::clone(&sink)),
             archive,
             pieces: PieceLibrary::new(data_dir.join(PIECES_FOLDER)),
             settings: Mutex::new(load_settings(&settings_path)),
