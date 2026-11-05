@@ -10,6 +10,10 @@ publish.workspace = true
 [dependencies]
 gb-model.workspace = true
 image.workspace = true
+base64.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
 
 [lints]
 workspace = true

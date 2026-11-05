@@ -40,7 +40,7 @@ gb-pieces = { path = "crates/gb-pieces" }
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-tokio = { version = "1", features = ["io-util", "macros", "process", "rt", "sync", "time"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "process", "rt", "sync", "time"] }
 tracing = "0.1"
 # Chess rules. GPL-3.0, like this project.
 shakmaty = "0.30"
@@ -56,8 +56,9 @@ zip = { version = "9", default-features = false, features = ["deflate"] }
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
 # Custom piece images reach the webview as data URLs.
 base64 = "0.23"
+tempfile = "3"
 # Exact: a release candidate may change the generated contract.
-specta = { version = "=2.0.0-rc.28", features = ["derive", "serde_json"] }
+specta = { version = "=2.0.0-rc.28", features = ["derive"] }
 
 [lib]
 name = "gambit_lib"
@@ -82,12 +83,14 @@ tauri-plugin-dialog = "2"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tauri-plugin-mcp-bridge = { version = "0.13", optional = true }
 specta = { workspace = true, optional = true }
+specta-serde = { version = "=0.0.15", optional = true }
 specta-typescript = { version = "=0.0.15", optional = true }
 
 [features]
 default = []
 dev = [
     "dep:specta",
+    "dep:specta-serde",
     "dep:specta-typescript",
     "dep:tauri-plugin-mcp-bridge",
     "gb-model/dev",

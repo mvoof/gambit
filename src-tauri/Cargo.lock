@@ -1282,6 +1282,7 @@ dependencies = [
  "serde",
  "serde_json",
  "specta",
+ "specta-serde",
  "specta-typescript",
  "tauri",
  "tauri-build",
@@ -1300,6 +1301,7 @@ dependencies = [
  "gb-model",
  "rusqlite",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]
@@ -1319,6 +1321,7 @@ dependencies = [
  "gb-model",
  "reqwest",
  "sha2 0.11.1",
+ "tempfile",
  "tokio",
  "tracing",
  "zip",
@@ -1329,6 +1332,7 @@ name = "gb-model"
 version = "0.0.0"
 dependencies = [
  "serde",
+ "serde_json",
  "specta",
 ]
 
@@ -1336,8 +1340,10 @@ dependencies = [
 name = "gb-pieces"
 version = "0.0.0"
 dependencies = [
+ "base64 0.23.1",
  "gb-model",
  "image",
+ "tempfile",
 ]
 
 [[package]]
@@ -4190,7 +4196,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fa60a95f1bed059a9e9b1f4052dfa8fee47813c429223c8590b338f719ac12e"
 dependencies = [
  "rustc_version",
- "serde_json",
  "specta-macros",
 ]
 
@@ -4204,6 +4209,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
+]
+
+[[package]]
+name = "specta-serde"
+version = "0.0.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69fbb7f8846160cc2924352f5a3b199281742ea335b6b4328d886a44d398e417"
+dependencies = [
+ "specta",
 ]
 
 [[package]]

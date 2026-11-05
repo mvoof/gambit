@@ -16,5 +16,8 @@ futures-util.workspace = true
 sha2.workspace = true
 zip.workspace = true
 
+[dev-dependencies]
+tempfile.workspace = true
+
 [lints]
 workspace = true
