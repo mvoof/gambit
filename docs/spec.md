@@ -213,7 +213,8 @@ Every move of a game is written to the archive at once, as an unfinished row who
 Leaving the game page warns first; the running game stops with its clocks paused. Players,
 clocks and a large check or result banner sit in the column right of the board; a game
 gives no move hints and no takeback beyond its training mode. A new game and the analysis
-of the game are offered once it ends. Finished
+of the game are offered once it ends. Moves read as figurines or letters, by a setting.
+Finished
 games have the player's colour and the engine's Elo with them; marks now name who
 played the move, and a review stores an evaluation graph (`points`). Reviews of the old
 format were dropped by the migration and are measured again on opening. There is no

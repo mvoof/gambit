@@ -10,6 +10,7 @@ export type AppSettings = {
 	language: string,
 	pieceSet: string,
 	board: BoardSettings,
+	moveNotation: MoveNotation,
 	/**  From 0 to 100. */
 	soundVolume: number,
 	evalBarEnabled: boolean,
@@ -224,6 +225,9 @@ export type MoveMark = {
 	quality: MoveQuality,
 	bestSan: string,
 };
+
+/**  How a move is written: `Nf3`, or with the piece as a figurine. */
+export type MoveNotation = "letters" | "figurines";
 
 /**  A move the player may choose. A promotion is one option per piece. */
 export type MoveOption = {

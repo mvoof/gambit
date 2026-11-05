@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useArchiveStore } from '@entities/archive/archive-context';
 import type { ReplayTab } from '@entities/archive/archive.store';
 import { MoveList } from '@entities/game/ui/MoveList/MoveList';
+import { useMoveFormat } from '@entities/settings/use-move-format';
 import type { Color } from '@shared/contracts/generated/bindings';
 import { Button } from '@shared/ui/Button/Button';
 import { Segmented } from '@shared/ui/Segmented/Segmented';
@@ -17,6 +18,7 @@ export const ReplayPanel = observer(() => {
   const { t } = useTranslation();
   const archive = useArchiveStore();
   const { replay, replayTab, frameIndex } = archive;
+  const formatMove = useMoveFormat();
 
   if (!replay) {
     return null;
@@ -76,6 +78,7 @@ export const ReplayPanel = observer(() => {
         activePly={frameIndex}
         highlightedPlies={archive.highlightedPlies}
         bestPlies={replayTab === 'best' ? archive.playerBestPlies : undefined}
+        formatMove={formatMove}
         onSelect={archive.goTo}
       />
       <ReplayEngineCard />

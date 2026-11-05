@@ -6,6 +6,7 @@ import { useArchiveStore } from '@entities/archive/archive-context';
 import { useEngineStore } from '@entities/engine/engine-context';
 import { useEvaluationStore } from '@entities/evaluation/evaluation-context';
 import { EngineLines } from '@entities/evaluation/ui/EngineLines/EngineLines';
+import { useMoveFormat } from '@entities/settings/use-move-format';
 import { formatScore } from '@shared/lib/format-score';
 
 import { ReplayNote } from '../ReplayNote/ReplayNote';
@@ -17,6 +18,7 @@ export const ReplayEngineCard = observer(() => {
   const evaluation = useEvaluationStore();
   const { engine } = useEngineStore();
   const { frame, frameMark } = archive;
+  const formatMove = useMoveFormat();
 
   if (!frame) {
     return null;
@@ -42,12 +44,15 @@ export const ReplayEngineCard = observer(() => {
       {frameMark ? (
         <p className={styles.better}>
           <Lightbulb className={styles.hint} aria-hidden />
-          {t(`game.mark.${frameMark.quality}`, { move: frameMark.bestSan })}
+          {t(`game.mark.${frameMark.quality}`, {
+            move: formatMove(frameMark.bestSan),
+          })}
         </p>
       ) : null}
       <EngineLines
         lines={evaluation.linesFor(frame.fen)}
         turn={evaluation.turnFor(frame.fen)}
+        formatMove={formatMove}
       />
       <ReplayNote />
     </section>

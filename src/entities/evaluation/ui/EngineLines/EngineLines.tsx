@@ -17,9 +17,17 @@ interface EngineLinesProps {
   lines: EvaluationLine[];
   /** Who plays the first move of every line. */
   turn: Color | null;
+  /** Writes a move the way the player wants to read it. */
+  formatMove?: (san: string) => string;
 }
 
-export const EngineLines = ({ lines, turn }: EngineLinesProps) => {
+const asWritten = (san: string) => san;
+
+export const EngineLines = ({
+  lines,
+  turn,
+  formatMove = asWritten,
+}: EngineLinesProps) => {
   const { t } = useTranslation();
 
   return (
@@ -36,8 +44,10 @@ export const EngineLines = ({ lines, turn }: EngineLinesProps) => {
           <li key={line.moves.join(' ')} className={styles.line}>
             <span className={styles.score}>{formatScore(line)}</span>
             <span className={styles.moves}>
-              <strong className={styles.firstMove}>{line.moves[0]}</strong>{' '}
-              {line.moves.slice(1).join(' ')}
+              <strong className={styles.firstMove}>
+                {formatMove(line.moves[0])}
+              </strong>{' '}
+              {line.moves.slice(1).map(formatMove).join(' ')}
             </span>
           </li>
         ))}

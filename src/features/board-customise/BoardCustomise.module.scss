@@ -32,6 +32,15 @@
   margin-bottom: sp('xs');
 }
 
+.notation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: sp('md');
+  font-size: fs('sm');
+  color: $text-secondary;
+}
+
 .color {
   display: flex;
   align-items: center;

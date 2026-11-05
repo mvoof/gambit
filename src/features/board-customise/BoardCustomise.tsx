@@ -2,7 +2,11 @@ import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
 
 import { useSettingsStore } from '@entities/settings/settings-context';
-import type { BoardSettings } from '@shared/contracts/generated/bindings';
+import type {
+  BoardSettings,
+  MoveNotation,
+} from '@shared/contracts/generated/bindings';
+import { Segmented } from '@shared/ui/Segmented/Segmented';
 import { Toggle } from '@shared/ui/Toggle/Toggle';
 
 import styles from './BoardCustomise.module.scss';
@@ -31,11 +35,13 @@ const PRESETS = [
 export const BoardCustomise = observer(() => {
   const { t } = useTranslation();
   const store = useSettingsStore();
-  const board = store.settings?.board;
+  const { settings } = store;
 
-  if (!board) {
+  if (!settings) {
     return null;
   }
+
+  const { board } = settings;
 
   return (
     <div className={styles.customise}>
@@ -76,6 +82,19 @@ export const BoardCustomise = observer(() => {
             <span>{t(`board.${key}`)}</span>
           </label>
         ))}
+      </div>
+      <div className={styles.notation}>
+        <span>{t('board.moveNotation')}</span>
+        <Segmented<MoveNotation>
+          value={settings.moveNotation}
+          onChange={(moveNotation) => {
+            void store.update({ moveNotation });
+          }}
+          options={[
+            { value: 'figurines', label: t('board.notationFigurines') },
+            { value: 'letters', label: t('board.notationLetters') },
+          ]}
+        />
       </div>
       {TOGGLES.map((key) => (
         <Toggle

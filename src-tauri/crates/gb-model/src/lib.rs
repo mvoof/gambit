@@ -481,6 +481,16 @@ const DEFAULT_SOUND_VOLUME: u32 = 70;
 const DEFAULT_ANALYSIS_LINES: u32 = 3;
 const DEFAULT_ANALYSIS_DEPTH: u32 = 24;
 
+/// How a move is written: `Nf3`, or with the piece as a figurine.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub enum MoveNotation {
+    Letters,
+    #[default]
+    Figurines,
+}
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]
@@ -498,6 +508,7 @@ pub struct AppSettings {
     pub language: String,
     pub piece_set: String,
     pub board: BoardSettings,
+    pub move_notation: MoveNotation,
     /// From 0 to 100.
     pub sound_volume: u32,
     pub eval_bar_enabled: bool,
@@ -516,6 +527,7 @@ impl Default for AppSettings {
             language: "en".to_owned(),
             piece_set: "cburnett".to_owned(),
             board: BoardSettings::default(),
+            move_notation: MoveNotation::default(),
             sound_volume: DEFAULT_SOUND_VOLUME,
             eval_bar_enabled: true,
             theme: Theme::default(),

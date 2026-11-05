@@ -127,6 +127,7 @@ mod tests {
             settings.board.last_move_color,
             AppSettings::default().board.last_move_color
         );
+        assert_eq!(settings.move_notation, AppSettings::default().move_notation);
         assert_eq!(settings.piece_set, AppSettings::default().piece_set);
     }
 

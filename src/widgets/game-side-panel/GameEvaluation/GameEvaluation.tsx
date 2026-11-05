@@ -6,6 +6,7 @@ import { useEvaluationStore } from '@entities/evaluation/evaluation-context';
 import { EngineLines } from '@entities/evaluation/ui/EngineLines/EngineLines';
 import { useGameStore } from '@entities/game/game-context';
 import { useSettingsStore } from '@entities/settings/settings-context';
+import { useMoveFormat } from '@entities/settings/use-move-format';
 import { formatScore } from '@shared/lib/format-score';
 
 import { verdictOf } from './position-verdict';
@@ -17,6 +18,7 @@ export const GameEvaluation = observer(() => {
   const game = useGameStore();
   const evaluation = useEvaluationStore();
   const { settings } = useSettingsStore();
+  const formatMove = useMoveFormat();
   const fen = game.displayedFen ?? '';
   const lines = evaluation.linesFor(fen);
   const best = lines.at(0)?.moves.at(0);
@@ -43,10 +45,14 @@ export const GameEvaluation = observer(() => {
       {best ? (
         <p className={styles.best}>
           <Lightbulb className={styles.icon} aria-hidden />
-          {t('analysis.bestMove')}: <strong>{best}</strong>
+          {t('analysis.bestMove')}: <strong>{formatMove(best)}</strong>
         </p>
       ) : null}
-      <EngineLines lines={lines} turn={evaluation.turnFor(fen)} />
+      <EngineLines
+        lines={lines}
+        turn={evaluation.turnFor(fen)}
+        formatMove={formatMove}
+      />
     </>
   );
 });

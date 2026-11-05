@@ -17,6 +17,8 @@ const QUALITY_GLYPHS: Record<MoveQuality, string> = {
 };
 const NO_MARKS: MoveMark[] = [];
 
+const asWritten = (san: string) => san;
+
 interface MoveListProps {
   moves: MoveRecord[];
   marks?: MoveMark[];
@@ -26,6 +28,8 @@ interface MoveListProps {
   highlightedPlies?: number[] | null;
   /** Moves that get a tick: what the engine itself would have played. */
   bestPlies?: number[];
+  /** Writes a move the way the player wants to read it. */
+  formatMove?: (san: string) => string;
   onSelect: (ply: number) => void;
 }
 
@@ -67,6 +71,7 @@ export const MoveList = ({
   activePly,
   highlightedPlies = null,
   bestPlies,
+  formatMove = asWritten,
   onSelect,
 }: MoveListProps) => {
   const activeRef = useRef<HTMLButtonElement>(null);
@@ -103,7 +108,7 @@ export const MoveList = ({
               {bestPlies?.includes(move.ply) ? (
                 <Check className={styles.best} aria-hidden />
               ) : null}
-              {move.san}
+              {formatMove(move.san)}
               <MoveGlyph
                 quality={marks.find((mark) => mark.ply === move.ply)?.quality}
               />
