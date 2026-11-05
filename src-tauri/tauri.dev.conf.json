@@ -1,5 +1,5 @@
 {
-  "identifier": "com.voof.tauri-app-template.dev",
+  "identifier": "com.voof.gambit.dev",
   "bundle": {
     "targets": ["nsis"],
     "createUpdaterArtifacts": false

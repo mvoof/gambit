@@ -1,0 +1,16 @@
+[package]
+name = "gb-archive"
+description = "The saved games: SQLite."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+gb-model.workspace = true
+rusqlite.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

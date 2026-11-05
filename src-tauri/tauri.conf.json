@@ -1,8 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "tauri-app-template",
+  "productName": "Gambit",
   "version": "0.1.0",
-  "identifier": "com.voof.tauri-app-template",
+  "identifier": "com.voof.gambit",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://localhost:1420",
@@ -13,7 +13,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Template for Tauri App",
+        "title": "Gambit",
         "width": 900,
         "height": 700,
         "resizable": true,

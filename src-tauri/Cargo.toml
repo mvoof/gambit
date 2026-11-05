@@ -1,23 +1,91 @@
 [package]
-name = "tauri-app-template"
+name = "gambit"
 version = "0.1.0"
-description = "Opinionated Tauri 2 + React 19 + TypeScript template"
+description = "Gambit - chess with a local AI companion"
 authors = ["mvoof"]
-license = "MIT"
+license = "GPL-3.0-or-later"
 repository = ""
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+# The backend is this app crate plus the crates under `crates/`, one per
+# domain. The app is the only one that sees Tauri.
+[workspace]
+members = [".", "crates/*"]
+default-members = [".", "crates/*"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.0"
+authors = ["mvoof"]
+license = "GPL-3.0-or-later"
+edition = "2021"
+publish = false
+
+# Every member opts in with `[lints] workspace = true`. Tests may panic:
+# `clippy.toml` allows unwrap/expect/panic there.
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "deny"
+
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+
+[workspace.dependencies]
+gb-model = { path = "crates/gb-model" }
+gb-chess = { path = "crates/gb-chess" }
+gb-engine = { path = "crates/gb-engine" }
+gb-archive = { path = "crates/gb-archive" }
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["io-util", "macros", "process", "rt", "sync", "time"] }
+tracing = "0.1"
+# Chess rules. GPL-3.0, like this project.
+shakmaty = "0.30"
+pgn-reader = "0.29"
+# Saved games. Bundled so no system SQLite is needed on Windows builds.
+rusqlite = { version = "0.41", features = ["bundled"] }
+# Stockfish download: the pinned release, checked against its SHA-256.
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream"] }
+futures-util = "0.3"
+sha2 = "0.10"
+zip = { version = "4", default-features = false, features = ["deflate"] }
+# Pinned: later release candidates change the contract.
+specta = { version = "=2.0.0-rc.22", features = ["derive", "serde_json"] }
 
 [lib]
-name = "tauri_app_template_lib"
+name = "gambit_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2.5.3", features = [] }
 
 [dependencies]
-serde_json = "1.0"
-serde = { version = "1.0", features = ["derive"] }
+gb-model.workspace = true
+gb-chess.workspace = true
+gb-engine.workspace = true
+gb-archive.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true
 tauri = { version = "2.11", features = [] }
 tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tauri-plugin-mcp-bridge = { version = "0.13", optional = true }
+specta = { workspace = true, optional = true }
+specta-typescript = { version = "=0.0.9", optional = true }
+
+[features]
+default = []
+dev = [
+    "dep:specta",
+    "dep:specta-typescript",
+    "dep:tauri-plugin-mcp-bridge",
+    "gb-model/dev",
+]
+
+[lints]
+workspace = true

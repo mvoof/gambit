@@ -1,0 +1,19 @@
+[package]
+name = "gb-model"
+description = "The wire contract: every type that crosses to the frontend."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde.workspace = true
+specta = { workspace = true, optional = true }
+
+[features]
+default = []
+dev = ["dep:specta"]
+
+[lints]
+workspace = true

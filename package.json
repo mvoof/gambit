@@ -1,11 +1,12 @@
 {
-  "name": "tauri-app-template",
-  "description": "Opinionated Tauri 2 + React 19 + TypeScript template",
+  "name": "gambit",
+  "description": "Chess with a local AI companion",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "version": "0.1.0",
   "type": "module",
   "repository": {
-    "url": "https://github.com/mvoof/tauri-app-template"
+    "url": "https://github.com/mvoof/gambit"
   },
   "scripts": {
     "dev": "vite",
@@ -26,7 +27,6 @@
     "build-storybook": "storybook build",
     "cargo:format": "cd src-tauri && cargo fmt",
     "cargo:lint": "cd src-tauri && cargo clippy --all-targets -- -D warnings",
-    "rename": "node scripts/rename-app.mjs",
     "prepare": "lefthook install"
   },
   "dependencies": {

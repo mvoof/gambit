@@ -1,31 +1,6 @@
-# Tauri App Template
+# Gambit
 
-Opinionated starting point for desktop apps: **Tauri 2 + React 19 + TypeScript**,
-with linting, formatting, git hooks, tests, Storybook, i18n, a SCSS design-token
-system and GitHub Actions already wired up.
-
-> Not a framework — a starting point. Everything here is meant to be edited.
-
----
-
-## Quick start
-
-```sh
-git clone https://github.com/mvoof/tauri-app-template my-app
-cd my-app
-npm install                       # also installs the git hooks (lefthook)
-npm run rename "My App" com.example.my-app
-npm run tauri:dev
-```
-
-`npm run rename` rewrites the app name, the Rust crate name and the bundle
-identifier in `package.json`, `Cargo.toml`, both Tauri configs, `main.rs` and
-`index.html`. Do it once, right after cloning.
-
-**Prerequisites:** Node 20+, Rust stable, and the
-[Tauri system dependencies](https://tauri.app/start/prerequisites/) for your OS.
-
----
+Chess against a real engine, with a local AI companion. See `docs/spec.md`.
 
 ## Scripts
 

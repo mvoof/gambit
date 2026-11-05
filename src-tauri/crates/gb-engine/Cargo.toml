@@ -1,0 +1,20 @@
+[package]
+name = "gb-engine"
+description = "Drives a UCI engine process and installs Stockfish."
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+gb-model.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+reqwest.workspace = true
+futures-util.workspace = true
+sha2.workspace = true
+zip.workspace = true
+
+[lints]
+workspace = true

@@ -23,23 +23,39 @@ The pre-commit hook (lefthook) runs lint, format, typecheck, tests, `cargo fmt`,
 
 ## Architecture
 
-Two halves, one app.
+**Read `docs/spec.md` first**: the product, every decision so far, what is done
+and what comes next. It supersedes the flat-structure advice in
+`docs/conventions.md`, which is left over from the template.
 
-**Frontend** (`src/`) — React 19, SCSS modules, i18next. Flat by design:
-`components/<Name>/` holds a component with its stylesheet and story; `lib/`
-holds everything that is not a component. There is no enforced layer system —
-add one only when the app grows enough to need it.
+**Backend** — a Cargo workspace, one crate per domain in `src-tauri/crates/`;
+only the app crate sees Tauri. All logic is Rust. Commands stay thin: validate,
+delegate, return.
 
-**Backend** (`src-tauri/src/`) — `lib.rs` wires the app up (plugins, invoke
-handler) and nothing else; `commands.rs` is the command surface. Commands stay
-thin: validate, delegate, return. Business logic goes in its own module.
+**Frontend** (`src/`) — strict FSD, one way: `app → pages → widgets → features →
+entities → shared`. A slice never imports a sibling slice. Direct file paths, no
+barrels. UI state only: React 19, MobX stores through context hooks, SCSS
+Modules, i18next.
 
-**The boundary** — `src/lib/tauri.ts` wraps every `invoke` call, once. A
-component importing `@tauri-apps/api/core` directly is a bug: it duplicates the
-argument types and breaks Storybook, which stubs that module.
+**The boundary** — `src/shared/api/*.service.ts` alone calls `invoke`. Generated
+contracts in `src/shared/contracts/generated/` are never edited by hand.
 
 Everything on the wire is camelCase (`#[serde(rename_all = "camelCase")]` on
 every struct that crosses the boundary).
+
+**An LLM never plays or calculates**: it only puts measured facts into words.
+
+## Working with the user
+
+- Answer in Russian; code, commits and docs in English. The user sometimes types
+  in the wrong keyboard layout.
+- Be concise and read only what you need.
+- Commit on a branch when work is done and the hooks pass. **Never push**: pushing
+  is the user's call, every time.
+- Heavy tools one at a time: this PC froze on parallel Storybook, Playwright and
+  typecheck. Cargo with `-j 2`, tests with `--test-threads=2`, no full-suite loops.
+- Check UI in the real app through the Tauri MCP Bridge (`dev` feature, port
+  9223), not in a plain browser.
+- Prototype code from the user is adapted to the project's shape, not pasted.
 
 ## Frontend rules
 
@@ -108,6 +124,5 @@ Always block form. A blank line before `return`, and before and after every
 
 - Object if a proposed solution seems wrong — give the argument and wait for
   confirmation before starting.
-- After finishing, suggest a Conventional Commits message; do **not** run
-  `git commit` unless asked.
+- Commit messages follow Conventional Commits.
 - Adding a dependency is a decision, not a detail — say why.
