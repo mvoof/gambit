@@ -66,6 +66,7 @@ export const Board = ({
   const boardColors = {
     '--square-light': settings.lightSquare,
     '--square-dark': settings.darkSquare,
+    '--last-move-color': settings.lastMoveColor,
   } as CSSProperties;
 
   const promotionColor = pieces.find(

@@ -92,7 +92,9 @@ const BoardSquaresBase = ({
             ) : null}
             {target && settings.showLegalMoves ? (
               <span
-                className={target.isCapture ? styles.captureRing : styles.dot}
+                className={
+                  target.isCapture ? styles.captureCorners : styles.dot
+                }
               />
             ) : null}
           </div>

@@ -16,6 +16,7 @@
     "game": {
       "you": "You",
       "newGame": "New game",
+      "analyse": "Analyse the game",
       "takeBack": "Take back",
       "offerDraw": "Offer a draw",
       "resign": "Resign",
@@ -66,6 +67,7 @@
       "resize": "Resize the board",
       "lightSquare": "Light squares",
       "darkSquare": "Dark squares",
+      "lastMoveColor": "Last move",
       "showCoordinates": "Coordinates",
       "showLegalMoves": "Legal move dots",
       "showLastMove": "Last move highlight",
@@ -257,8 +259,7 @@
       "title": "Stop the game?",
       "text": "The game will stop and its clocks will pause. You can finish it later from the Unfinished section of the archive.",
       "stay": "Stay in the game",
-      "leave": "Stop and leave",
-      "startNew": "On to a new game"
+      "leave": "Stop and leave"
     },
     "playerResult": {
       "win": "Win",

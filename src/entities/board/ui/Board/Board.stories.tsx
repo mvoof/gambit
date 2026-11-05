@@ -23,6 +23,7 @@ const images = Object.fromEntries(
 const settings: BoardSettings = {
   lightSquare: '#e3d3b5',
   darkSquare: '#8a6a4a',
+  lastMoveColor: '#f2c94c',
   showCoordinates: true,
   showLegalMoves: true,
   showLastMove: true,

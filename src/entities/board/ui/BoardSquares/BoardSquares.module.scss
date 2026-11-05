@@ -48,11 +48,15 @@
   border-radius: 50%;
 }
 
-.captureRing {
+// The piece stays in full view: only the corners of its square are filled.
+.captureCorners {
   position: absolute;
-  inset: 4%;
-  border: rem(5) solid $board-target-dot;
-  border-radius: 50%;
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    transparent 74%,
+    $board-capture-target 75%
+  );
 }
 
 .rankLabel,

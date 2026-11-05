@@ -237,6 +237,8 @@ pub struct GameView {
     pub engine_failed: bool,
     pub can_takeback: bool,
     pub is_training: bool,
+    /// The row in the archive; `None` until a move has been saved.
+    pub archive_id: Option<u32>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -452,6 +454,7 @@ pub struct PieceSetView {
 pub struct BoardSettings {
     pub light_square: String,
     pub dark_square: String,
+    pub last_move_color: String,
     pub show_coordinates: bool,
     pub show_legal_moves: bool,
     pub show_last_move: bool,
@@ -464,6 +467,7 @@ impl Default for BoardSettings {
         Self {
             light_square: "#e3d3b5".to_owned(),
             dark_square: "#8a6a4a".to_owned(),
+            last_move_color: "#f2c94c".to_owned(),
             show_coordinates: true,
             show_legal_moves: true,
             show_last_move: true,

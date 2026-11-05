@@ -48,6 +48,7 @@ export type BoardPiece = {
 export type BoardSettings = {
 	lightSquare: string,
 	darkSquare: string,
+	lastMoveColor: string,
 	showCoordinates: boolean,
 	showLegalMoves: boolean,
 	showLastMove: boolean,
@@ -206,6 +207,8 @@ export type GameView = {
 	engineFailed: boolean,
 	canTakeback: boolean,
 	isTraining: boolean,
+	/**  The row in the archive; `None` until a move has been saved. */
+	archiveId: number | null,
 };
 
 export type LastMove = {

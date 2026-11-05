@@ -421,6 +421,7 @@ impl ActiveGame {
             engine_failed: self.engine_failed,
             can_takeback: self.can_take_back(),
             is_training: self.is_training,
+            archive_id: self.archive_id,
         })
     }
 

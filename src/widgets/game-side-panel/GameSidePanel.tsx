@@ -4,6 +4,7 @@ import { useGameStore } from '@entities/game/game-context';
 import { MoveList } from '@entities/game/ui/MoveList/MoveList';
 
 import { GameAlert } from './GameAlert/GameAlert';
+import { GameEndActions } from './GameEndActions/GameEndActions';
 import { GameEvaluation } from './GameEvaluation/GameEvaluation';
 import { GamePlayers } from './GamePlayers/GamePlayers';
 import { GameStatus } from './GameStatus/GameStatus';
@@ -20,6 +21,7 @@ export const GameSidePanel = observer(() => {
     <aside className={styles.panel}>
       <GamePlayers />
       <GameAlert />
+      <GameEndActions />
       <MoveList
         moves={view.moves}
         marks={view.moveMarks}

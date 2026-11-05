@@ -42,6 +42,7 @@ pub struct GameExtras {
     pub engine_failed: bool,
     pub can_takeback: bool,
     pub is_training: bool,
+    pub archive_id: Option<u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -369,6 +370,7 @@ impl Game {
             clock: extras.clock,
             engine_thinking: extras.engine_thinking,
             engine_failed: extras.engine_failed,
+            archive_id: extras.archive_id,
             can_takeback: extras.can_takeback,
             is_training: extras.is_training,
         }
@@ -502,6 +504,7 @@ mod tests {
             engine_thinking: false,
             engine_failed: false,
             can_takeback: false,
+            archive_id: None,
         }
     }
 

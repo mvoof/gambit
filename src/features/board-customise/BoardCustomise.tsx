@@ -7,11 +7,8 @@ import { Toggle } from '@shared/ui/Toggle/Toggle';
 
 import styles from './BoardCustomise.module.scss';
 
-type BoardToggleKey = Exclude<
-  keyof BoardSettings,
-  'lightSquare' | 'darkSquare'
->;
-type BoardColorKey = 'lightSquare' | 'darkSquare';
+type BoardToggleKey = Exclude<keyof BoardSettings, BoardColorKey>;
+type BoardColorKey = 'lightSquare' | 'darkSquare' | 'lastMoveColor';
 
 const TOGGLES: BoardToggleKey[] = [
   'showCoordinates',
@@ -21,7 +18,7 @@ const TOGGLES: BoardToggleKey[] = [
   'animateMoves',
 ];
 
-const COLORS: BoardColorKey[] = ['lightSquare', 'darkSquare'];
+const COLORS: BoardColorKey[] = ['lightSquare', 'darkSquare', 'lastMoveColor'];
 
 const PRESETS = [
   { name: 'sand', lightSquare: '#f0e4cf', darkSquare: '#c9a97c' },

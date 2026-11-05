@@ -123,6 +123,10 @@ mod tests {
         assert_eq!(settings.sound_volume, 5);
         assert!(!settings.board.show_check);
         assert!(settings.board.show_coordinates);
+        assert_eq!(
+            settings.board.last_move_color,
+            AppSettings::default().board.last_move_color
+        );
         assert_eq!(settings.piece_set, AppSettings::default().piece_set);
     }
 

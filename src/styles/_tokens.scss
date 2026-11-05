@@ -38,10 +38,12 @@ $shadow-dialog: var(--shadow-dialog);
 $shadow-panel: var(--shadow-panel);
 
 // Board overlays: they sit on any board colours, so they carry their own alpha.
-$board-last-move: rgba(227, 200, 140, 0.42);
+// The hue is the player's own, from the board settings.
+$board-last-move: color-mix(in srgb, var(--last-move-color) 72%, transparent);
 $board-selected: rgba(227, 200, 140, 0.6);
 $board-premove: rgba(203, 90, 66, 0.45);
 $board-target-dot: rgba(20, 17, 16, 0.28);
+$board-capture-target: rgba(203, 90, 66, 0.8);
 $board-check: rgba(203, 90, 66, 0.85);
 $board-mark: rgba(131, 160, 95, 0.55);
 $board-arrow: rgba(131, 160, 95, 0.85);
