@@ -157,6 +157,21 @@ pub fn companion_view(state: State<'_, AppState>) -> CompanionView {
 
 /// `ply` is the position on screen; `None` is the live one. The reply arrives
 /// through events.
+fn question(
+    state: &AppState,
+    settings: AppSettings,
+    ply: Option<u32>,
+    is_advice: bool,
+) -> Reply<Question> {
+    Ok(Question {
+        facts: state.session.position_facts(ply)?,
+        engine_path: state.engine_path(),
+        language: settings.llm.language.clone().unwrap_or(settings.language),
+        settings: settings.llm,
+        is_advice,
+    })
+}
+
 #[tauri::command]
 pub async fn companion_ask(
     state: State<'_, AppState>,
@@ -174,14 +189,23 @@ pub async fn companion_ask(
         return Err(EMPTY_QUESTION.to_owned());
     }
 
-    let question = Question {
-        facts: state.session.position_facts(ply)?,
-        engine_path: state.engine_path(),
-        language: settings.llm.language.clone().unwrap_or(settings.language),
-        settings: settings.llm,
-    };
+    state
+        .companion
+        .ask(text, question(&state, settings, ply, false)?)
+}
 
-    state.companion.ask(text, question)
+/// The player's turn has come. Whether advice follows is decided here.
+#[tauri::command]
+pub async fn companion_advise(state: State<'_, AppState>) -> Reply<()> {
+    let settings = lock(&state.settings).clone();
+
+    if !settings.llm.enabled || !settings.llm.auto_advice {
+        return Ok(());
+    }
+
+    state
+        .companion
+        .advise(question(&state, settings, None, true)?)
 }
 
 #[tauri::command]

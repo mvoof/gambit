@@ -123,12 +123,10 @@ space, the board as the hero. Self-hosted fonts with Cyrillic:
 `@fontsource-variable/playfair-display` for display, `manrope` for UI,
 `jetbrains-mono` for clocks. Replace the template tokens.
 
-## Stage 2: companion
+## Stage 2: coach
 
-LM Studio over its OpenAI-compatible API on `localhost:1234`, with streaming.
-Personalities: Stockfish gives 3–5 candidates and the persona picks by style, so
-moves stay legal. A "model plays alone" fun mode picks from the legal list and is
-validated.
+LM Studio over its OpenAI-compatible API on `localhost:1234`, with streaming. One
+coach and helper, no personas: it only talks, and Stockfish always plays.
 
 ## Stage 3: analysis
 
@@ -168,11 +166,13 @@ startup, offered in the header and in settings, installed only on request. The
 signing public key still has to be put into `plugins.updater.pubkey`.
 
 Stage 2 has its chat, checked in the real app against LM Studio and Stockfish 19:
-a Companion tab next to the moves, streaming replies, Stop, and the four roles as
-personas. Rust owns the conversation (`CompanionView`) and resets it on a new
-game. Each question runs a third Stockfish process at full strength for its best
-lines (`MultiPV`), and the prompt carries them as SAN with scores. The opponent
-persona never receives them, so it cannot give the best move away.
+a Coach tab next to the moves, streaming replies and Stop. Rust owns the
+conversation (`CompanionView`) and resets it on a new game. Each question runs a
+third Stockfish process at full strength for its best lines (`MultiPV`), and the
+prompt carries them as SAN with scores. The prompt tells the coach which colour
+the player has and whose turn it is, and every score is from the player's side.
+With `llm.autoAdvice` the coach speaks up when the player's turn comes; advice is
+skipped while it is still talking.
 
 What LM Studio taught us:
 
@@ -196,16 +196,12 @@ the app by default. Voice reads the same setting.
 
 Next, in order:
 
-1. Stage 2: the opponent persona picks its move from Stockfish's candidates, with
-   the engine's own move as the fallback, then the "model plays alone" mode.
-2. Stage 3: engine-measured game review, then the LLM explaining it.
-3. Stage 4: `gb-voice`, speaking with the model both ways.
+1. Stage 3: engine-measured game review, then the LLM explaining it.
+2. Stage 4: `gb-voice`, speaking with the model both ways.
 
 The LLM side, always under the principle above, with the engine supplying every
 fact:
 
-- **Roles**, each a persona with its own prompt and style: opponent, coach,
-  sparring partner, commentator.
 - **Teaching**: lessons on ideas and openings, at the player's level.
 - **Trainer**: positions from the player's own games, puzzles from their
   blunders with spaced repetition.

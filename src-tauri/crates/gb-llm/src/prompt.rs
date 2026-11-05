@@ -1,22 +1,38 @@
-//! The system prompt: a persona plus the facts the rules code and the engine
+//! The system prompt: the coach plus the facts the rules code and the engine
 //! measured. The rules below keep the model from playing chess in its head.
 
 use std::fmt::Write;
+use std::iter::once;
 
-use gb_model::{Color, CompanionRole, GameOutcome};
+use gb_model::{Color, GameOutcome, GameResult};
 
 const CENTIPAWNS_IN_A_PAWN: f64 = 100.0;
 const PLIES_IN_A_ROUND: usize = 2;
+const PLAYER: &str = "the player";
+const OPPONENT: &str = "the opponent";
+
+const PERSONA: &str = "\
+You are the player's chess coach and helper: warm, patient and honest. Explain \
+the idea behind the engine's moves at the player's level, and call the player \
+\"you\".";
 
 const GROUND_RULES: &str = "\
 You talk with a chess player inside a chess app. You cannot calculate chess and \
 you must not try: you lose track of positions and invent moves. The facts below \
 were measured by the rules code and a chess engine, and they are all you know.
-- Mention only moves that appear in the facts. Never suggest or analyse any other move.
+- The only moves you may recommend are the first moves of the engine's lines. Quote \
+them exactly as written there, in chess notation.
+- Never describe a move in your own words and never invent one: no captures, piece \
+developments or plans beyond what the engine's lines show.
 - Never contradict an evaluation. Do not invent evaluations, lines or threats.
 - Do not name openings, players or famous games: the facts do not cover them.
 - If asked something the facts do not cover, say the engine has not measured it.
 - Be brief: two to four sentences, plain text, no lists and no markdown.";
+
+/// Stands in for a question when the coach speaks up by itself.
+pub const ADVICE_REQUEST: &str = "\
+Without waiting for a question, give me one short piece of advice or a comment \
+on the position right now, using only the facts.";
 
 /// A line the engine found for the side to move, in White's point of view.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -43,32 +59,6 @@ pub struct PositionFacts {
     pub lines: Vec<EngineLine>,
 }
 
-fn persona(role: CompanionRole) -> &'static str {
-    match role {
-        CompanionRole::Coach => {
-            "You are the player's coach: warm, patient and honest. Explain the \
-             idea behind the engine's moves, at the player's level."
-        }
-        CompanionRole::Sparring => {
-            "You are the player's sparring partner: a blunt, friendly club player \
-             who pokes at their choices and asks what they would do next."
-        }
-        CompanionRole::Commentator => {
-            "You are a live chess commentator: vivid and excited, describing the \
-             drama of the game to an audience."
-        }
-        CompanionRole::Opponent => {
-            "You are the player's opponent, sitting across the board: confident, \
-             playful, a little theatrical. Banter, and keep your plans secret."
-        }
-    }
-}
-
-/// The opponent stays in character only if it cannot give away the best move.
-pub fn sees_engine_lines(role: CompanionRole) -> bool {
-    role != CompanionRole::Opponent
-}
-
 fn color_name(color: Color) -> &'static str {
     match color {
         Color::White => "White",
@@ -92,17 +82,35 @@ fn numbered_moves(moves: &[String]) -> String {
         .join(" ")
 }
 
-fn material_words(diff: i32) -> String {
-    match diff {
-        0 => "level".to_owned(),
-        ahead if ahead > 0 => format!("White is ahead by {ahead}"),
-        behind => format!("Black is ahead by {}", behind.abs()),
+/// Who a colour is, as the player sees the game.
+fn side(color: Color, human_color: Color) -> &'static str {
+    if color == human_color {
+        PLAYER
+    } else {
+        OPPONENT
     }
 }
 
-fn score_words(line: &EngineLine) -> String {
+/// Turns a White point of view into the player's.
+fn for_player(white_value: i32, human_color: Color) -> i32 {
+    match human_color {
+        Color::White => white_value,
+        Color::Black => -white_value,
+    }
+}
+
+fn material_words(facts: &PositionFacts) -> String {
+    match for_player(facts.material_diff, facts.human_color) {
+        0 => "level".to_owned(),
+        ahead if ahead > 0 => format!("{PLAYER} is ahead by {ahead}"),
+        behind => format!("{OPPONENT} is ahead by {}", behind.abs()),
+    }
+}
+
+fn score_words(line: &EngineLine, human_color: Color) -> String {
     if let Some(moves) = line.white_mate_in {
-        let mating_side = if moves > 0 { "White" } else { "Black" };
+        let player_mate = for_player(moves, human_color);
+        let mating_side = if player_mate > 0 { PLAYER } else { OPPONENT };
 
         return format!("{mating_side} mates in {}", moves.abs());
     }
@@ -111,14 +119,64 @@ fn score_words(line: &EngineLine) -> String {
         || "not measured".to_owned(),
         |centipawns| {
             format!(
-                "{:+.2} pawns from White's side",
-                f64::from(centipawns) / CENTIPAWNS_IN_A_PAWN
+                "{:+.2}",
+                f64::from(for_player(centipawns, human_color)) / CENTIPAWNS_IN_A_PAWN
             )
         },
     )
 }
 
-fn facts_text(facts: &PositionFacts, role: CompanionRole) -> Vec<String> {
+fn outcome_words(outcome: GameOutcome, human_color: Color) -> String {
+    let result = match (outcome.result, human_color) {
+        (GameResult::Draw, _) => "a draw",
+        (GameResult::WhiteWins, Color::White) | (GameResult::BlackWins, Color::Black) => {
+            "the player won"
+        }
+        _ => "the player lost",
+    };
+
+    format!("The game is over: {result}, {:?}.", outcome.reason)
+}
+
+/// The move apart from what follows it: a line read as one move is advice nobody
+/// can play.
+fn line_words(line: &EngineLine, human_color: Color) -> String {
+    let score = score_words(line, human_color);
+
+    match line.moves.split_first() {
+        Some((first, rest)) if !rest.is_empty() => {
+            format!("- {first} (then {}): {score}", rest.join(" "))
+        }
+        Some((first, _)) => format!("- {first}: {score}"),
+        None => format!("- {score}"),
+    }
+}
+
+fn engine_lines(facts: &PositionFacts) -> Vec<String> {
+    if facts.lines.is_empty() {
+        return vec!["The engine has no measurement of this position.".to_owned()];
+    }
+
+    let header = if facts.turn == facts.human_color {
+        "The engine's best moves for the player, each with its score in pawns, where \
+         plus is good for the player:"
+    } else {
+        "The engine's best moves for the opponent, which the player should expect, each \
+         with its score in pawns, where plus is good for the player:"
+    };
+
+    once(header.to_owned())
+        .chain(
+            facts
+                .lines
+                .iter()
+                .map(|line| line_words(line, facts.human_color)),
+        )
+        .collect()
+}
+
+fn facts_text(facts: &PositionFacts) -> Vec<String> {
+    let human_color = facts.human_color;
     let moves = if facts.moves.is_empty() {
         "none".to_owned()
     } else {
@@ -127,58 +185,49 @@ fn facts_text(facts: &PositionFacts, role: CompanionRole) -> Vec<String> {
     let mut lines = vec![
         format!("Position (FEN): {}", facts.fen),
         format!(
-            "The player is {}; their opponent is {}.",
-            color_name(facts.human_color),
-            facts.opponent_name
+            "The player plays {}. The opponent, {}, plays {}.",
+            color_name(human_color),
+            facts.opponent_name,
+            color_name(human_color.opposite())
         ),
         format!("Moves so far: {moves}"),
-        format!("Material: {}.", material_words(facts.material_diff)),
     ];
 
-    if let Some(outcome) = facts.outcome {
+    if let Some(last_move) = facts.moves.last() {
         lines.push(format!(
-            "The game is over: {:?}, {:?}.",
-            outcome.result, outcome.reason
+            "Last move: {last_move}, played by {}.",
+            side(facts.turn.opposite(), human_color)
         ));
+    }
+
+    lines.push(format!("Material: {}.", material_words(facts)));
+
+    if let Some(outcome) = facts.outcome {
+        lines.push(outcome_words(outcome, human_color));
+    } else if facts.turn == human_color {
+        lines.push("It is the player's turn.".to_owned());
     } else {
-        lines.push(format!("{} is to move.", color_name(facts.turn)));
+        lines.push("It is the opponent's turn: the player waits for its move.".to_owned());
     }
 
     if facts.in_check {
-        lines.push(format!("{} is in check.", color_name(facts.turn)));
+        lines.push(format!("{} is in check.", side(facts.turn, human_color)));
     }
 
-    if !sees_engine_lines(role) {
-        return lines;
-    }
-
-    if facts.lines.is_empty() {
-        lines.push("The engine has no measurement of this position.".to_owned());
-
-        return lines;
-    }
-
-    lines.push("Engine's best lines for the side to move:".to_owned());
-    lines.extend(
-        facts
-            .lines
-            .iter()
-            .map(|line| format!("- {}: {}", line.moves.join(" "), score_words(line))),
-    );
+    lines.extend(engine_lines(facts));
 
     lines
 }
 
-pub fn system_prompt(role: CompanionRole, language: &str, facts: &PositionFacts) -> String {
+pub fn system_prompt(language: &str, facts: &PositionFacts) -> String {
     let mut text = String::new();
 
     // Writing into a `String` cannot fail.
     let _ = write!(
         text,
-        "{}\n\n{GROUND_RULES}\n- Always answer in {}, whatever language the player writes in.\n\nFacts:\n{}\n",
-        persona(role),
+        "{PERSONA}\n\n{GROUND_RULES}\n- Always answer in {}, whatever language the player writes in.\n\nFacts:\n{}\n",
         language_name(language),
-        facts_text(facts, role).join("\n")
+        facts_text(facts).join("\n")
     );
 
     text
@@ -186,7 +235,7 @@ pub fn system_prompt(role: CompanionRole, language: &str, facts: &PositionFacts)
 
 #[cfg(test)]
 mod tests {
-    use gb_model::{GameEndReason, GameResult};
+    use gb_model::GameEndReason;
 
     use super::*;
 
@@ -210,21 +259,33 @@ mod tests {
 
     #[test]
     fn the_facts_reach_the_prompt() {
-        let prompt = system_prompt(CompanionRole::Coach, "ru", &facts());
+        let prompt = system_prompt("ru", &facts());
 
+        assert!(prompt.contains("The player plays White. The opponent, Stockfish 19, plays Black."));
         assert!(prompt.contains("Moves so far: 1. e4 e5 2. Nf3"));
-        assert!(prompt.contains("Black is ahead by 3"));
-        assert!(prompt.contains("Black is in check."));
-        assert!(prompt.contains("- Nc6 Bb5: +0.25 pawns from White's side"));
+        assert!(prompt.contains("Last move: Nf3, played by the player."));
+        assert!(prompt.contains("the opponent is ahead by 3"));
+        assert!(prompt.contains("the opponent is in check."));
+        assert!(prompt.contains("It is the opponent's turn"));
+        assert!(prompt.contains("for the opponent, which the player should expect"));
+        assert!(prompt.contains("- Nc6 (then Bb5): +0.25"));
         assert!(prompt.contains("Always answer in Russian,"));
     }
 
     #[test]
-    fn the_opponent_never_sees_the_engines_lines() {
-        let prompt = system_prompt(CompanionRole::Opponent, "en", &facts());
+    fn everything_turns_around_when_the_player_has_black() {
+        let black = PositionFacts {
+            human_color: Color::Black,
+            ..facts()
+        };
+        let prompt = system_prompt("en", &black);
 
-        assert!(!prompt.contains("Nc6"));
-        assert!(!prompt.contains("pawns from White's side"));
+        assert!(prompt.contains("The player plays Black. The opponent, Stockfish 19, plays White."));
+        assert!(prompt.contains("Last move: Nf3, played by the opponent."));
+        assert!(prompt.contains("the player is ahead by 3"));
+        assert!(prompt.contains("It is the player's turn."));
+        assert!(prompt.contains("The engine's best moves for the player,"));
+        assert!(prompt.contains("- Nc6 (then Bb5): -0.25"));
     }
 
     #[test]
@@ -233,9 +294,8 @@ mod tests {
             lines: Vec::new(),
             ..facts()
         };
-        let prompt = system_prompt(CompanionRole::Coach, "en", &empty);
 
-        assert!(prompt.contains("no measurement"));
+        assert!(system_prompt("en", &empty).contains("no measurement"));
     }
 
     #[test]
@@ -246,22 +306,24 @@ mod tests {
             white_mate_in: Some(-2),
         };
 
-        assert_eq!(score_words(&line), "Black mates in 2");
+        assert_eq!(score_words(&line, Color::White), "the opponent mates in 2");
+        assert_eq!(score_words(&line, Color::Black), "the player mates in 2");
     }
 
     #[test]
-    fn a_finished_game_is_not_given_a_side_to_move() {
+    fn a_finished_game_says_who_won_and_gives_no_turn() {
         let finished = PositionFacts {
             in_check: false,
+            human_color: Color::Black,
             outcome: Some(GameOutcome {
                 result: GameResult::WhiteWins,
                 reason: GameEndReason::Checkmate,
             }),
             ..facts()
         };
-        let prompt = system_prompt(CompanionRole::Commentator, "en", &finished);
+        let prompt = system_prompt("en", &finished);
 
-        assert!(prompt.contains("The game is over: WhiteWins, Checkmate."));
-        assert!(!prompt.contains("to move."));
+        assert!(prompt.contains("The game is over: the player lost, Checkmate."));
+        assert!(!prompt.contains("turn"));
     }
 }

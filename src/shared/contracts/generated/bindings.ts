@@ -64,8 +64,6 @@ export type Color = "white" | "black";
 
 export type ColorChoice = "white" | "black" | "random";
 
-export type CompanionRole = "coach" | "sparring" | "commentator" | "opponent";
-
 /**  The conversation, whole: the frontend renders it and keeps nothing. */
 export type CompanionView = {
 	turns: ChatTurn[],
@@ -165,7 +163,8 @@ export type LlmSettings = {
 	baseUrl: string,
 	/**  `None` until the user picks one: the server's list order means nothing. */
 	model: string | null,
-	role: CompanionRole,
+	/**  The coach speaks up by itself when the player's turn comes. */
+	autoAdvice: boolean,
 	/**  What the model speaks, by text and later by voice. `None` follows the app. */
 	language: string | null,
 };

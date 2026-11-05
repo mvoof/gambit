@@ -83,6 +83,7 @@ pub fn run() {
             commands::llm_models,
             commands::companion_view,
             commands::companion_ask,
+            commands::companion_advise,
             commands::companion_stop,
             commands::list_games,
             commands::load_replay,

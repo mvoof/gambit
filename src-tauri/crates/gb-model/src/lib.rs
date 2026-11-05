@@ -344,16 +344,6 @@ impl Default for BoardSettings {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase")]
-pub enum CompanionRole {
-    Coach,
-    Sparring,
-    Commentator,
-    Opponent,
-}
-
 /// The LLM is optional: off by default, and the game never needs it.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
@@ -363,7 +353,8 @@ pub struct LlmSettings {
     pub base_url: String,
     /// `None` until the user picks one: the server's list order means nothing.
     pub model: Option<String>,
-    pub role: CompanionRole,
+    /// The coach speaks up by itself when the player's turn comes.
+    pub auto_advice: bool,
     /// What the model speaks, by text and later by voice. `None` follows the app.
     pub language: Option<String>,
 }
@@ -374,7 +365,7 @@ impl Default for LlmSettings {
             enabled: false,
             base_url: "http://localhost:1234".to_owned(),
             model: None,
-            role: CompanionRole::Coach,
+            auto_advice: false,
             language: None,
         }
     }

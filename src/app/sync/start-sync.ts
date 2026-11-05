@@ -62,6 +62,22 @@ const syncGameSounds = (stores: RootStores) =>
     }
   );
 
+/** Rust decides whether advice follows; this only says that the moment came. */
+const syncAutoAdvice = (stores: RootStores) =>
+  reaction(
+    () => stores.game.view,
+    (view, previous) => {
+      const isNewMove =
+        view !== null &&
+        previous !== null &&
+        view.moves.length > previous.moves.length;
+
+      if (isNewMove && (view.outcome || view.turn === view.humanColor)) {
+        void stores.companion.advise();
+      }
+    }
+  );
+
 const syncReplaySounds = (stores: RootStores) =>
   reaction(
     () => stores.archive.frameIndex,
@@ -79,5 +95,6 @@ export const startSync = (stores: RootStores) => {
   syncLanguage(stores);
   syncAnalysis(stores);
   syncGameSounds(stores);
+  syncAutoAdvice(stores);
   syncReplaySounds(stores);
 };

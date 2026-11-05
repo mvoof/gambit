@@ -119,7 +119,7 @@
       "volume": "Sound volume: {{volume}}%",
       "evalBar": "Evaluation bar",
       "updates": "Updates",
-      "companion": "AI companion"
+      "companion": "AI coach"
     },
     "llm": {
       "hint": "Optional. Runs through LM Studio on your computer. The game plays fully without it.",
@@ -133,14 +133,8 @@
     },
     "companion": {
       "tabMoves": "Moves",
-      "tabCompanion": "Companion",
-      "role": "Who you talk to",
-      "roles": {
-        "coach": "Coach",
-        "sparring": "Sparring partner",
-        "commentator": "Commentator",
-        "opponent": "Opponent"
-      },
+      "tabCompanion": "Coach",
+      "autoAdvice": "Advise on every move",
       "empty": "Ask about the position on the board. The engine measures it, the model puts that into words.",
       "placeholder": "Ask about the position",
       "send": "Send",

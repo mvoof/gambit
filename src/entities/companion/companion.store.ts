@@ -4,6 +4,7 @@ import {
   askCompanion,
   fetchCompanionView,
   fetchLlmModels,
+  requestAdvice,
   stopCompanion,
 } from '@shared/api/companion.service';
 import { onCompanionUpdated } from '@shared/api/events.service';
@@ -69,6 +70,16 @@ export class CompanionStore {
 
     try {
       await askCompanion(text, ply);
+    } catch (error) {
+      runInAction(() => {
+        this.askError = String(error);
+      });
+    }
+  };
+
+  advise = async () => {
+    try {
+      await requestAdvice();
     } catch (error) {
       runInAction(() => {
         this.askError = String(error);

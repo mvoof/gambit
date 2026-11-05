@@ -1,7 +1,6 @@
 //! The conversation with the local model. Rust keeps it whole and the frontend
 //! renders it. Every position fact comes from the rules code or the engine.
 
-use std::iter::once;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -9,10 +8,10 @@ use std::time::Duration;
 use gb_chess::san_line;
 use gb_engine::{evaluation_of, CandidateLine, EngineError, SearchInfo, UciEngine};
 use gb_llm::{
-    is_model_loaded, sees_engine_lines, stream_chat, system_prompt, unload_model, ChatMessage,
-    ChatRequest, EngineLine, LlmError, LoadedModel, PositionFacts, Speaker,
+    is_model_loaded, stream_chat, system_prompt, unload_model, ChatMessage, ChatRequest,
+    EngineLine, LlmError, LoadedModel, PositionFacts, Speaker, ADVICE_REQUEST,
 };
-use gb_model::{ChatSpeaker, ChatTurn, CompanionRole, CompanionView, LlmSettings};
+use gb_model::{ChatSpeaker, ChatTurn, CompanionView, LlmSettings};
 use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
 use tokio::time::sleep;
@@ -27,6 +26,7 @@ const SILENT_MODEL: &str = "the model gave no answer";
 const PROMPT_TURNS: usize = 12;
 /// What the chat keeps on screen.
 const KEPT_TURNS: usize = 60;
+const TURN_SEPARATOR: &str = "\n\n";
 /// The idle timeout LM Studio gives a model it loads for a request.
 const OWN_MODEL_IDLE: Duration = Duration::from_secs(600);
 const CANDIDATE_LINES: u32 = 3;
@@ -41,6 +41,8 @@ pub struct Question {
     pub settings: LlmSettings,
     pub language: String,
     pub engine_path: Option<PathBuf>,
+    /// The coach speaks by itself: no player turn stands behind this reply.
+    pub is_advice: bool,
 }
 
 /// The engine's process for these measurements: the opponent is limited in
@@ -83,22 +85,34 @@ fn settle(view: &mut CompanionView, error: Option<String>) {
 }
 
 /// The system prompt, then the recent turns, which end with the question.
+/// Advice leaves the coach speaking several times in a row, and some models'
+/// chat templates refuse that, so those turns merge into one.
 fn chat_messages(system: String, turns: &[ChatTurn]) -> Vec<ChatMessage> {
     let recent = turns.len().saturating_sub(PROMPT_TURNS);
-    let history = turns[recent..].iter().map(|turn| ChatMessage {
-        role: match turn.speaker {
-            ChatSpeaker::Player => Speaker::User,
-            ChatSpeaker::Companion => Speaker::Assistant,
-        },
-        content: turn.text.clone(),
-    });
-
-    once(ChatMessage {
+    let mut messages = vec![ChatMessage {
         role: Speaker::System,
         content: system,
-    })
-    .chain(history)
-    .collect()
+    }];
+
+    for turn in &turns[recent..] {
+        let role = match turn.speaker {
+            ChatSpeaker::Player => Speaker::User,
+            ChatSpeaker::Companion => Speaker::Assistant,
+        };
+
+        match messages.last_mut() {
+            Some(last) if last.role == role => {
+                last.content.push_str(TURN_SEPARATOR);
+                last.content.push_str(&turn.text);
+            }
+            _ => messages.push(ChatMessage {
+                role,
+                content: turn.text.clone(),
+            }),
+        }
+    }
+
+    messages
 }
 
 fn engine_line(fen: &str, candidate: &CandidateLine) -> Option<EngineLine> {
@@ -117,10 +131,6 @@ fn engine_line(fen: &str, candidate: &CandidateLine) -> Option<EngineLine> {
         white_centipawns: evaluation.centipawns,
         white_mate_in: evaluation.mate_in,
     })
-}
-
-fn needs_engine(role: CompanionRole, facts: &PositionFacts) -> bool {
-    sees_engine_lines(role) && facts.outcome.is_none()
 }
 
 impl Companion {
@@ -165,6 +175,23 @@ impl Companion {
     }
 
     pub fn ask(self: &Arc<Self>, text: String, question: Question) -> Result<(), String> {
+        self.start(Some(text), question)
+    }
+
+    /// Advice waits for no one: while the coach is busy, it is simply skipped.
+    pub fn advise(self: &Arc<Self>, question: Question) -> Result<(), String> {
+        if lock(&self.view).draft.is_some() {
+            return Ok(());
+        }
+
+        self.start(None, question)
+    }
+
+    fn start(
+        self: &Arc<Self>,
+        player_text: Option<String>,
+        question: Question,
+    ) -> Result<(), String> {
         if question.settings.model.is_none() {
             return Err(NO_MODEL.to_owned());
         }
@@ -178,7 +205,10 @@ impl Companion {
 
             view.error = None;
             view.draft = Some(String::new());
-            add_turn(&mut view, ChatSpeaker::Player, text);
+
+            if let Some(text) = player_text {
+                add_turn(&mut view, ChatSpeaker::Player, text);
+            }
         }
 
         self.cancel_idle_timer();
@@ -303,19 +333,26 @@ impl Companion {
             settings,
             language,
             engine_path,
+            is_advice,
         } = question;
 
-        if let (true, Some(path)) = (needs_engine(settings.role, &facts), engine_path) {
+        if let (None, Some(path)) = (facts.outcome, engine_path) {
             facts.lines = self.measure(&path, &facts.fen).await;
+        }
+
+        let mut messages = chat_messages(system_prompt(&language, &facts), &self.view().turns);
+
+        if is_advice {
+            messages.push(ChatMessage {
+                role: Speaker::User,
+                content: ADVICE_REQUEST.to_owned(),
+            });
         }
 
         let request = ChatRequest {
             base_url: settings.base_url,
             model: settings.model.unwrap_or_default(),
-            messages: chat_messages(
-                system_prompt(settings.role, &language, &facts),
-                &self.view().turns,
-            ),
+            messages,
         };
 
         if is_model_loaded(&request.base_url, &request.model).await == Some(false)
@@ -370,7 +407,6 @@ impl Companion {
 #[cfg(test)]
 mod tests {
     use gb_engine::Score;
-    use gb_model::{Color, GameEndReason, GameOutcome, GameResult};
 
     use super::*;
 
@@ -383,28 +419,35 @@ mod tests {
         }
     }
 
-    fn facts(outcome: Option<GameOutcome>) -> PositionFacts {
-        PositionFacts {
-            fen: START_FEN.to_owned(),
-            turn: Color::White,
-            human_color: Color::White,
-            opponent_name: "Stockfish".to_owned(),
-            moves: Vec::new(),
-            material_diff: 0,
-            in_check: false,
-            outcome,
-            lines: Vec::new(),
-        }
-    }
-
     #[test]
     fn the_prompt_starts_with_the_facts_and_keeps_recent_turns_only() {
-        let turns = vec![turn(ChatSpeaker::Player, "old"); PROMPT_TURNS + 3];
+        let turns: Vec<ChatTurn> = (0..PROMPT_TURNS + 3)
+            .map(|index| {
+                if index % 2 == 0 {
+                    turn(ChatSpeaker::Player, "question")
+                } else {
+                    turn(ChatSpeaker::Companion, "answer")
+                }
+            })
+            .collect();
         let messages = chat_messages("facts".to_owned(), &turns);
 
         assert_eq!(messages.len(), PROMPT_TURNS + 1);
         assert_eq!(messages[0].role, Speaker::System);
-        assert_eq!(messages[1].role, Speaker::User);
+    }
+
+    #[test]
+    fn advice_in_a_row_reaches_the_model_as_one_turn() {
+        let turns = [
+            turn(ChatSpeaker::Companion, "first"),
+            turn(ChatSpeaker::Companion, "second"),
+            turn(ChatSpeaker::Player, "why?"),
+        ];
+        let messages = chat_messages("facts".to_owned(), &turns);
+
+        assert_eq!(messages.len(), 3);
+        assert_eq!(messages[1].content, "first\n\nsecond");
+        assert_eq!(messages[2].role, Speaker::User);
     }
 
     #[test]
@@ -463,17 +506,5 @@ mod tests {
         };
 
         assert_eq!(engine_line(START_FEN, &candidate), None);
-    }
-
-    #[test]
-    fn the_engine_runs_only_when_its_answer_is_used() {
-        let over = Some(GameOutcome {
-            result: GameResult::Draw,
-            reason: GameEndReason::Stalemate,
-        });
-
-        assert!(needs_engine(CompanionRole::Coach, &facts(None)));
-        assert!(!needs_engine(CompanionRole::Opponent, &facts(None)));
-        assert!(!needs_engine(CompanionRole::Coach, &facts(over)));
     }
 }

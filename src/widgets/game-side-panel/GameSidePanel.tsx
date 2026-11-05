@@ -21,7 +21,9 @@ export const GameSidePanel = observer(() => {
   const game = useGameStore();
   const pieceSets = usePiecesStore();
   const { settings } = useSettingsStore();
-  const [tab, setTab] = useState<SideTab>('moves');
+  const [tab, setTab] = useState<SideTab>(
+    settings?.llm.autoAdvice ? 'companion' : 'moves'
+  );
   const { view, browsedPly, browseTo } = game;
 
   if (!view || !settings) {

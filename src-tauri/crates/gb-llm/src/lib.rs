@@ -12,4 +12,4 @@ pub use client::{
     Speaker,
 };
 pub use error::LlmError;
-pub use prompt::{sees_engine_lines, system_prompt, EngineLine, PositionFacts};
+pub use prompt::{system_prompt, EngineLine, PositionFacts, ADVICE_REQUEST};

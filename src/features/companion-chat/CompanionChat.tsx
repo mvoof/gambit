@@ -7,13 +7,10 @@ import { useCompanionStore } from '@entities/companion/companion-context';
 import { ChatLog } from '@entities/companion/ui/ChatLog/ChatLog';
 import { useGameStore } from '@entities/game/game-context';
 import { useSettingsStore } from '@entities/settings/settings-context';
-import type { CompanionRole } from '@shared/contracts/generated/bindings';
 import { Button } from '@shared/ui/Button/Button';
-import { Select } from '@shared/ui/Select/Select';
+import { Toggle } from '@shared/ui/Toggle/Toggle';
 
 import styles from './CompanionChat.module.scss';
-
-const ROLES: CompanionRole[] = ['coach', 'sparring', 'commentator', 'opponent'];
 
 export const CompanionChat = observer(() => {
   const { t } = useTranslation();
@@ -40,15 +37,11 @@ export const CompanionChat = observer(() => {
 
   return (
     <section className={styles.chat}>
-      <Select
-        label={t('companion.role')}
-        value={settings.llm.role}
-        options={ROLES.map((role) => ({
-          value: role,
-          label: t(`companion.roles.${role}`),
-        }))}
-        onChange={(role) => {
-          void settingsStore.updateLlm({ role });
+      <Toggle
+        label={t('companion.autoAdvice')}
+        isChecked={settings.llm.autoAdvice}
+        onChange={(autoAdvice) => {
+          void settingsStore.updateLlm({ autoAdvice });
         }}
       />
       <ChatLog
