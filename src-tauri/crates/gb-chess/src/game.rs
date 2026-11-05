@@ -36,6 +36,7 @@ pub struct GameExtras {
     pub premove: Option<MoveOption>,
     pub clock: Option<ClockView>,
     pub engine_thinking: bool,
+    pub engine_failed: bool,
     pub can_takeback: bool,
 }
 
@@ -236,6 +237,10 @@ impl Game {
         self.find_move(uci).is_ok()
     }
 
+    pub fn premove_options(&self, color: Color) -> Vec<MoveOption> {
+        premove_options(&self.position, chess_color(color))
+    }
+
     pub(crate) fn play_san(&mut self, san: &San) -> Result<MoveRecord, ChessError> {
         let chess_move = san
             .to_move(&self.position)
@@ -337,7 +342,7 @@ impl Game {
         let premove_list = if is_over || human_to_move {
             Vec::new()
         } else {
-            premove_options(&self.position, chess_color(extras.human_color))
+            self.premove_options(extras.human_color)
         };
 
         GameView {
@@ -357,6 +362,7 @@ impl Game {
             material_diff: self.material_diff(),
             clock: extras.clock,
             engine_thinking: extras.engine_thinking,
+            engine_failed: extras.engine_failed,
             can_takeback: extras.can_takeback,
         }
     }
@@ -400,6 +406,7 @@ mod tests {
             premove: None,
             clock: None,
             engine_thinking: false,
+            engine_failed: false,
             can_takeback: false,
         }
     }

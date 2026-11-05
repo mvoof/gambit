@@ -15,6 +15,7 @@ const MS_PER_SECOND: u32 = 1_000;
 const UNKNOWN_RESULT: &str = "*";
 const UNKNOWN_PLAYER: &str = "?";
 const LINE_WIDTH: usize = 80;
+const NO_TIME_CONTROL: &str = "-";
 
 #[derive(Debug, Clone)]
 pub struct PgnHeaders {
@@ -33,7 +34,7 @@ pub fn format_time_control(control: Option<TimeControl>) -> String {
             limit.base_ms / MS_PER_SECOND,
             limit.increment_ms / MS_PER_SECOND
         ),
-        None => "-".to_owned(),
+        None => NO_TIME_CONTROL.to_owned(),
     }
 }
 
@@ -140,6 +141,7 @@ struct ParsedTags {
     black: Option<String>,
     result: Option<String>,
     fen: Option<String>,
+    time_control: Option<String>,
 }
 
 #[derive(Debug, Default)]
@@ -174,6 +176,7 @@ impl Visitor for Collector {
             b"Black" => tags.black = Some(text),
             b"Result" => tags.result = Some(text),
             b"FEN" => tags.fen = Some(text),
+            b"TimeControl" => tags.time_control = Some(text),
             _ => {}
         }
 
@@ -251,6 +254,10 @@ pub fn parse_pgn(pgn: &str) -> Result<ReplayGame, ChessError> {
             .black
             .unwrap_or_else(|| UNKNOWN_PLAYER.to_owned()),
         result,
+        time_control: parsed
+            .tags
+            .time_control
+            .unwrap_or_else(|| NO_TIME_CONTROL.to_owned()),
         moves,
         frames,
     })
@@ -304,6 +311,7 @@ mod tests {
         assert_eq!(replay.frames.last().unwrap().fen, game.fen());
         assert_eq!(replay.result, "1-0");
         assert_eq!(replay.white, "Human");
+        assert_eq!(replay.time_control, "-");
     }
 
     #[test]

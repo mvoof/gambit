@@ -96,5 +96,8 @@ dev = [
     "gb-model/dev",
 ]
 
+[dev-dependencies]
+tempfile.workspace = true
+
 [lints]
 workspace = true

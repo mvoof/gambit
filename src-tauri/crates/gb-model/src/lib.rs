@@ -145,7 +145,7 @@ pub struct ClockView {
     pub white_ms: u32,
     pub black_ms: u32,
     pub running: Option<Color>,
-    /// Milliseconds since the game was created, when this snapshot was taken.
+    /// When this snapshot was taken, in milliseconds on the backend's own clock.
     pub sync_ms: u32,
 }
 
@@ -171,6 +171,8 @@ pub struct GameView {
     pub material_diff: i32,
     pub clock: Option<ClockView>,
     pub engine_thinking: bool,
+    /// The opponent process died or gave no move: the game cannot go on.
+    pub engine_failed: bool,
     pub can_takeback: bool,
 }
 
@@ -274,6 +276,8 @@ pub struct ReplayGame {
     pub white: String,
     pub black: String,
     pub result: String,
+    /// The PGN `TimeControl` value, `-` when there is none.
+    pub time_control: String,
     pub moves: Vec<MoveRecord>,
     /// One more than `moves`: frame 0 is the starting position.
     pub frames: Vec<ReplayFrame>,
@@ -316,7 +320,7 @@ pub struct PieceSetView {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase", default)]
+#[serde(rename_all = "camelCase")]
 pub struct BoardSettings {
     pub light_square: String,
     pub dark_square: String,
@@ -343,7 +347,7 @@ const DEFAULT_SOUND_VOLUME: u32 = 70;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
-#[serde(rename_all = "camelCase", default)]
+#[serde(rename_all = "camelCase")]
 pub struct AppSettings {
     pub language: String,
     pub piece_set: String,
@@ -387,13 +391,5 @@ mod tests {
             json,
             r#"{"whiteMs":1,"blackMs":2,"running":"white","syncMs":3}"#
         );
-    }
-
-    #[test]
-    fn settings_from_an_older_file_keep_their_defaults() {
-        let settings: AppSettings = serde_json::from_str(r#"{"soundVolume":5}"#).unwrap();
-
-        assert_eq!(settings.sound_volume, 5);
-        assert_eq!(settings.piece_set, "cburnett");
     }
 }

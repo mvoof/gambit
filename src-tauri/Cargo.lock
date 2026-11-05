@@ -1289,6 +1289,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tauri-plugin-mcp-bridge",
  "tauri-plugin-opener",
+ "tempfile",
  "tokio",
  "tracing",
  "tracing-subscriber",
