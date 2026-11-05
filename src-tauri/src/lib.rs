@@ -12,7 +12,8 @@ mod session;
 mod settings;
 mod state;
 
-use tauri::Manager;
+use tauri::async_runtime::block_on;
+use tauri::{AppHandle, Manager, RunEvent};
 use tracing_subscriber::EnvFilter;
 
 use crate::state::AppState;
@@ -24,6 +25,15 @@ fn init_logging() {
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(DEFAULT_LOG_FILTER));
 
     tracing_subscriber::fmt().with_env_filter(filter).init();
+}
+
+/// A model the app loaded has no idle timeout: left behind, it would stay.
+fn on_run_event(app: &AppHandle, event: RunEvent) {
+    if let RunEvent::Exit = event {
+        if let Some(state) = app.try_state::<AppState>() {
+            block_on(state.companion.release_model());
+        }
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -39,7 +49,7 @@ pub fn run() {
     #[cfg(feature = "dev")]
     let builder = builder.plugin(tauri_plugin_mcp_bridge::init());
 
-    let result = builder
+    let app = builder
         .setup(|app| {
             #[cfg(feature = "dev")]
             {
@@ -85,9 +95,10 @@ pub fn run() {
             commands::import_piece_folder,
             commands::delete_piece_set,
         ])
-        .run(tauri::generate_context!());
+        .build(tauri::generate_context!());
 
-    if let Err(error) = result {
-        tracing::error!("error while running tauri application: {error}");
+    match app {
+        Ok(app) => app.run(on_run_event),
+        Err(error) => tracing::error!("error while running tauri application: {error}"),
     }
 }

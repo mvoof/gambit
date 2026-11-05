@@ -4,16 +4,18 @@
 use std::iter::once;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use gb_chess::san_line;
 use gb_engine::{evaluation_of, CandidateLine, EngineError, SearchInfo, UciEngine};
 use gb_llm::{
-    is_model_loaded, sees_engine_lines, stream_chat, system_prompt, ChatMessage, ChatRequest,
-    EngineLine, LlmError, PositionFacts, Speaker,
+    is_model_loaded, sees_engine_lines, stream_chat, system_prompt, unload_model, ChatMessage,
+    ChatRequest, EngineLine, LlmError, LoadedModel, PositionFacts, Speaker,
 };
 use gb_model::{ChatSpeaker, ChatTurn, CompanionRole, CompanionView, LlmSettings};
-use tauri::async_runtime::spawn;
+use tauri::async_runtime::{spawn, JoinHandle};
 use tokio::sync::watch;
+use tokio::time::sleep;
 
 use crate::events::EventSink;
 use crate::state::lock;
@@ -25,6 +27,8 @@ const SILENT_MODEL: &str = "the model gave no answer";
 const PROMPT_TURNS: usize = 12;
 /// What the chat keeps on screen.
 const KEPT_TURNS: usize = 60;
+/// The idle timeout LM Studio gives a model it loads for a request.
+const OWN_MODEL_IDLE: Duration = Duration::from_secs(600);
 const CANDIDATE_LINES: u32 = 3;
 const CANDIDATE_THINK_MS: u32 = 700;
 const LINE_PLIES: usize = 5;
@@ -51,6 +55,9 @@ pub struct Companion {
     /// Bumped by stop and reset: what the old reply still sends is dropped.
     generation: watch::Sender<u64>,
     measurer: tokio::sync::Mutex<Option<Measurer>>,
+    /// Only a model this app loaded: the user's own are not ours to unload.
+    own_model: Mutex<Option<LoadedModel>>,
+    idle_timer: Mutex<Option<JoinHandle<()>>>,
     sink: Arc<dyn EventSink>,
 }
 
@@ -124,6 +131,8 @@ impl Companion {
             view: Mutex::new(CompanionView::default()),
             generation,
             measurer: tokio::sync::Mutex::new(None),
+            own_model: Mutex::new(None),
+            idle_timer: Mutex::new(None),
             sink,
         })
     }
@@ -172,6 +181,7 @@ impl Companion {
             add_turn(&mut view, ChatSpeaker::Player, text);
         }
 
+        self.cancel_idle_timer();
         self.sink.companion_updated(&self.view());
 
         let companion = Arc::clone(self);
@@ -181,9 +191,57 @@ impl Companion {
             let result = companion.reply(generation, question).await;
 
             companion.finish(generation, result);
+            companion.start_idle_timer();
         });
 
         Ok(())
+    }
+
+    fn cancel_idle_timer(&self) {
+        if let Some(timer) = lock(&self.idle_timer).take() {
+            timer.abort();
+        }
+    }
+
+    /// A later question cancels this; while one is answered it must not start.
+    fn start_idle_timer(self: &Arc<Self>) {
+        if lock(&self.own_model).is_none() || lock(&self.view).draft.is_some() {
+            return;
+        }
+
+        let companion = Arc::clone(self);
+
+        self.cancel_idle_timer();
+        *lock(&self.idle_timer) = Some(spawn(async move {
+            sleep(OWN_MODEL_IDLE).await;
+            companion.unload_own_model().await;
+        }));
+    }
+
+    async fn unload_own_model(&self) {
+        let own_model = lock(&self.own_model).take();
+
+        if let Some(model) = own_model {
+            if let Err(error) = unload_model(&model).await {
+                tracing::warn!("cannot unload the model: {error}");
+            }
+        }
+    }
+
+    /// For the app closing, or the connection being switched off.
+    pub async fn release_model(&self) {
+        self.cancel_idle_timer();
+        self.unload_own_model().await;
+    }
+
+    /// The connection was switched off: nothing may stay running or in memory.
+    pub fn switch_off(self: &Arc<Self>) {
+        let companion = Arc::clone(self);
+
+        self.stop();
+        spawn(async move {
+            companion.release_model().await;
+        });
     }
 
     /// The reply stops; what it has said so far stays.
@@ -272,7 +330,9 @@ impl Companion {
             let _ = watcher.wait_for(|current| *current != generation).await;
         };
 
-        stream_chat(&request, cancel, |piece| {
+        let remember_model = |model| *lock(&self.own_model) = Some(model);
+
+        stream_chat(&request, cancel, remember_model, |piece| {
             if !self.is_stale(generation) {
                 self.change(|view| {
                     view.loading_model = false;

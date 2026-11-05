@@ -180,10 +180,13 @@ What LM Studio taught us:
   a long time, which looks like a dead connection, and the facts are already
   measured.
 - A model LM Studio loads for a request has its idle TTL, while `POST
-  /api/v1/models/load` takes no TTL and pins the model in memory. So a chat goes
-  out first, and only a refusal for a model that is not in memory loads it
-  explicitly and asks once more. This path is tested against a fake server only:
-  on the real one just-in-time loading was on.
+  /api/v1/models/load` takes no TTL. So a chat goes out first, and only a refusal
+  for a model that is not in memory loads it explicitly and asks once more. The
+  app then owns that model: `POST /api/v1/models/unload` takes it out after ten
+  idle minutes, when the connection is switched off and when the app closes.
+  Models it did not load are never unloaded. This path is tested against a fake
+  server, with the load and unload routes checked by hand on the real one: there
+  just-in-time loading was on.
 - `/v1/models` may list only what is in memory, so the model list comes from
   `/api/v1/models`, with `/v1/models` as the fallback for other servers.
 - The server binds IPv4 only; `localhost` still works through the fallback.

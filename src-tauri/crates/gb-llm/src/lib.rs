@@ -7,6 +7,9 @@ mod prompt;
 mod sse;
 mod think;
 
-pub use client::{chat_models, is_model_loaded, stream_chat, ChatMessage, ChatRequest, Speaker};
+pub use client::{
+    chat_models, is_model_loaded, stream_chat, unload_model, ChatMessage, ChatRequest, LoadedModel,
+    Speaker,
+};
 pub use error::LlmError;
 pub use prompt::{sees_engine_lines, system_prompt, EngineLine, PositionFacts};

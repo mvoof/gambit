@@ -18,11 +18,14 @@ use crate::think::ThinkFilter;
 const API_SUFFIX: &str = "/v1";
 const NATIVE_MODELS_PATH: &str = "/api/v1/models";
 const NATIVE_LOAD_PATH: &str = "/api/v1/models/load";
+const NATIVE_UNLOAD_PATH: &str = "/api/v1/models/unload";
 const LLM_TYPE: &str = "llm";
 const JSON_TYPE: &str = "application/json";
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(3);
 const LIST_TIMEOUT: Duration = Duration::from_secs(5);
 const LOAD_TIMEOUT: Duration = Duration::from_secs(300);
+/// Short: the app may be closing while it waits for this.
+const UNLOAD_TIMEOUT: Duration = Duration::from_secs(3);
 /// Long: LM Studio may be loading the model before its first word.
 const SILENCE_TIMEOUT: Duration = Duration::from_secs(180);
 /// Embedding models are listed too, and they cannot chat.
@@ -93,6 +96,23 @@ struct LoadBody<'request> {
     model: &'request str,
 }
 
+#[derive(Deserialize)]
+struct LoadReply {
+    instance_id: String,
+}
+
+#[derive(Serialize)]
+struct UnloadBody<'request> {
+    instance_id: &'request str,
+}
+
+/// A model this app put in memory, and so has to take out again.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LoadedModel {
+    pub base_url: String,
+    pub instance_id: String,
+}
+
 fn server_root(base_url: &str) -> &str {
     let base = base_url.trim().trim_end_matches('/');
 
@@ -156,14 +176,44 @@ pub async fn is_model_loaded(base_url: &str, model: &str) -> Option<bool> {
         .map(|entry| !entry.loaded_instances.is_empty())
 }
 
-/// A last resort: a model loaded this way stays in memory until someone unloads
-/// it, while one LM Studio loads for a request goes away when idle.
-async fn load_model(base_url: &str, model: &str) -> Result<(), LlmError> {
+/// A last resort: a model loaded this way has no idle timeout, unlike one
+/// LM Studio loads for a request, so the caller owns unloading it.
+async fn load_model(base_url: &str, model: &str) -> Result<LoadedModel, LlmError> {
     let body = serde_json::to_vec(&LoadBody { model }).map_err(malformed)?;
     let response = http_client()?
         .post(format!("{}{NATIVE_LOAD_PATH}", server_root(base_url)))
         .header(CONTENT_TYPE, JSON_TYPE)
         .timeout(LOAD_TIMEOUT)
+        .body(body)
+        .send()
+        .await
+        .map_err(unreachable)?;
+
+    let text = check_status(response)
+        .await?
+        .text()
+        .await
+        .map_err(unreachable)?;
+    let reply: LoadReply = serde_json::from_str(&text).map_err(malformed)?;
+
+    Ok(LoadedModel {
+        base_url: base_url.to_owned(),
+        instance_id: reply.instance_id,
+    })
+}
+
+pub async fn unload_model(loaded: &LoadedModel) -> Result<(), LlmError> {
+    let body = serde_json::to_vec(&UnloadBody {
+        instance_id: &loaded.instance_id,
+    })
+    .map_err(malformed)?;
+    let response = http_client()?
+        .post(format!(
+            "{}{NATIVE_UNLOAD_PATH}",
+            server_root(&loaded.base_url)
+        ))
+        .header(CONTENT_TYPE, JSON_TYPE)
+        .timeout(UNLOAD_TIMEOUT)
         .body(body)
         .send()
         .await
@@ -227,7 +277,10 @@ async fn open_stream(request: &ChatRequest) -> Result<Response, LlmError> {
 
 /// LM Studio loads a missing model by itself unless that is switched off, so a
 /// refusal is the sign to load it here and ask once more.
-async fn open_stream_loading(request: &ChatRequest) -> Result<Response, LlmError> {
+async fn open_stream_loading(
+    request: &ChatRequest,
+    on_load: &mut impl FnMut(LoadedModel),
+) -> Result<Response, LlmError> {
     let refused = match open_stream(request).await {
         Err(error @ LlmError::Rejected(_)) => error,
         other => return other,
@@ -237,7 +290,7 @@ async fn open_stream_loading(request: &ChatRequest) -> Result<Response, LlmError
         return Err(refused);
     }
 
-    load_model(&request.base_url, &request.model).await?;
+    on_load(load_model(&request.base_url, &request.model).await?);
     open_stream(request).await
 }
 
@@ -275,14 +328,16 @@ async fn read_stream(response: Response, on_text: &mut impl FnMut(&str)) -> Resu
 }
 
 /// Streams a reply into `on_text`. When `cancel` resolves the connection is
-/// dropped, which is what stops LM Studio from generating.
+/// dropped, which is what stops LM Studio from generating. `on_load` hears of a
+/// model that had to be loaded explicitly, which then is the caller's to unload.
 pub async fn stream_chat(
     request: &ChatRequest,
     cancel: impl Future<Output = ()>,
+    mut on_load: impl FnMut(LoadedModel),
     mut on_text: impl FnMut(&str),
 ) -> Result<(), LlmError> {
     let work = async {
-        let response = open_stream_loading(request).await?;
+        let response = open_stream_loading(request, &mut on_load).await?;
 
         read_stream(response, &mut on_text).await
     };
@@ -418,6 +473,12 @@ mod tests {
             if line.contains("/models/load") {
                 state.store(true, Ordering::SeqCst);
 
+                return http_reply("200 OK", r#"{"instance_id":"test-model"}"#);
+            }
+
+            if line.contains("/models/unload") {
+                state.store(false, Ordering::SeqCst);
+
                 return http_reply("200 OK", "{}");
             }
 
@@ -444,13 +505,27 @@ mod tests {
         assert_eq!(is_model_loaded(&address, "test-model").await, Some(false));
 
         let mut text = String::new();
+        let mut loaded = None;
 
-        stream_chat(&request(address), pending(), |piece| text.push_str(piece))
-            .await
-            .unwrap();
+        stream_chat(
+            &request(address),
+            pending(),
+            |model| loaded = Some(model),
+            |piece| text.push_str(piece),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(text, "Ready");
         assert!(is_loaded.load(Ordering::SeqCst));
+
+        let loaded = loaded.unwrap();
+
+        assert_eq!(loaded.instance_id, "test-model");
+
+        unload_model(&loaded).await.unwrap();
+
+        assert!(!is_loaded.load(Ordering::SeqCst));
     }
 
     #[tokio::test]
@@ -463,11 +538,19 @@ mod tests {
         let (address, server) = serve_once(http_reply("200 OK", body)).await;
         let mut text = String::new();
 
-        stream_chat(&request(address), pending(), |piece| text.push_str(piece))
-            .await
-            .unwrap();
+        let mut loaded = None;
+
+        stream_chat(
+            &request(address),
+            pending(),
+            |model| loaded = Some(model),
+            |piece| text.push_str(piece),
+        )
+        .await
+        .unwrap();
 
         assert_eq!(text, "Конь");
+        assert_eq!(loaded, None);
 
         let sent = server.await.unwrap();
 
@@ -481,7 +564,7 @@ mod tests {
     async fn a_refusal_carries_the_servers_words() {
         let reply = http_reply("400 Bad Request", "no model loaded");
         let (address, _) = serve_once(reply).await;
-        let result = stream_chat(&request(address), pending(), |_| {}).await;
+        let result = stream_chat(&request(address), pending(), |_| {}, |_| {}).await;
 
         assert!(matches!(
             result,
@@ -501,6 +584,8 @@ mod tests {
 
         trigger.send(()).unwrap();
 
-        assert!(stream_chat(&request(address), cancel, |_| {}).await.is_ok());
+        assert!(stream_chat(&request(address), cancel, |_| {}, |_| {})
+            .await
+            .is_ok());
     }
 }

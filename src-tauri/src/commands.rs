@@ -38,6 +38,10 @@ pub fn save_app_settings(state: State<'_, AppState>, settings: AppSettings) -> R
     save_settings(&state.settings_path, &normal).map_err(to_message)?;
     lock(&state.settings).clone_from(&normal);
 
+    if !normal.llm.enabled {
+        state.companion.switch_off();
+    }
+
     Ok(normal)
 }
 
