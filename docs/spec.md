@@ -162,6 +162,10 @@ The dev build (`tauri.dev.conf.json`) has its own identifier, so its data never
 mixes with a release install, and `withGlobalTauri`, which the MCP Bridge needs.
 `npm run contract` regenerates the TypeScript contract.
 
+Updates go through `tauri-plugin-updater` and GitHub Releases: checked at
+startup, offered in the header and in settings, installed only on request. The
+signing public key still has to be put into `plugins.updater.pubkey`.
+
 Next, in order:
 
 1. Stage 2: `gb-llm` over the LM Studio API, streaming chat, the roles below.

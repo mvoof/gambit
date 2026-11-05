@@ -7,6 +7,7 @@ import { GameStoreContext } from '@entities/game/game-context';
 import { NavigationStoreContext } from '@entities/navigation/navigation-context';
 import { PiecesStoreContext } from '@entities/pieces/pieces-context';
 import { SettingsStoreContext } from '@entities/settings/settings-context';
+import { UpdateStoreContext } from '@entities/update/update-context';
 
 import type { RootStores } from './root-stores';
 
@@ -23,7 +24,9 @@ export const StoreProviders = ({ stores, children }: StoreProvidersProps) => (
           <GameStoreContext.Provider value={stores.game}>
             <EvaluationStoreContext.Provider value={stores.evaluation}>
               <ArchiveStoreContext.Provider value={stores.archive}>
-                {children}
+                <UpdateStoreContext.Provider value={stores.update}>
+                  {children}
+                </UpdateStoreContext.Provider>
               </ArchiveStoreContext.Provider>
             </EvaluationStoreContext.Provider>
           </GameStoreContext.Provider>

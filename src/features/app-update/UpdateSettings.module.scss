@@ -1,0 +1,16 @@
+.settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: sp('md');
+}
+
+.status {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.error {
+  font-size: fs('xs');
+  color: $danger;
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { UpdateSettings } from '@features/app-update/UpdateSettings';
 import { BoardCustomise } from '@features/board-customise/BoardCustomise';
 import { EngineSetup } from '@features/engine-setup/EngineSetup';
 import { GeneralSettings } from '@features/general-settings/GeneralSettings';
@@ -30,6 +31,10 @@ export const SettingsPage = () => {
         <h2 className={styles.heading}>{t('settings.pieces')}</h2>
         <PieceSetPicker />
         <PieceImport />
+      </section>
+      <section className={styles.section}>
+        <h2 className={styles.heading}>{t('settings.updates')}</h2>
+        <UpdateSettings />
       </section>
     </main>
   );

@@ -11,4 +11,7 @@ export const startApp = async (stores: RootStores) => {
     stores.game.start(),
     stores.evaluation.start(),
   ]);
+
+  // Not awaited: a slow network must not hold the app back.
+  void stores.update.checkQuietly();
 };

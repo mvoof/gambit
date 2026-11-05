@@ -1,0 +1,12 @@
+.notice {
+  display: flex;
+  align-items: center;
+  gap: sp('md');
+  font-size: fs('xs');
+  color: $accent-strong;
+
+  button {
+    padding: sp('xxs') sp('md');
+    font-size: fs('xs');
+  }
+}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import brandMark from '@assets/brand/gambit-mark.png';
 import { useNavigationStore } from '@entities/navigation/navigation-context';
 import type { AppPage } from '@entities/navigation/navigation.store';
+import { UpdateNotice } from '@features/app-update/UpdateNotice';
 
 import { WindowControls } from './WindowControls';
 import styles from './AppHeader.module.scss';
@@ -26,6 +27,7 @@ export const AppHeader = observer(() => {
       <span className={styles.brand} data-tauri-drag-region>
         {t('app.title')}
       </span>
+      <UpdateNotice />
       <nav className={styles.nav}>
         {PAGES.map((page) => (
           <button
