@@ -25,6 +25,7 @@ jobs:
       matrix:
         platform: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
+    environment: pr-review
     steps:
       - uses: actions/checkout@v5
 
