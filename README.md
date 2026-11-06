@@ -6,8 +6,6 @@
 
 <p align="center">
   <a href="https://github.com/mvoof/gambit/releases"><img src="https://img.shields.io/github/package-json/v/mvoof/gambit?label=version" alt="Version"></a>
-  <a href="https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml/badge.svg?event=pull_request" alt="Quality"></a>
-  <a href="https://github.com/mvoof/gambit/actions/workflows/pr-build.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/pr-build.yml/badge.svg?event=pull_request" alt="Build"></a>
   <a href="https://github.com/mvoof/gambit/actions/workflows/release.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/release.yml/badge.svg?event=push" alt="Release"></a>
   <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-informational" alt="Platforms: Windows and Linux">
   <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&amp;logoColor=white" alt="Tauri 2">
