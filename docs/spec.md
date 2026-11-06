@@ -175,8 +175,7 @@ mixes with a release install, and `withGlobalTauri`, which the MCP Bridge needs.
 `npm run contract` regenerates the TypeScript contract.
 
 Updates go through `tauri-plugin-updater` and GitHub Releases: checked at
-startup, offered in the header and in settings, installed only on request. The
-signing public key still has to be put into `plugins.updater.pubkey`.
+startup, offered in the header and in settings, installed only on request.
 
 The language model and the voice plans were dropped. `shared/ui/Chat` stays, unused,
 for games against a friend. `UciEngine::candidates` (`MultiPV`) and `san_line` stay
