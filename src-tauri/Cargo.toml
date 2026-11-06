@@ -1,6 +1,6 @@
 [package]
 name = "gambit"
-version = "0.1.0"
+version = "1.0.0"
 description = "Gambit - chess against a real engine, and training"
 authors = ["mvoof"]
 license = "GPL-3.0-or-later"

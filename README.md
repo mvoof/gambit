@@ -4,7 +4,18 @@
 
 # Gambit
 
-Chess against a real engine, and training to get better. See `docs/spec.md`.
+[![Version](https://img.shields.io/github/package-json/v/mvoof/gambit?label=version)](https://github.com/mvoof/gambit/releases)
+[![Quality](https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml/badge.svg?event=pull_request)](https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml)
+[![Build](https://github.com/mvoof/gambit/actions/workflows/pr-build.yml/badge.svg?event=pull_request)](https://github.com/mvoof/gambit/actions/workflows/pr-build.yml)
+[![Release](https://github.com/mvoof/gambit/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/mvoof/gambit/actions/workflows/release.yml)
+![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-informational)
+![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
+![Engines](https://img.shields.io/badge/engines-UCI-informational)
+[![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/mvoof/gambit/total)](https://github.com/mvoof/gambit/releases)
+
+Chess against a real engine, and training to get better. See `docs/spec.md`, and
+`CHANGELOG.md` for what changed.
 
 ![Home screen: new game, recent games and statistics](docs/screenshots/home.png)
 
@@ -16,7 +27,7 @@ Chess against a real engine, and training to get better. See `docs/spec.md`.
 | ------------------------------------- | --------------------------------------------------------- |
 | `npm run tauri:dev`                   | Run the desktop app in dev mode (Vite + Rust, hot reload) |
 | `npm run dev`                         | Vite only — the web part, without the Tauri shell         |
-| `npm run tauri:build:dev`             | Unsigned dev build (`nsis`), for sharing a preview        |
+| `npm run tauri:build:dev`             | Unsigned dev build (`nsis`, `deb`), for sharing a preview |
 | `npm run tauri:build:release`         | Release build with all bundle targets                     |
 | `npm run lint` / `lint:fix`           | oxlint, type-aware                                        |
 | `npm run format` / `format:check`     | oxfmt                                                     |
