@@ -6,6 +6,10 @@
 
 Chess against a real engine, and training to get better. See `docs/spec.md`.
 
+![Home screen: new game, recent games and statistics](docs/screenshots/home.png)
+
+![A game against Stockfish with the move list](docs/screenshots/game.png)
+
 ## Scripts
 
 | Command                               | What it does                                              |
