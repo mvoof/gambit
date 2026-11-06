@@ -6,7 +6,9 @@ import { useSettingsStore } from '@entities/settings/settings-context';
 import { Button } from '@shared/ui/Button/Button';
 
 import { EngineLinks } from './EngineLinks';
+import { EngineRow } from './EngineRow/EngineRow';
 import styles from './EngineSetup.module.scss';
+import { useEngineLinks } from './use-engine-links';
 
 const PERCENT = 100;
 
@@ -14,11 +16,23 @@ export const EngineSetup = observer(() => {
   const { t } = useTranslation();
   const engineStore = useEngineStore();
   const settingsStore = useSettingsStore();
-  const { engine, isInstalling, progress, error } = engineStore;
+  const { openLink } = useEngineLinks();
+  const { catalog, engine, installingId, isInstalling, progress, error } =
+    engineStore;
 
   const percentDone = progress
     ? Math.round((progress.downloadedBytes / progress.totalBytes) * PERCENT)
     : 0;
+
+  const installEngine = async (id: string) => {
+    await engineStore.install(id);
+    await settingsStore.reload();
+  };
+
+  const activateEngine = async (path: string) => {
+    await engineStore.activate(path);
+    await settingsStore.reload();
+  };
 
   const pickEngine = async () => {
     if (await engineStore.pickOwnEngine()) {
@@ -28,26 +42,44 @@ export const EngineSetup = observer(() => {
 
   return (
     <div className={styles.setup}>
-      <p className={styles.current}>
-        {engine ? t('engine.current', { name: engine.name }) : t('engine.none')}
-      </p>
+      <div>
+        <p className={styles.current}>
+          {engine
+            ? t('engine.current', { name: engine.name })
+            : t('engine.none')}
+        </p>
+        {engine ? (
+          <p className={styles.strength}>
+            {engine.eloRange
+              ? t('engine.strengthElo', engine.eloRange)
+              : t('engine.strengthDepth')}
+          </p>
+        ) : null}
+      </div>
+      <ul className={styles.catalog}>
+        {catalog.map((entry) => (
+          <EngineRow
+            key={entry.id}
+            entry={entry}
+            isActive={entry.path !== null && entry.path === engine?.path}
+            isBusy={isInstalling}
+            installLabel={
+              installingId === entry.id && progress
+                ? t(`engine.stage.${progress.stage}`, { percent: percentDone })
+                : null
+            }
+            onInstall={installEngine}
+            onActivate={activateEngine}
+            onRemove={engineStore.remove}
+            onOpenHomepage={openLink}
+          />
+        ))}
+      </ul>
       <div className={styles.actions}>
-        <Button
-          variant={engine ? 'secondary' : 'primary'}
-          disabled={isInstalling}
-          onClick={engineStore.download}
-        >
-          {t('engine.download')}
-        </Button>
         <Button disabled={isInstalling} onClick={pickEngine}>
           {t('engine.pick')}
         </Button>
       </div>
-      {isInstalling && progress ? (
-        <p className={styles.progress}>
-          {t(`engine.stage.${progress.stage}`, { percent: percentDone })}
-        </p>
-      ) : null}
       {error ? <p className={styles.error}>{error}</p> : null}
       <EngineLinks />
     </div>

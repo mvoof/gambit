@@ -63,6 +63,18 @@ export type CapturedPieces = {
 	black: PieceKind[],
 };
 
+/**  An engine the app can install on this machine. */
+export type CatalogEntry = {
+	id: string,
+	name: string,
+	version: string,
+	licence: string,
+	homepage: string,
+	sizeBytes: number,
+	/**  `None` until it is installed. */
+	path: string | null,
+};
+
 /**
  *  Rust owns the clock. The frontend counts `running` down from the moment
  *  `sync_ms` changes, for display only.

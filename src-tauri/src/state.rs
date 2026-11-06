@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use gb_archive::Archive;
 use gb_chess::parse_pgn;
-use gb_engine::stockfish_path;
+use gb_engine::first_installed;
 use gb_model::AppSettings;
 use gb_pieces::PieceLibrary;
 use tauri::{AppHandle, Manager};
@@ -43,13 +43,13 @@ pub fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
     mutex.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
-/// The engine in use: the user's own, or the installed Stockfish.
+/// The engine in use: the one chosen, or the first one installed.
 pub fn resolve_engine(settings: &AppSettings, engines_dir: &Path) -> Option<PathBuf> {
     settings
         .engine_path
         .as_ref()
         .map(PathBuf::from)
-        .or_else(|| stockfish_path(engines_dir))
+        .or_else(|| first_installed(engines_dir))
 }
 
 /// Games saved before the thumbnails get their last position, once.

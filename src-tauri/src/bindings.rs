@@ -3,8 +3,8 @@
 use std::path::PathBuf;
 
 use gb_model::{
-    AppSettings, ArchiveStats, EngineInfo, EngineInstallProgress, Evaluation, GameReview,
-    GameSummary, GameView, NewGameOptions, PieceSetView, ReplayGame, SheetColumnOrder,
+    AppSettings, ArchiveStats, CatalogEntry, EngineInfo, EngineInstallProgress, Evaluation,
+    GameReview, GameSummary, GameView, NewGameOptions, PieceSetView, ReplayGame, SheetColumnOrder,
     EVENT_ENGINE_INSTALL, EVENT_EVALUATION, EVENT_GAME_REVIEW, EVENT_GAME_UPDATED,
 };
 use specta::Types;
@@ -18,6 +18,7 @@ fn collect_types() -> Types {
         .register::<AppSettings>()
         .register::<ArchiveStats>()
         .register::<EngineInfo>()
+        .register::<CatalogEntry>()
         .register::<EngineInstallProgress>()
         .register::<Evaluation>()
         .register::<GameReview>()

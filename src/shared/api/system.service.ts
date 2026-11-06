@@ -4,9 +4,12 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 const singlePath = (selection: string | string[] | null) =>
   typeof selection === 'string' ? selection : null;
 
-export const pickFile = async (extensions: string[]) =>
+export const pickFile = async (extensions?: string[]) =>
   singlePath(
-    await open({ multiple: false, filters: [{ name: '', extensions }] })
+    await open({
+      multiple: false,
+      filters: extensions ? [{ name: '', extensions }] : undefined,
+    })
   );
 
 export const pickFolder = async () =>

@@ -6,10 +6,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 use gb_archive::NewGame;
 use gb_chess::parse_pgn;
-use gb_engine::{install_stockfish, probe_engine};
+use gb_engine::{
+    catalog_entries, install_engine as install, installed_engine_path, probe_engine,
+    remove_engine as remove,
+};
 use gb_model::{
-    AppSettings, ArchiveStats, EngineInfo, GameSummary, GameView, NewGameOptions, PieceImages,
-    PieceSetView, ReplayFrame, ReplayGame, SheetColumnOrder,
+    AppSettings, ArchiveStats, CatalogEntry, EngineInfo, GameSummary, GameView, NewGameOptions,
+    PieceImages, PieceSetView, ReplayFrame, ReplayGame, SheetColumnOrder,
 };
 use gb_pieces::preview_sheet;
 use tauri::State;
@@ -20,6 +23,7 @@ use crate::settings::{normalise, reset, save_settings};
 use crate::state::{lock, to_message, AppState};
 
 const NO_ENGINE: &str = "no engine installed";
+const ENGINE_IN_USE: &str = "the engine in use cannot be removed";
 
 type Reply<T> = Result<T, String>;
 
@@ -58,30 +62,55 @@ pub async fn engine_status(state: State<'_, AppState>) -> Reply<Option<EngineInf
 }
 
 #[tauri::command]
-pub async fn download_stockfish(state: State<'_, AppState>) -> Reply<EngineInfo> {
-    let sink = state.sink.clone();
-    let path = install_stockfish(&state.engines_dir, |progress| {
-        sink.install_progress(progress);
-    })
-    .await
-    .map_err(to_message)?;
-
-    probe_engine(&path).await.map_err(to_message)
+pub fn engine_catalog(state: State<'_, AppState>) -> Vec<CatalogEntry> {
+    catalog_entries(&state.engines_dir)
 }
 
-#[tauri::command]
-pub async fn choose_engine(state: State<'_, AppState>, path: String) -> Reply<EngineInfo> {
-    let info = probe_engine(Path::new(&path)).await.map_err(to_message)?;
+/// Probes first: an engine that does not answer never becomes the one in use.
+async fn activate(state: &AppState, path: &Path) -> Reply<EngineInfo> {
+    let info = probe_engine(path).await.map_err(to_message)?;
     let settings = {
         let mut settings = lock(&state.settings);
 
-        settings.engine_path = Some(path);
+        settings.engine_path = Some(path.to_string_lossy().into_owned());
         settings.clone()
     };
 
     save_settings(&state.settings_path, &settings).map_err(to_message)?;
 
     Ok(info)
+}
+
+#[tauri::command]
+pub async fn install_engine(state: State<'_, AppState>, id: String) -> Reply<EngineInfo> {
+    let sink = state.sink.clone();
+    let path = install(&state.engines_dir, &id, |progress| {
+        sink.install_progress(progress);
+    })
+    .await
+    .map_err(to_message)?;
+
+    activate(&state, &path).await
+}
+
+fn is_in_use(in_use: Option<&Path>, installed: Option<&Path>) -> bool {
+    in_use.is_some() && in_use == installed
+}
+
+#[tauri::command]
+pub fn remove_engine(state: State<'_, AppState>, id: String) -> Reply<()> {
+    let installed = installed_engine_path(&state.engines_dir, &id);
+
+    if is_in_use(state.engine_path().as_deref(), installed.as_deref()) {
+        return Err(ENGINE_IN_USE.to_owned());
+    }
+
+    remove(&state.engines_dir, &id).map_err(to_message)
+}
+
+#[tauri::command]
+pub async fn choose_engine(state: State<'_, AppState>, path: String) -> Reply<EngineInfo> {
+    activate(&state, Path::new(&path)).await
 }
 
 #[tauri::command]
@@ -323,6 +352,16 @@ mod tests {
             parse_pgn(&archive.pgn(id).unwrap()).unwrap().frames.len(),
             4
         );
+    }
+
+    #[test]
+    fn only_the_engine_in_use_is_protected() {
+        let active = PathBuf::from("engines/reckless/reckless");
+        let other = PathBuf::from("engines/caissa/caissa");
+
+        assert!(is_in_use(Some(&active), Some(&active)));
+        assert!(!is_in_use(Some(&active), Some(&other)));
+        assert!(!is_in_use(None, None));
     }
 
     #[test]

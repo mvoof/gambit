@@ -12,6 +12,8 @@ pub enum EngineError {
     /// The download is not the file the spec pins.
     Corrupt(String),
     Archive(String),
+    /// Not in the catalogue, or no build for this machine.
+    Unavailable(String),
 }
 
 impl fmt::Display for EngineError {
@@ -24,6 +26,7 @@ impl fmt::Display for EngineError {
             Self::Download(detail) => write!(formatter, "download failed: {detail}"),
             Self::Corrupt(detail) => write!(formatter, "corrupt download: {detail}"),
             Self::Archive(detail) => write!(formatter, "cannot unpack the engine: {detail}"),
+            Self::Unavailable(id) => write!(formatter, "no build of {id} for this machine"),
         }
     }
 }
