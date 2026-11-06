@@ -1,0 +1,65 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: sp('md');
+  padding: sp('sm') sp('md');
+  border: 1px solid transparent;
+  border-radius: radius('md');
+}
+
+.active {
+  border-color: $accent;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xs');
+  min-width: 0;
+}
+
+.name {
+  font-size: fs('sm');
+  color: $text-primary;
+}
+
+.version {
+  color: $text-muted;
+}
+
+.details {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.link {
+  padding: 0;
+  font-size: fs('xs');
+  color: $accent;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    color: $accent-strong;
+    text-decoration: underline;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: sp('sm');
+}
+
+.progress {
+  font-size: fs('xs');
+  color: $accent-strong;
+}
+
+.inUse {
+  font-size: fs('xs');
+  color: $accent;
+}

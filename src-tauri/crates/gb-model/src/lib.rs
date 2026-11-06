@@ -291,6 +291,21 @@ pub struct EngineInfo {
     pub elo_range: Option<EloRange>,
 }
 
+/// An engine the app can install on this machine.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "dev", derive(specta::Type))]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogEntry {
+    pub id: String,
+    pub name: String,
+    pub version: String,
+    pub licence: String,
+    pub homepage: String,
+    pub size_bytes: u32,
+    /// `None` until it is installed.
+    pub path: Option<String>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "dev", derive(specta::Type))]
 #[serde(rename_all = "camelCase")]

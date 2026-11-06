@@ -1,6 +1,6 @@
 [package]
 name = "gb-engine"
-description = "Drives a UCI engine process and installs Stockfish."
+description = "Drives a UCI engine process and installs engines from a pinned catalogue."
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -15,6 +15,8 @@ reqwest.workspace = true
 futures-util.workspace = true
 sha2.workspace = true
 zip.workspace = true
+tar.workspace = true
+flate2.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

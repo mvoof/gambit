@@ -4,7 +4,7 @@
     "withGlobalTauri": true
   },
   "bundle": {
-    "targets": ["nsis"],
+    "targets": ["nsis", "deb"],
     "createUpdaterArtifacts": false
   }
 }

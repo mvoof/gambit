@@ -9,6 +9,20 @@
   color: $text-secondary;
 }
 
+.strength {
+  font-size: fs('xs');
+  color: $text-muted;
+}
+
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: sp('xs');
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

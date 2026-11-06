@@ -49,12 +49,12 @@ Chess against a real engine, and training to get better. See `docs/spec.md`.
 
 **CI (GitHub Actions)**
 
-| Workflow                                        | Trigger          | Does                                                           |
-| ----------------------------------------------- | ---------------- | -------------------------------------------------------------- |
-| `pr-quality-check.yml` → `reusable-quality.yml` | PR to `main`     | lint, format check, typecheck, Vitest, `cargo fmt/clippy/test` |
-| `pr-build.yml`                                  | PR to `main`     | builds the Windows bundle, uploads it as an artifact           |
-| `artifact-comment.yml`                          | after a PR build | comments the download links on the PR                          |
-| `release.yml`                                   | tag `v*`         | builds, signs and drafts a GitHub release                      |
+| Workflow                                        | Trigger          | Does                                                            |
+| ----------------------------------------------- | ---------------- | --------------------------------------------------------------- |
+| `pr-quality-check.yml` → `reusable-quality.yml` | PR to `main`     | lint, format check, typecheck, Vitest, `cargo fmt/clippy/test`  |
+| `pr-build.yml`                                  | PR to `main`     | builds the Windows and Linux bundles, uploads them as artifacts |
+| `artifact-comment.yml`                          | after a PR build | comments the download links on the PR                           |
+| `release.yml`                                   | tag `v*`         | builds, signs and drafts a GitHub release                       |
 
 Jobs are skipped when nothing relevant changed — the path filters live in
 `.github/filters.yml`.

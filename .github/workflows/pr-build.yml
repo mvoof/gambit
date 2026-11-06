@@ -18,13 +18,30 @@ permissions:
   pull-requests: read
 
 jobs:
+  check-changes:
+    name: Check Changes
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.js == 'true' || steps.filter.outputs.rust == 'true' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check for file changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: .github/filters.yml
+
   build-app:
     name: Build Preview
+    needs: check-changes
+    if: ${{ github.event_name == 'workflow_dispatch' || needs.check-changes.outputs.app == 'true' }}
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest]
+        platform: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
+    environment: pr-review
     steps:
       - uses: actions/checkout@v5
 

@@ -2,27 +2,33 @@ import { makeAutoObservable, runInAction } from 'mobx';
 
 import {
   chooseEngine,
-  downloadStockfish,
+  fetchEngineCatalog,
   fetchEngineStatus,
+  installEngine,
+  removeEngine,
 } from '@shared/api/engine.service';
 import { onEngineInstall } from '@shared/api/events.service';
 import { pickFile } from '@shared/api/system.service';
 import type {
+  CatalogEntry,
   EngineInfo,
   EngineInstallProgress,
 } from '@shared/contracts/generated/bindings';
 
-const ENGINE_EXTENSIONS = ['exe'];
-
 export class EngineStore {
   engine: EngineInfo | null = null;
+  catalog: CatalogEntry[] = [];
   isLoaded = false;
-  isInstalling = false;
+  installingId: string | null = null;
   progress: EngineInstallProgress | null = null;
   error: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  get isInstalling() {
+    return this.installingId !== null;
   }
 
   start = async () => {
@@ -31,7 +37,21 @@ export class EngineStore {
         this.progress = progress;
       });
     });
-    await this.refresh();
+    await Promise.all([this.refresh(), this.refreshCatalog()]);
+  };
+
+  refreshCatalog = async () => {
+    try {
+      const catalog = await fetchEngineCatalog();
+
+      runInAction(() => {
+        this.catalog = catalog;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = String(error);
+      });
+    }
   };
 
   refresh = async () => {
@@ -52,7 +72,7 @@ export class EngineStore {
     }
   };
 
-  private install = async (action: () => Promise<EngineInfo>) => {
+  private apply = async (action: () => Promise<EngineInfo>) => {
     this.error = null;
 
     try {
@@ -68,25 +88,43 @@ export class EngineStore {
     }
   };
 
-  download = async () => {
-    this.isInstalling = true;
-    await this.install(downloadStockfish);
+  install = async (id: string) => {
+    this.installingId = id;
+    await this.apply(() => installEngine(id));
+    await this.refreshCatalog();
 
     runInAction(() => {
-      this.isInstalling = false;
+      this.installingId = null;
       this.progress = null;
     });
   };
 
+  activate = (path: string) => this.apply(() => chooseEngine(path));
+
+  remove = async (id: string) => {
+    this.error = null;
+
+    try {
+      await removeEngine(id);
+    } catch (error) {
+      runInAction(() => {
+        this.error = String(error);
+      });
+    }
+
+    await this.refreshCatalog();
+  };
+
   /** `true` when an engine was chosen, so the settings can reload. */
   pickOwnEngine = async () => {
-    const path = await pickFile(ENGINE_EXTENSIONS);
+    // No filter: a Linux engine has no extension to filter by.
+    const path = await pickFile();
 
     if (!path) {
       return false;
     }
 
-    await this.install(() => chooseEngine(path));
+    await this.apply(() => chooseEngine(path));
 
     return true;
   };

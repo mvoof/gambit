@@ -47,11 +47,14 @@ shakmaty = "0.30"
 pgn-reader = "0.29"
 # Saved games. Bundled so no system SQLite is needed on Windows builds.
 rusqlite = { version = "0.41", features = ["bundled"] }
-# Stockfish download: the pinned release, checked against its SHA-256.
+# Engine downloads: pinned releases, checked against their SHA-256.
 reqwest = { version = "0.13", default-features = false, features = ["rustls", "stream"] }
 futures-util = "0.3"
 sha2 = "0.11"
 zip = { version = "9", default-features = false, features = ["deflate"] }
+# Stockfish ships as a .tar.gz on Linux.
+tar = { version = "0.4", default-features = false }
+flate2 = "1"
 # Sprite sheets of custom pieces. Formats named in the spec only.
 image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
 # Custom piece images reach the webview as data URLs.

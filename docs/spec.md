@@ -33,7 +33,7 @@ repeated what the engine had found, and the engine can show that directly.
 | ------------ | ------------------------------------------------------------- |
 | `gb-model`   | every wire type and event name, nothing else                  |
 | `gb-chess`   | shakmaty game state, draw rules, stable piece ids, PGN, clock |
-| `gb-engine`  | UCI process driver, Stockfish installer, score parsing        |
+| `gb-engine`  | UCI process driver, engine catalogue, score parsing           |
 | `gb-archive` | saved games in SQLite                                         |
 | `gb-pieces`  | custom piece import, sprite slicing (to add, `image` crate)   |
 | app          | session orchestration, Tauri commands, settings file          |
@@ -80,12 +80,15 @@ fifty-move rule, insufficient material. Also resign, draw offer and takeback.
 
 **Engine**, any UCI binary:
 
-- Default: Stockfish 19 downloaded on demand, never in the installer.
-  - URL: `https://github.com/official-stockfish/Stockfish/releases/download/sf_19/stockfish-windows-x86-64-universal.zip`
-  - 81431614 bytes
-  - sha256 `3c8bf1f9ea66a09350a40df4f632288285ac206d99f33ab5842c408fc30b48a7`
-- A settings tab offers: download Stockfish, pick your own `.exe`, links to other
-  UCI engines.
+- Engines are downloaded on demand, never in the installer, from a catalogue of
+  pinned releases (`gb-engine/src/catalog.rs`): URL, size and sha256 per platform,
+  an AVX2 build where the CPU has it and a baseline one otherwise. Only engines
+  with a build for the machine are offered. A release's sha256 comes from the
+  `digest` of its GitHub asset.
+- A settings tab lists the catalogue with install, use and remove, picks your own
+  binary and links to engines the catalogue cannot hold: Lc0 needs a separate
+  network, Obsidian publishes no digests.
+- An engine must answer the UCI handshake before it becomes the one in use.
 - Name and the `UCI_Elo` range are read from the engine's `uci` reply. Strength
   goes through `UCI_LimitStrength`; an engine without it gets a depth or time
   limit.
@@ -166,6 +169,9 @@ with the pinned hash, a timed game, premove, takeback, draw offer, resignation,
 autosave, archive, replay and the evaluation bar. The window has no native title
 bar: the app header drags it and holds its buttons. Icons come from
 `tauri icon`, the original is in `src/assets/brand`.
+
+The app builds for Windows and Linux (x86-64): `nsis`, `msi`, `deb` and `appimage`.
+macOS is not a target yet.
 
 Versions are the latest stable releases, chosen on their own merit. Tauri stays
 on 2.x while 3.x is alpha.

@@ -5,8 +5,8 @@ import styles from './EngineLinks.module.scss';
 
 const OTHER_ENGINES = [
   { name: 'Lc0', url: 'https://lczero.org/play/download/' },
-  { name: 'Berserk', url: 'https://github.com/jhonnold/berserk/releases' },
-  { name: 'Ethereal', url: 'https://github.com/AndyGrant/Ethereal/releases' },
+  { name: 'Obsidian', url: 'https://github.com/gab8192/Obsidian/releases' },
+  { name: 'CCRL', url: 'https://computerchess.org.uk/ccrl/4040/' },
 ];
 
 export const EngineLinks = () => {
