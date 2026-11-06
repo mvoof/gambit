@@ -4,7 +4,18 @@
 
 # Gambit
 
-Chess against a real engine, and training to get better. See `docs/spec.md`.
+<p align="center">
+  <a href="https://github.com/mvoof/gambit/releases"><img src="https://img.shields.io/github/package-json/v/mvoof/gambit?label=version" alt="Version"></a>
+  <a href="https://github.com/mvoof/gambit/actions/workflows/release.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/release.yml/badge.svg?event=push" alt="Release"></a>
+  <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-informational" alt="Platforms: Windows and Linux">
+  <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&amp;logoColor=white" alt="Tauri 2">
+  <img src="https://img.shields.io/badge/engines-UCI-informational" alt="UCI engines">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
+  <a href="https://github.com/mvoof/gambit/releases"><img src="https://img.shields.io/github/downloads/mvoof/gambit/total" alt="Downloads"></a>
+</p>
+
+Chess against a real engine, and training to get better. See `docs/spec.md`, and
+`CHANGELOG.md` for what changed.
 
 ![Home screen: new game, recent games and statistics](docs/screenshots/home.png)
 
@@ -16,7 +27,7 @@ Chess against a real engine, and training to get better. See `docs/spec.md`.
 | ------------------------------------- | --------------------------------------------------------- |
 | `npm run tauri:dev`                   | Run the desktop app in dev mode (Vite + Rust, hot reload) |
 | `npm run dev`                         | Vite only — the web part, without the Tauri shell         |
-| `npm run tauri:build:dev`             | Unsigned dev build (`nsis`), for sharing a preview        |
+| `npm run tauri:build:dev`             | Unsigned dev build (`nsis`, `deb`), for sharing a preview |
 | `npm run tauri:build:release`         | Release build with all bundle targets                     |
 | `npm run lint` / `lint:fix`           | oxlint, type-aware                                        |
 | `npm run format` / `format:check`     | oxfmt                                                     |
