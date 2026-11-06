@@ -134,4 +134,4 @@ colors from `src/styles/_tokens.scss`. Never hardcode a hex in a component.
 
 ## License
 
-MIT
+[GPL-3.0-or-later](LICENSE)
