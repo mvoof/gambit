@@ -4,15 +4,17 @@
 
 # Gambit
 
-[![Version](https://img.shields.io/github/package-json/v/mvoof/gambit?label=version)](https://github.com/mvoof/gambit/releases)
-[![Quality](https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml/badge.svg?event=pull_request)](https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml)
-[![Build](https://github.com/mvoof/gambit/actions/workflows/pr-build.yml/badge.svg?event=pull_request)](https://github.com/mvoof/gambit/actions/workflows/pr-build.yml)
-[![Release](https://github.com/mvoof/gambit/actions/workflows/release.yml/badge.svg?event=push)](https://github.com/mvoof/gambit/actions/workflows/release.yml)
-![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-informational)
-![Tauri](https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&logoColor=white)
-![Engines](https://img.shields.io/badge/engines-UCI-informational)
-[![License](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/mvoof/gambit/total)](https://github.com/mvoof/gambit/releases)
+<p align="center">
+  <a href="https://github.com/mvoof/gambit/releases"><img src="https://img.shields.io/github/package-json/v/mvoof/gambit?label=version" alt="Version"></a>
+  <a href="https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/pr-quality-check.yml/badge.svg?event=pull_request" alt="Quality"></a>
+  <a href="https://github.com/mvoof/gambit/actions/workflows/pr-build.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/pr-build.yml/badge.svg?event=pull_request" alt="Build"></a>
+  <a href="https://github.com/mvoof/gambit/actions/workflows/release.yml"><img src="https://github.com/mvoof/gambit/actions/workflows/release.yml/badge.svg?event=push" alt="Release"></a>
+  <img src="https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-informational" alt="Platforms: Windows and Linux">
+  <img src="https://img.shields.io/badge/Tauri-2-24C8DB?logo=tauri&amp;logoColor=white" alt="Tauri 2">
+  <img src="https://img.shields.io/badge/engines-UCI-informational" alt="UCI engines">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-blue" alt="License: GPL-3.0-or-later"></a>
+  <a href="https://github.com/mvoof/gambit/releases"><img src="https://img.shields.io/github/downloads/mvoof/gambit/total" alt="Downloads"></a>
+</p>
 
 Chess against a real engine, and training to get better. See `docs/spec.md`, and
 `CHANGELOG.md` for what changed.
